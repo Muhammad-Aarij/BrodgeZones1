@@ -1,34 +1,58 @@
 import React, { Component, useState } from 'react'
-import { StyleSheet, View, Text, TextInput, Pressable } from 'react-native'
+import { StyleSheet, View, Text, TextInput, Pressable,ImageBackground,Alert, Touchable, TouchableOpacity } from 'react-native'
+import bg from '../Images/bg.png'
+import fetchOTP from '../Functions/GetOtpode';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function SignIn({navigation}) {
 
-    const [phonenumber, setPhoneNumber] = useState('');
-    
+export default function SignIn({ navigation }) {
+
+    const [phonenumber, setPhoneNumber] = useState('15896478912');
+
     const handlePhoneNumberChange = (text) => {
         // Remove any non-numeric characters
         const cleaned = text.replace(/[^0-9]/g, '');
         setPhoneNumber(cleaned);
     };
 
+    const handleFetchOTP = async () => {
+        // setLoading(true);
+        console.log("Strted");
+        try {
+            const otpResult = await fetchOTP(phonenumber);
+            if (otpResult.IsSuccess) {
+                await AsyncStorage.setItem('@UserNumber', phonenumber);
+                console.log(otpResult.OTP);
+                navigation.navigate("OTPScreen",{
+                    phoneNo: phonenumber,
+                });
+            } else {
+                Alert.alert('Error', 'Failed to fetch OTP. Please try again.');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to fetch OTP. Please try again.');
+        } finally {
+            console.log("endd");
+        //   setLoading(false);
+        }
+      };
+
     return (
-        <View style={styles.container}>
+        <ImageBackground source={bg} style={styles.container}>
             <Text style={styles.txt}>Sign In</Text>
             <TextInput
                 placeholder='Enter phone number'
                 style={styles.input}
                 onChangeText={handlePhoneNumberChange}
                 value={phonenumber}
-                 keyboardType='numeric'
-                 maxLength={11}
+                keyboardType='numeric'
+                maxLength={11}
             />
 
-            <Pressable style={styles.button} onPress={()=>{
-                navigation.navigate("Mainpage")
-            }}>
+            <TouchableOpacity style={styles.button} onPress={handleFetchOTP}>
                 <Text style={{ color: 'white', fontWeight: 'bold' }}>Sign In</Text>
-            </Pressable>
-        </View>
+            </TouchableOpacity>
+        </ImageBackground>
     )
 }
 
@@ -55,8 +79,9 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
         borderRadius: 5,
-        fontSize: 18,
-        color: '#333'
+        fontSize: 15,
+        color: '#333',
+        
     },
     button: {
         backgroundColor: '#4BAAC8',
@@ -66,6 +91,17 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         width: "60%",
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        
+        shadowColor:"#7e7b7b",
+        shadowOffset: {
+            width: 3,
+            height: 3,
+        },
+        shadowOpacity: 0,
+        shadowRadius: 5,
+        elevation: 6,
+        
+        
     }
 });

@@ -16,7 +16,8 @@ export default function Attendance({navigation}) {
                     navigation.navigate("AttendanceHistory")
                 }}>
                     <Image style={styles.img} source={attendance}></Image>
-                    <Text style={styles.txt}>Summary Wifi</Text>
+                    <Text style={styles.txt}>Attendance</Text>
+                    <Text style={styles.txt}>Record</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tile}>
                     <Image style={styles.img} source={mappin}></Image>

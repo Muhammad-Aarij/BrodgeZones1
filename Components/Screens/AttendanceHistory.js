@@ -1,5 +1,5 @@
 import React, { Component, useState } from 'react'
-import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity } from 'react-native'
+import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView } from 'react-native'
 import magnifying from '../Images/magnifying.png'
 import DatePicker from 'react-native-date-picker'
 
@@ -25,7 +25,8 @@ export default function AttendanceHistory() {
                 </Pressable>
             </View>
 
-            {!search && <View style={styles.monthContainer}>
+            {!search && 
+            <View style={styles.monthContainer}>
                 <Text style={{ fontSize: 16, color: "white", marginBottom: 10 }}>Month's Statistics</Text>
                 <View style={styles.monthline}>
                     <Text style={styles.txt}>Present</Text>
@@ -44,21 +45,49 @@ export default function AttendanceHistory() {
                     <Text style={styles.txt}>80%</Text>
                 </View>
             </View>}
-            {!search && <View style={styles.dailyattendance}>
-                <View style={styles.dailyline}>
-                    <Text style={styles.txt}>22-07-2024</Text>
-                    <Text style={styles.txt}>Present</Text>
-                </View>
-                <View style={styles.dailyline}>
-                    <Text style={styles.txt}>21-07-2024</Text>
-                    <Text style={styles.txt}>Absent</Text>
-                </View>
-                <View style={styles.dailyline}>
-                    <Text style={styles.txt}>20-07-2024</Text>
-                    <Text style={styles.txt}>Present</Text>
-                </View>
+            {!search && <ScrollView style={styles.dailyattendance}>
+                <Text style={{ fontSize: 16, marginBottom: 10,fontWeight:"800"  }}>{"Attendance History"}</Text>
 
-            </View>}
+               
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>22-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>21-07-2024</Text>
+                        <Text style={styles.txt}>Absent</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>20-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>20-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>20-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>20-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>20-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>20-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+                    <View style={styles.dailyline}>
+                        <Text style={styles.txt}>20-07-2024</Text>
+                        <Text style={styles.txt}>Present</Text>
+                    </View>
+           
+
+            </ScrollView>}
 
             {search &&
                 <View style={styles.searchsection}>
@@ -84,24 +113,13 @@ export default function AttendanceHistory() {
                 </View>}
             {search &&
                 <View style={styles.searchresult}>
-                    <Text style={{ fontSize: 16, marginBottom: 10, }}>{"Attendance History"}</Text>
+                    <Text style={{ fontSize: 16, marginBottom: 10, fontWeight:"900",alignSelf:"center"}}>{"Search Result"}</Text>
 
                     <View style={styles.dailyline}>
                         <Text style={styles.txt}>22-07-2024</Text>
                         <Text style={styles.txt}>Present</Text>
                     </View>
-                    <View style={styles.dailyline}>
-                        <Text style={styles.txt}>22-07-2024</Text>
-                        <Text style={styles.txt}>Present</Text>
-                    </View>
-                    <View style={styles.dailyline}>
-                        <Text style={styles.txt}>22-07-2024</Text>
-                        <Text style={styles.txt}>Present</Text>
-                    </View>
-                    <View style={styles.dailyline}>
-                        <Text style={styles.txt}>22-07-2024</Text>
-                        <Text style={styles.txt}>Present</Text>
-                    </View>
+                   
                 </View>}
         </View>
     )
@@ -132,7 +150,7 @@ const styles = StyleSheet.create({
     monthContainer: {
         marginTop: 10,
         padding: 20,
-        width: "90%",
+        width: "70%",
         backgroundColor: '#4BAAC8',
         borderRadius: 7,
         flexDirection: "column",
@@ -155,14 +173,14 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     dailyattendance: {
-        marginTop: 40,
+        marginTop: 20,
         padding: 20,
         width: "100%",
-        backgroundColor: '#d3d3d3',
+        // backgroundColor: '#d3d3d3',
         borderRadius: 7,
         flexDirection: "column",
-        justifyContent: 'center',
-        alignItems: 'center',
+        // justifyContent: 'center',
+        // alignItems: 'center',
     },
     dailyline: {
         flexDirection: 'row',
@@ -194,7 +212,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 7,
         padding: 10,
-
+        marginTop: 10,
     },
     button: {
         backgroundColor: 'white',
