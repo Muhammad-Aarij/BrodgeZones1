@@ -24,6 +24,14 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Need access to Face ID for authentication</string>
+	<key>NSTouchIDUsageDescription</key>
+	<string>Need access to photo library for authentication</string>
+<!-- Geo-location -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to verify your presence at the office.</string>
+<!--  -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
 	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->

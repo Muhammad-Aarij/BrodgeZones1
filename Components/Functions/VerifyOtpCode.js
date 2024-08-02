@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const API_BASE_URL = 'https://api1.bridgecitycabs.com/api/Auth/VerifiyOTPCodeforSignup';
 
@@ -14,16 +15,17 @@ const VerifyOTP = async (OTP) => {
         });
 
         if (response.status === 200) {
-            const data = response.data; 
-            await AsyncStorage.setItem('@Login', 'true'); 
+            const data = response.data;
+            await AsyncStorage.setItem('@Login', 'true');
             console.log("Success: ", data);
-            return data.IsSuccess; 
-        } else {
-            throw new Error('Failed to verify OTP');
+            return data.IsSuccess;
+        } else if (response.status === 400) {
+            return response.data.IsSuccess;
         }
     } catch (error) {
         console.error('Error Verifying OTP:', error);
-        throw error; 
+        Alert.alert('Network Error',"Error Verifying OTP");
+        return  ;
     }
 };
 

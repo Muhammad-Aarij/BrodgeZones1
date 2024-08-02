@@ -3,16 +3,19 @@ import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert } from 'reac
 import VerifyOTP from '../Functions/VerifyOtpCode';
 import fetchOTP from '../Functions/GetOtpode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LoaderModal from '../Loaders/LoaderModal';
 
 
-export default function OTPInput({ pinCount = 6, navigation,route }) {
+export default function OTPInput({ pinCount = 6, navigation, route }) {
     const [otp, setOtp] = useState(Array(pinCount).fill(''));
     const [timer, setTimer] = useState(30);
     const inputRefs = useRef([]);
-    
+    const [isLoading, setIsLoading] = useState(false);
+
+
     const handleChange = (text, index) => {
         const newOtp = [...otp];
-        newOtp[index] = text.replace(/[^0-9]/g, ''); 
+        newOtp[index] = text.replace(/[^0-9]/g, '');
         setOtp(newOtp);
 
         if (text.length > 0 && index < pinCount - 1) {
@@ -21,18 +24,23 @@ export default function OTPInput({ pinCount = 6, navigation,route }) {
     };
 
     const handleFetchOTP = async () => {
+        setOtp(Array(pinCount).fill(''));
+        inputRefs.current[0].focus();
         const phoneNumber = await AsyncStorage.getItem("@UserNumber");
         console.log("Strted");
         try {
+            setIsLoading(true);
             const otpResult = await fetchOTP(phoneNumber);
             if (otpResult.IsSuccess) {
-
                 console.log(otpResult.OTP);
-                setTimer(30); 
+                setTimer(30);
+                setIsLoading(false);
             } else {
                 Alert.alert('Error', 'Failed to fetch OTP. Please try again.');
+                setIsLoading(false);
             }
         } catch (error) {
+            setIsLoading(false);
             Alert.alert('Error', 'Failed to fetch OTP.');
         } finally {
             console.log("endd");
@@ -64,54 +72,58 @@ export default function OTPInput({ pinCount = 6, navigation,route }) {
     const handleSubmit = async () => {
         const otpCode = otp.join('');
         if (otpCode.length === pinCount) {
-            try {
-                const verify = await VerifyOTP(otpCode);
-                if (verify) {
-                    
-                    navigation.navigate("Mainpage");
-                } else {
-                    Alert.alert('Error', 'Invalid OTP code. Please try again.');
-                    setOtp(Array(pinCount).fill(''));
-                }
-            } catch (error) {
-                console.error('Network Error:', error);
-                Alert.alert('Network Error', 'Failed to verify OTP. Please check your network connection.');
+            setIsLoading(true);
+            const verify = await VerifyOTP(otpCode);
+            if (verify) {
+                setIsLoading(false);
+                await AsyncStorage.setItem("@Login", "true");
+                navigation.navigate("Mainpage");
+            } else {
+                setIsLoading(false);
+                Alert.alert('Error', 'Invalid OTP code. Please try again');
             }
-        } else {
+        }
+        else {
             Alert.alert('Error', 'Please complete the OTP input.');
         }
     };
 
     return (
-        <View style={styles.maincontainer}>
-            <View style={styles.container}>
-                <Text style={{ ...styles.title, fontWeight: 'bold', fontSize: 24, marginBottom: 10 }}>Verification</Text>
-                <Text>Enter the 6-digit OTP code sent to <Text style={{fontWeight:"bold"}}>+{route.params.phoneNo}</Text></Text>
-                <View style={styles.containerinputs}>
-                    {otp.map((_, index) => (
-                        <TextInput
-                            key={index}
-                            ref={(ref) => (inputRefs.current[index] = ref)}
-                            style={styles.input}
-                            keyboardType='numeric'
-                            maxLength={1}
-                            onChangeText={(text) => handleChange(text, index)}
-                            value={otp[index]}
-                            textAlign='center'
-                            onKeyPress={(e) => handleKeyPress(e, index)}
-                        />
-                    ))}
-                </View>
-                <View style={styles.timer}>
-                    <Text style={{ ...styles.title, fontWeight: 'bolder', fontSize: 16, fontWeight:"bold" }}>Don't receive the code?</Text>
-                    {timer != 0 && <Text style={{ fontSize: 14 }}>Wait {timer} sec</Text>}
-                    {timer == 0 && <Text style={{ fontSize: 14 }} onPress={handleFetchOTP}>Send Again</Text>}
-                </View>
-                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                    <Text style={styles.buttonText}>Submit</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        <>
+            {
+                isLoading ?
+                    <LoaderModal /> 
+                    :
+                    <View style={styles.maincontainer}>
+                        <View style={styles.container}>
+                            <Text style={{ ...styles.title, fontWeight: 'bold', fontSize: 24, marginBottom: 10 }}>Verification</Text>
+                            <Text>Enter the 6-digit OTP code sent to <Text style={{ fontWeight: "bold" }}>+{route.params.phoneNo}</Text></Text>
+                            <View style={styles.containerinputs}>
+                                {otp.map((_, index) => (
+                                    <TextInput
+                                        key={index}
+                                        ref={(ref) => (inputRefs.current[index] = ref)}
+                                        style={styles.input}
+                                        keyboardType='numeric'
+                                        maxLength={1}
+                                        onChangeText={(text) => handleChange(text, index)}
+                                        value={otp[index]}
+                                        textAlign='center'
+                                        onKeyPress={(e) => handleKeyPress(e, index)}
+                                    />
+                                ))}
+                            </View>
+                            <View style={styles.timer}>
+                                <Text style={{ ...styles.title, fontWeight: 'bolder', fontSize: 16, fontWeight: "bold" }}>Don't receive the code?</Text>
+                                {timer != 0 && <Text style={{ fontSize: 14 }}>Wait {timer} sec</Text>}
+                                {timer == 0 && <Text style={{ fontSize: 14 }} onPress={handleFetchOTP}>Send Again</Text>}
+                            </View>
+                            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                                <Text style={styles.buttonText}>Submit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>}
+        </>
     );
 }
 
@@ -150,7 +162,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 5,
-        shadowColor:"#7e7b7b",
+        shadowColor: "#7e7b7b",
         shadowOffset: {
             width: 3,
             height: 3,

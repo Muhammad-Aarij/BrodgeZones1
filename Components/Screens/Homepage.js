@@ -1,8 +1,8 @@
 import React, { Component, useState, useEffect } from 'react'
 import { ActivityIndicator, ImageBackground, StyleSheet, Text } from 'react-native';
-import homepage from '../Images/homepage.png'
+import homepage from '../Images/splash.png'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import HandleBiometricAuth from '../Functions/FingerPrintScanner';
 
 export default function Homepage({ navigation }) {
 
@@ -12,21 +12,26 @@ export default function Homepage({ navigation }) {
         const checkLoginStatus = async () => {
             try {
                 const loginStatus = await AsyncStorage.getItem('@Login');
-                setTimeout(() => {
+                setTimeout(async () => {
                     if (loginStatus === 'true') {
-                        navigation.navigate('Mainpage');
+                        const biometricCheck = await HandleBiometricAuth();
+                        if (biometricCheck) {
+                            navigation.navigate('Mainpage');
+                        } else {
+                            navigation.navigate('Signin');
+                        }
                     } else {
                         navigation.navigate('Signin');
                     }
                 }, 3000); // 3 seconds timeout
             } catch (error) {
                 console.error('Error fetching login status:', error);
-                setInitialRoute('Signin');
+                navigation.navigate('Signin');
             }
         };
 
         checkLoginStatus();
-    }, []);
+    }, [navigation]);
 
     return (
         <ImageBackground source={homepage} style={styles.main} >
