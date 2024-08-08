@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, Text, TouchableOpacity, View, Alert, ScrollView, Platform, PermissionsAndroid, Animated } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, TouchableOpacity, View, Alert, ScrollView, Platform, PermissionsAndroid, Animated, useWindowDimensions, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MarkAttendace from '../Functions/MarkAttendance';
 import { Table, Row } from 'react-native-table-component';
@@ -12,6 +12,7 @@ import moment from 'moment';
 import LoaderModal from '../Loaders/LoaderModal';
 import SuccessModal from '../Loaders/SuccessModal';
 
+const { width } = Dimensions.get('window');
 export default function MarkAttendance() {
     const [attendanceData, setAttendanceData] = useState([]);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -103,7 +104,7 @@ export default function MarkAttendance() {
             });
 
             setIsButtonDisabled(checkInFound);
-            setIsCheckOutDisabled(checkOutFound);
+            // setIsCheckOutDisabled(checkOutFound);
         } catch (error) {
             console.error(error);
         }
@@ -163,7 +164,7 @@ export default function MarkAttendance() {
                                 fetchAttendanceSheet();
                             }
                             setShowSuccessModal(true);
-                            setTimeout(() => setShowSuccessModal(false), 3000); // Close modal after 3 seconds
+                            setTimeout(() => setShowSuccessModal(false), 3000);
                         } else {
                             Alert.alert('Error', 'Please try again later.');
                         }
@@ -207,7 +208,7 @@ export default function MarkAttendance() {
                                     onPress={() => handleAttendance("Check In")}
                                     disabled={isButtonDisabled}
                                 >
-                                    <Text style={{ color: isButtonDisabled ? "#909090" : "white" }}>
+                                    <Text style={{ fontSize: width * 0.04, color: isButtonDisabled ? "#909090" : "white" }}>
                                         Check In
                                     </Text>
                                 </TouchableOpacity>
@@ -218,7 +219,7 @@ export default function MarkAttendance() {
                                     onPress={() => handleAttendance("Check Out")}
                                     disabled={isCheckOutDisabled}
                                 >
-                                    <Text style={{ color: isCheckOutDisabled ? "#909090" : "white" }}>
+                                    <Text style={{ fontSize: width * 0.04, color: isCheckOutDisabled ? "#909090" : "white" }}>
                                         Check Out
                                     </Text>
                                 </TouchableOpacity>
@@ -228,7 +229,7 @@ export default function MarkAttendance() {
                             {!isLoading ?
                                 <View>
                                     <Table borderStyle={{ alignSelf: "center" }}>
-                                        <Row data={tableHead} widthArr={widthArr} style={styles.header} textStyle={{ color: "black", backgroundColor: "#F0FFFF", fontSize: 14, marginBottom: 10, alignSelf: "center", }} />
+                                        <Row data={tableHead} widthArr={widthArr} style={styles.header} textStyle={{ color: "black", backgroundColor: "#F0FFFF", fontSize: width * 0.035, marginBottom: 10, alignSelf: "center", }} />
                                     </Table>
                                     <ScrollView style={styles.dataWrapper}>
                                         <Table borderStyle={{ borderWidth: 0 }}>
@@ -264,7 +265,7 @@ export default function MarkAttendance() {
 const styles = StyleSheet.create({
     maincontainer: {
         flex: 1,
-        backgroundColor: "#E8E8E8",
+        backgroundColor: "#eeedec",
         paddingTop: 17,
         flexDirection: 'column',
     },
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
         color: "gray",
     },
     txt: {
-        fontSize: 15,
+        fontSize: width * 0.037,
         color: "white",
     },
     footerText: {
@@ -321,14 +322,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 5,
         marginTop: 15,
+        paddingVertical:10,
         color: 'white',
     },
-    row:{
-        backgroundColor:"#a1dcef",
-        borderRadius:5,
+    row: {
+        backgroundColor: "#a1dcef",
+        borderRadius: 5,
     },
     status: {
-        
+
         width: "100%",
         height: 200,
         justifyContent: 'space-between',
@@ -390,7 +392,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
     },
     date: {
-        fontSize: 32,
+        fontSize: width * 0.078,
         color: "white",
         marginBottom: 10,
         // fontWeight:"bold",
@@ -399,20 +401,21 @@ const styles = StyleSheet.create({
     },
     time: {
         fontFamily: "sans-serif-thin",
-        fontSize: 18,
+        fontSize: width * 0.045,
         color: "white",
     },
     rowTextStyle: {
         color: "#666362",
-        fontSize: 14,
+        fontSize: width * 0.035,
         paddingTop: 7,
         alignSelf: "center",
         paddingBottom: 7,
     },
     evenIndexText: {
+        fontSize: width * 0.035,
         color: "#494F55",
     },
-    line:{
+    line: {
         width: "100%",
         height: 1,
         backgroundColor: '#D3D3D3',

@@ -1,20 +1,99 @@
 import React, { useEffect, useState } from 'react';
-import bg from '../Images/bg.png';
-import { View, Text, Image, StyleSheet, ImageBackground, TouchableOpacity, TextInput, Alert } from 'react-native';
-import profile from '../Images/aj.jpg';
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert, ScrollView, Modal, Dimensions } from 'react-native';
 import LoaderModal from '../Loaders/LoaderModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GetEmployeeProfileDetails from '../Functions/GetEmployeeProfileDetails';
 import PostEmployeeProfileDetails from '../Functions/PostEmployeeProfileDetails';
+import noimg from '../Images/nouser.jpg';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import UpdateProfileImage from '../Functions/UpdateProfileImage';
+
+const { width } = Dimensions.get('window');
 
 export default function Profile() {
-    const [name, setName] = useState('Muhammad Aarij');
-    const [email, setEmail] = useState('aarijm5@gmail.com');
-    const [contact, setContact] = useState('03219548171');
-    const [address, setAddress] = useState('University town, Islamabad');
-    const [picture, setPicture] = useState('Call Center');
+    const [name, setName] = useState('');
+    const [firstname, setgfirstName] = useState('');
+    const [lastname, setlastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [contact, setContact] = useState('');
+    const [address, setAddress] = useState('');
+    const [picture, setPicture] = useState(null);
+    const [newpicture, setNewPicture] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const requestCameraPermission = async () => {
+        const result = await request(PERMISSIONS.ANDROID.CAMERA);
+        return result;
+    };
+
+    const pickImageFromGallery = () => {
+        const options = {
+            mediaType: 'photo',
+            maxWidth: 300,
+            maxHeight: 300,
+            quality: 1,
+        };
+
+        launchImageLibrary(options, response => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.errorCode) {
+                console.log('ImagePicker Error: ', response.errorMessage);
+            } else {
+                setModalVisible(!modalVisible)
+                const file = response.assets[0];
+                setPicture(file.uri);
+                setNewPicture(file.uri);
+                updateImage(file);
+            }
+        });
+    };
+
+    const takePhotoWithCamera = async () => {
+        const permissionResult = await requestCameraPermission();
+        if (permissionResult === RESULTS.GRANTED) {
+            const options = {
+                mediaType: 'photo',
+                maxWidth: 300,
+                maxHeight: 300,
+                quality: 1,
+            };
+
+            launchCamera(options, response => {
+                if (response.didCancel) {
+                    console.log('User cancelled camera');
+                } else if (response.errorCode) {
+                    console.log('Camera Error: ', response.errorMessage);
+                } else {
+                    setModalVisible(!modalVisible)
+                    const source = { uri: response.assets[0].uri };
+                    setModalVisible(false);
+                    setNewPicture(source.uri);
+                    updateImage(source);
+                }
+            });
+        } else {
+            Alert.alert('Camera permission denied');
+        }
+    };
+
+    const updateImage = async (img) => {
+        setIsLoading(true);
+        const number = await AsyncStorage.getItem("@UserNumber");
+        console.log("Image" + img);
+        console.log("Number" + number);
+        const sendImg = await UpdateProfileImage(img, number);
+
+        if (sendImg) {
+            setIsLoading(false);
+            setPicture(img);
+        } else {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         const getProfileDetails = async () => {
@@ -25,7 +104,7 @@ export default function Profile() {
                 if (data) {
                     setName(data.Name);
                     setEmail(data.Email);
-                    setContact(data.PhoneNumber);
+                    setContact(number);
                     setAddress(data.Address);
                     setPicture(data.PicturePath);
                 }
@@ -39,13 +118,16 @@ export default function Profile() {
     }, []);
 
     const handleSave = async () => {
+        const number = await AsyncStorage.getItem('@UserNumber');
         setIsLoading(true);
         const data = {
             createdBy: email,
             modifiedBy: email,
-            firstName: name,
-            contactNo: contact,
-            address: address
+            firstName: firstname,
+            lastName: lastname,
+            contactNo: number,
+            address: address,
+            email: email
         };
         const success = await PostEmployeeProfileDetails(data);
         if (success) {
@@ -62,25 +144,58 @@ export default function Profile() {
             {isLoading ?
                 <LoaderModal />
                 :
-                <ImageBackground source={bg} style={styles.maincontainer}>
-                    <Text style={styles.heading}>Profile</Text>
-                    <Image style={styles.profileimage} source={{ uri: picture }} />
+                <ScrollView style={styles.maincontainer}
+                    contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
+                    <View style={styles.header}>
+                        <Text style={styles.heading}>Profile</Text>
+                    </View>
+                    <View style={styles.imageContainer}>
+                        {picture == null ? (
+                            <Image style={styles.profileimage} source={noimg} />
+                        ) : (
+                            <Image style={styles.profileimage} source={{ uri: picture }} />
+                        )}
+                        {
+                            <TouchableOpacity style={styles.changeButton} onPress={() => setModalVisible(true)}>
+                                <Text style={styles.buttonText}>+</Text>
+                            </TouchableOpacity>}
+                    </View>
                     <View style={styles.fielscontainer}>
-                        <View style={styles.dataline}>
+                       {<View style={styles.dataline}>
                             <Text style={styles.txt}>Name </Text>
                             <TextInput
                                 placeholder='Name'
-                                style={[styles.input, { backgroundColor: isEditable ? '#FFFFFF' : '#F0F0F0', color: isEditable ? 'black' : 'grey' }]}
+                                style={[styles.input, { backgroundColor: '#F0F0F0', color: 'grey' }]}
                                 onChangeText={setName}
                                 value={name}
+                                editable={false}
+                            />
+                        </View>}
+                       {/* {isEditable && <View style={styles.dataline}>
+                            <Text style={styles.txt}>First Name </Text>
+                            <TextInput
+                                placeholder='Enter First Name'
+                                style={[styles.input, { backgroundColor: isEditable ? '#FFFFFF' : '#F0F0F0', color: isEditable ? 'black' : 'grey' }]}
+                                onChangeText={setgfirstName}
+                                value={firstname}
                                 editable={isEditable}
                             />
-                        </View>
+                        </View>}
+                      {isEditable &&  <View style={styles.dataline}>
+                            <Text style={styles.txt}>last Name </Text>
+                            <TextInput
+                                placeholder='Enter Last  Name'
+                                style={[styles.input, { backgroundColor: isEditable ? '#FFFFFF' : '#F0F0F0', color: isEditable ? 'black' : 'grey' }]}
+                                onChangeText={setlastName}
+                                value={lastname}
+                                editable={isEditable}
+                            />
+                        </View>} */}
                         <View style={styles.dataline}>
                             <Text style={styles.txt}>Contact</Text>
                             <TextInput
                                 placeholder='Contact'
-                                style={[styles.input, { backgroundColor: !isEditable ? '#FFFFFF' : '#F0F0F0', color: !isEditable ? 'black' : 'grey' }]}
+                                style={[styles.input, { backgroundColor: '#F0F0F0', color: 'grey' }]}
                                 onChangeText={setContact}
                                 value={contact}
                                 editable={false}
@@ -118,7 +233,32 @@ export default function Profile() {
                             <Text style={{ color: "white" }}>Save</Text>
                         </TouchableOpacity>}
                     </View>
-                </ImageBackground>
+
+                    {/* Image Picker Modal */}
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                            setModalVisible(!modalVisible);
+                        }}
+                    >
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <Text style={styles.modalText}>Select Image</Text>
+                                <TouchableOpacity style={styles.modalButton} onPress={pickImageFromGallery}>
+                                    <Text style={styles.buttonText}>Choose from Gallery</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalButton} onPress={takePhotoWithCamera}>
+                                    <Text style={styles.buttonText}>Take Photo</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalButtoncross} onPress={() => setModalVisible(!modalVisible)}>
+                                    <Text style={styles.buttonTextcross}>X</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+                </ScrollView>
             }
         </>
     );
@@ -128,9 +268,8 @@ const styles = StyleSheet.create({
     maincontainer: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
         padding: 10,
+        backgroundColor: '#FFFFFF',
     },
     input: {
         height: 50,
@@ -140,12 +279,12 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
         borderRadius: 5,
-        fontSize: 15,
+        fontSize: width*0.038,
     },
     profileimage: {
         marginVertical: 20,
-        borderWidth: 5,
-        borderRadius: 100,
+        borderWidth: 3,
+        borderRadius: 20,
         borderColor: '#4BAAC8',
         width: 150,
         height: 150,
@@ -160,10 +299,10 @@ const styles = StyleSheet.create({
         elevation: 6,
     },
     heading: {
-        fontSize: 30,
+        fontSize: width*0.065,
         fontWeight: 'bold',
-        color: 'white',
-        marginTop: 50,
+        color: '#4BAAC8',
+        marginTop: 10,
     },
     button: {
         backgroundColor: '#4BAAC8',
@@ -186,9 +325,107 @@ const styles = StyleSheet.create({
         width: "80%",
     },
     txt: {
-        fontSize: 15,
+        fontSize: width*0.038,
         color: "#4BAAC8",
         marginBottom: 5,
         fontWeight: "bold",
-    }
+    },
+    header: {
+        width: "100%",
+        height: 70,
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        paddingLeft: 20,
+    },
+    heading: {
+        fontFamily: "sans-serif-black",
+        fontSize: 26,
+        color: '#4BAAC8',
+    },
+    imageContainer: {
+        position: 'relative',
+        marginVertical:15,
+    },
+    profileimage: {
+        width: 150,
+        height: 150,
+        borderRadius: 30,
+        borderWidth: 4,
+        borderColor: "#4BAAC8",
+    },
+    changeButton: {
+        position: 'absolute',
+        right: -10,
+        bottom: -10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#4BAAC8',
+        borderRadius: 20,
+        width: 30,
+        height: 29,
+        shadowOffset: {
+            width: 3,
+            height: 3,
+        },
+        shadowOpacity: 0,
+        shadowRadius: 5,
+        elevation: 6,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 14,
+    },
+    buttonTextcross: {
+        color: 'white',
+        fontSize: 10,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalButton: {
+        backgroundColor: '#4BAAC8',
+        borderRadius: 10,
+        padding: 10,
+        elevation: 2,
+        marginVertical: 5,
+        width: 190,
+    },
+    modalButtoncross: {
+        backgroundColor: 'red',
+        borderRadius: 10,
+        // padding: 10,
+        justifyContent:"center",
+        alignItems:"center",
+        marginVertical: 5,
+        marginTop: 15,
+        width: 30,
+        height: 30,
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+        fontSize: 14,
+        color: "black",
+        fontWeight: 'bold',
+    },
 });

@@ -2,16 +2,19 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 
-export default function LoaderModal({ message}) {
+export default function FailedModal({ message, onClose }) {
+  
+
     return (
         <View style={[StyleSheet.absoluteFillObject, styles.maincontainer]}>
             <View style={styles.modal}>
                 <LottieView
                     style={styles.animation}
-                    source={require('../Images/loading.json')}
+                    source={require('../Images/failed.json')}
                     autoPlay
-                    loop={true} 
-                    />
+                    loop={false} // Make sure the animation does not loop
+                />
+                <Text style={styles.text}>Try Again...</Text>
             </View>
         </View>
     );
@@ -26,7 +29,7 @@ const styles = StyleSheet.create({
     },
     modal: {
         backgroundColor: 'white',
-        width: 200, height: 200,
+        width: 250, height: 250,
         padding: 10,
         borderRadius: 10,
         elevation: 5,
@@ -36,11 +39,13 @@ const styles = StyleSheet.create({
     },
     text: {
         marginTop: 10,
+        marginBottom:20,
         textAlign: 'center',
+        color:"#71797E"
     },
     animation: {
-        width: 150,
-        height: 150,
-        marginBottom: 10,
+        width: 180,
+        height: 180,
+        // marginBottom: 10,
     },
 });

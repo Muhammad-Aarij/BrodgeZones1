@@ -96,8 +96,8 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
                     :
                     <View style={styles.maincontainer}>
                         <View style={styles.container}>
-                            <Text style={{ ...styles.title, fontWeight: 'bold', fontSize: 24, marginBottom: 10 }}>Verification</Text>
-                            <Text>Enter the 6-digit OTP code sent to <Text style={{ fontWeight: "bold" }}>+{route.params.phoneNo}</Text></Text>
+                            <Text style={{ ...styles.title, fontWeight: 'bold', fontSize: 24, marginBottom: 10,color:"#71797E" }}>Verification</Text>
+                            <Text style={{color:"#818589"}}>Enter the 6-digit OTP code sent to <Text style={{ fontWeight: "bold",color:"#71797E" }}>+{route.params.phoneNo}</Text></Text>
                             <View style={styles.containerinputs}>
                                 {otp.map((_, index) => (
                                     <TextInput
@@ -114,9 +114,9 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
                                 ))}
                             </View>
                             <View style={styles.timer}>
-                                <Text style={{ ...styles.title, fontWeight: 'bolder', fontSize: 16, fontWeight: "bold" }}>Don't receive the code?</Text>
-                                {timer != 0 && <Text style={{ fontSize: 14 }}>Wait {timer} sec</Text>}
-                                {timer == 0 && <Text style={{ fontSize: 14 }} onPress={handleFetchOTP}>Send Again</Text>}
+                                <Text style={{ color:"#818589", fontWeight: 'bolder', fontSize: 16, fontWeight: "bold" }}>Don't receive the code?</Text>
+                                {timer != 0 && <Text style={{ fontSize: 14,color:"#848884	" }}>Wait {timer} sec</Text>}
+                                {timer == 0 && <Text style={{ fontSize: 14,color:"#848884	" }} onPress={handleFetchOTP}>Send Again</Text>}
                             </View>
                             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                                 <Text style={styles.buttonText}>Submit</Text>
@@ -126,6 +126,7 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
         </>
     );
 }
+// input opt txtarea
 
 const styles = StyleSheet.create({
     maincontainer: {
@@ -154,6 +155,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         borderColor: '#d3d3d3',
         fontSize: 18,
+        color:"grey",
         marginHorizontal: 5,
     },
     button: {

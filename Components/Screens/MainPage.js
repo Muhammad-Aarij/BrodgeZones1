@@ -1,9 +1,8 @@
 import React, { Component, useEffect, useState } from 'react'
-import { View, Text, Image, StyleSheet, ImageBackground, TouchableOpacity, BackHandler ,PermissionsAndroid} from 'react-native'
+import { View, Text, Image, StyleSheet, ImageBackground, TouchableOpacity, BackHandler, PermissionsAndroid } from 'react-native'
 import bg from '../Images/bg.png'
-import attendance from '../Images/calendar.png'
-// import info from '../Images/info.png'
-import settings from '../Images/settings.png'
+import attendance from '../Images/calendar2.png'
+import settings from '../Images/dashboard.png'
 import leave from '../Images/leave.png'
 import logout from '../Images/logout.png'
 import user from '../Images/user.png'
@@ -65,37 +64,36 @@ export default function MainPage({ navigation }) {
             <Text style={styles.heading}>Attendance App</Text>
             <View style={styles.tilesContainer}>
 
-                <LinearGradient
+                {/* <LinearGradient
+                colors={['#0abcf9', '#2c69d1']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.gradient}
+                > */}
+
+                <TouchableOpacity style={styles.tile} onPress={() => {
+                    navigation.navigate("Dashboard");
+                }}>
+                    <Image style={styles.img} source={settings}></Image>
+                    <Text style={styles.txt}>Dashboard </Text>
+                </TouchableOpacity>
+                {/* </LinearGradient> */}
+
+                {/* <LinearGradient
                     colors={['#0abcf9', '#2c69d1']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.gradient}
-                >
+                > */}
 
-                    <TouchableOpacity style={styles.tile} onPress={() => {
-
-                    }}>
-                        <Image style={styles.img} source={mappin}></Image>
-                        {/* <Text style={styles.txt}>Mark </Text> */}
-                        <Text style={styles.txt}>Dashboard </Text>
-                    </TouchableOpacity>
-                </LinearGradient>
-
-                <LinearGradient
-                    colors={['#0abcf9', '#2c69d1']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.gradient}
-                >
-
-                    <TouchableOpacity style={styles.tile} onPress={() => {
-                        navigation.navigate("Markattendance");
-                    }}>
-                        <Image style={styles.img} source={mappin}></Image>
-                        {/* <Text style={styles.txt}>Mark </Text> */}
-                        <Text style={styles.txt}>Attendance </Text>
-                    </TouchableOpacity>
-                </LinearGradient>
+                <TouchableOpacity style={styles.tile} onPress={() => {
+                    navigation.navigate("Markattendance");
+                }}>
+                    <Image style={styles.img} source={mappin}></Image>
+                    {/* <Text style={styles.txt}>Mark </Text> */}
+                    <Text style={styles.txt}>Attendance </Text>
+                </TouchableOpacity>
+                {/* </LinearGradient> */}
 
 
 
@@ -110,63 +108,64 @@ export default function MainPage({ navigation }) {
                     <Image style={styles.img} source={refresh}></Image>
                     <Text style={styles.txt}>Refresh</Text>
                 </TouchableOpacity> */}
+
+                {/* <LinearGradient
+                    colors={['#0abcf9', '#2c69d1']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.gradient}
+                > */}
+                <TouchableOpacity style={styles.tile} onPress={() => {
+                    navigation.navigate("Leave")
+                }}>
+                    <Image style={styles.img} source={leave}></Image>
+                    <Text style={styles.txt}>Leave </Text>
+                    <Text style={styles.txt}>Request</Text>
+                </TouchableOpacity>
+                {/* </LinearGradient>
                 <LinearGradient
                     colors={['#0abcf9', '#2c69d1']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.gradient}
-                >
-                    <TouchableOpacity style={styles.tile} onPress={() => {
-                        navigation.navigate("Leave")
-                    }}>
-                        <Image style={styles.img} source={leave}></Image>
-                        <Text style={styles.txt}>Leave </Text>
-                        <Text style={styles.txt}>Request</Text>
-                    </TouchableOpacity>
-                </LinearGradient>
-                <LinearGradient
-                    colors={['#0abcf9', '#2c69d1']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.gradient}
-                >
+                > */}
 
-                    <TouchableOpacity style={styles.tile} onPress={() => {
-                        navigation.navigate("AttendanceHistory")
-                    }}>
-                        <Image style={styles.img} source={attendance}></Image>
-                        <Text style={styles.txt}>Attendance</Text>
-                        <Text style={styles.txt}>Calendar</Text>
-                    </TouchableOpacity>
-                </LinearGradient>
-
-                <LinearGradient
-                    colors={['#0abcf9', '#2c69d1']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.gradient}
-                >
-
-                    <TouchableOpacity style={styles.tile} onPress={() => {
-                        navigation.navigate("Profile")
-                    }}>
-                        <Image style={styles.img} source={user}></Image>
-                        <Text style={styles.txt}>Profile</Text>
-                    </TouchableOpacity>
-                </LinearGradient>
+                <TouchableOpacity style={styles.tile} onPress={() => {
+                    navigation.navigate("AttendanceHistory")
+                }}>
+                    <Image style={styles.img} source={attendance}></Image>
+                    <Text style={styles.txt}>Attendance</Text>
+                    <Text style={styles.txt}>Calendar</Text>
+                </TouchableOpacity>
+                {/* </LinearGradient>
 
                 <LinearGradient
                     colors={['#0abcf9', '#2c69d1']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.gradient}
-                >
+                > */}
 
-                    <TouchableOpacity style={styles.tile} onPress={handleLogOut}>
-                        <Image style={styles.img} source={logout}></Image>
-                        <Text style={styles.txt}>Log Out</Text>
-                    </TouchableOpacity>
-                </LinearGradient>
+                <TouchableOpacity style={styles.tile} onPress={() => {
+                    navigation.navigate("Profile")
+                }}>
+                    <Image style={styles.img} source={user}></Image>
+                    <Text style={styles.txt}>Profile</Text>
+                </TouchableOpacity>
+                {/* </LinearGradient>
+
+                <LinearGradient
+                    colors={['#0abcf9', '#2c69d1']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.gradient}
+                > */}
+
+                <TouchableOpacity style={styles.tile} onPress={handleLogOut}>
+                    <Image style={styles.img} source={logout}></Image>
+                    <Text style={styles.txt}>Log Out</Text>
+                </TouchableOpacity>
+                {/* </LinearGradient> */}
 
             </View>
             <View style={styles.footer}>
@@ -194,21 +193,21 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     tile: {
-        width: 120,
-        height: 120,
+        width: 140,
+        height: 130,
         borderRadius: 10,
         margin: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        // backgroundColor: '#4BAAC8',
-        // shadowColor: "#000",
-        // shadowOffset: {
-        //     width: 0,
-        //     height: 2,
-        // },
-        // shadowOpacity: 0.23,
-        // shadowRadius: 2.62,
-        // elevation: 4,
+        backgroundColor: '#4BAAC8',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.23,
+        shadowRadius: 2.62,
+        elevation: 4,
     },
     img: {
         width: 45,

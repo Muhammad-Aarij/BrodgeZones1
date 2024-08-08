@@ -1,12 +1,22 @@
-import React from 'react'
-import LoaderKit from 'react-native-loader-kit'
+import React from 'react';
+import LottieView from 'lottie-react-native';
+import { StyleSheet } from 'react-native';
 
 export default function Loader() {
     return (
-        <LoaderKit
-            style={{ width: 60, height: 60 }}
-            name={'BallGridPulse'}
-            color={'#4BAAC8'}
+        <LottieView
+            style={styles.animation}
+            source={require('../Images/loading.json')}
+            autoPlay
+            loop={true} // Ensure the animation does not loop
         />
-    )
+    );
 }
+
+const styles = StyleSheet.create({
+    animation: {
+        width: 150,
+        height: 150,
+        marginBottom: 10,
+    },
+});

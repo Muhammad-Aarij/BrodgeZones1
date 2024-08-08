@@ -32,6 +32,13 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need your location to verify your presence at the office.</string>
 <!--  -->
+<key>NSCameraUsageDescription</key>
+<string>We need your permission to use the camera</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need your permission to access the photo library</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>We need your permission to save photos to your photo library</string>
+
 	<key>NSAppTransportSecurity</key>
 	<dict>
 	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->

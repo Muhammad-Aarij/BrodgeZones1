@@ -7,7 +7,7 @@ import HandleBiometricAuth from '../Functions/FingerPrintScanner';
 import LoaderModal from '../Loaders/LoaderModal';
 export default function SignIn({ navigation }) {
 
-    const [phonenumber, setPhoneNumber] = useState('15896478913');
+    const [phonenumber, setPhoneNumber] = useState('15034161315');
     const [checkerphonenumber, setCheckerPhoneNumber] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -36,10 +36,17 @@ export default function SignIn({ navigation }) {
                 const otpResult = await fetchOTP(phonenumber);
                 if (otpResult.IsSuccess) {
                     await AsyncStorage.setItem('@UserNumber', phonenumber);
+                    if (otpResult.Email == null) {
+                        await AsyncStorage.setItem('@UserEmail', "No_Email");
+                    }
+                    else {
+                        await AsyncStorage.setItem('@UserEmail', otpResult.Email);
+                    }
                     console.log(otpResult.OTP);
+                    console.log("Email" + otpResult.Email);
                     setIsLoading(false);
                     navigation.navigate("OTPScreen", {
-                        phoneNo: phonenumber, 
+                        phoneNo: phonenumber,
                     });
                 } else {
                     Alert.alert('Error', 'Incorrect Number Please try again.');
@@ -47,6 +54,7 @@ export default function SignIn({ navigation }) {
                 }
             } catch (error) {
                 setIsLoading(false);
+                console.log(error);
                 Alert.alert('Error', ' Please try again.');
             } finally {
                 console.log("endd");
@@ -62,9 +70,10 @@ export default function SignIn({ navigation }) {
                 :
                 <ImageBackground source={bg} style={styles.container}>
                     <Text style={styles.txt}>Sign In</Text>
+                    <Text style={{ color: '#ff9292', marginVertical: 10,fontFamily:"sans-serif-medium" }}> {checkerphonenumber ? "Incorrect number" : ""}</Text>
                     <View style={styles.inputcontainer}>
                         <TextInput
-                            placeholder='+91'
+                            placeholder='+1'
                             style={{ ...styles.input, width: 50, justifyContent: 'center', alignItems: "center" }}
                             editable={false}
                         />
@@ -77,7 +86,6 @@ export default function SignIn({ navigation }) {
                             maxLength={11}
                         />
                     </View>
-                    <Text style={{ color: '#4BAAC8', marginBottom: 10 }}> {checkerphonenumber ? "Incorrect number" : ""}</Text>
 
                     <TouchableOpacity style={styles.button} onPress={handleFetchOTP}>
                         <Text style={{ color: 'white', fontWeight: 'bold' }}>Sign In</Text>
@@ -100,10 +108,9 @@ const styles = StyleSheet.create({
 
     txt: {
         fontSize: 34,
-        fontFamily:"sans-serif-light",
+        fontFamily: "sans-serif-black",
         // fontWeight: 'bold',
         color: '#4BAAC8',
-        marginBottom: 30,
         color: '#4BAAC8',
     },
     inputcontainer: {
@@ -119,15 +126,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 5,
         fontSize: 15,
-        color: '#333',
+        color: 'black',
 
     },
     button: {
         backgroundColor: '#4BAAC8',
         padding: 10,
         borderRadius: 5,
-        marginBottom: 10,
-        width: "60%",
+        marginVertical: 20,
+        width: 180,
         alignItems: 'center',
         justifyContent: 'center',
 

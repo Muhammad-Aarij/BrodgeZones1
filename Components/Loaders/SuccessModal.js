@@ -3,13 +3,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 
 export default function SuccessModal({ message, onClose }) {
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onClose();
-        }, 3000); // Duration of the animation
-
-        return () => clearTimeout(timer); // Clear timer if component unmounts
-    }, [onClose]);
+  
 
     return (
         <View style={[StyleSheet.absoluteFillObject, styles.maincontainer]}>
@@ -20,8 +14,8 @@ export default function SuccessModal({ message, onClose }) {
                     autoPlay
                     loop={false} // Make sure the animation does not loop
                 />
-                <Text style={{ ...styles.text, fontWeight: "bold" }}>Successful</Text>
-                <Text style={styles.text}>Attendance Marked</Text>
+                <Text style={styles.text}>{message!=null? message : "Attendance Marked"}</Text>
+                <Text style={{ ...styles.text, fontWeight: "bold" }}>Successfully</Text>
             </View>
         </View>
     );
@@ -47,6 +41,7 @@ const styles = StyleSheet.create({
     text: {
         marginTop: 10,
         textAlign: 'center',
+        color:"#71797E",
     },
     animation: {
         width: 150,

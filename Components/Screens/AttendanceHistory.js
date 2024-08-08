@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import PieChart from 'react-native-pie-chart';
@@ -7,6 +7,7 @@ import LoaderModal from '../Loaders/LoaderModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GetAttendanceSheetByPhoneNumber from '../Functions/GetAttendanceSheetByPhoneNumber';
 import { Calendar } from 'react-native-calendars';
+const { width } = Dimensions.get('window');
 
 export default function AttendanceHistory() {
     const [search, setSearch] = useState(false);
@@ -27,7 +28,7 @@ export default function AttendanceHistory() {
 
                 const number = await AsyncStorage.getItem('@UserNumber');
                 const data = await GetAttendanceSheetByPhoneNumber(number);
-                console.log(data);
+                // console.log(data);
 
                 const present = [];
                 const absent = [];
@@ -78,16 +79,16 @@ export default function AttendanceHistory() {
         const markedDates = {};
 
         presentDates.forEach(date => {
-            markedDates[date] = { selected: true, marked: true, selectedColor: 'green' };
+            markedDates[date] = { selected: true, marked: true, selectedColor: 'bfdfae' };
         });
         absentDates.forEach(date => {
-            markedDates[date] = { selected: true, marked: true, selectedColor: '#DB162F' };
+            markedDates[date] = { selected: true, marked: true, selectedColor: '#ff9292' };
         });
         leaveDates.forEach(date => {
-            markedDates[date] = { selected: true, marked: true, selectedColor: '#ffdf00' };
+            markedDates[date] = { selected: true, marked: true, selectedColor: '#f9e484' };
         });
         lateDates.forEach(date => {
-            markedDates[date] = { selected: true, marked: true, selectedColor: '#FFA836' };
+            markedDates[date] = { selected: true, marked: true, selectedColor: '#f8bd8a' };
         });
 
         return markedDates;
@@ -102,7 +103,7 @@ export default function AttendanceHistory() {
     const totalDatesCount = presentCount + leaveCount + absentCount + lateCount;
 
     const series = totalDatesCount === 0 ? [1, 0, 0, 0] : [presentCount, leaveCount, absentCount, lateCount];
-    const sliceColor = ['#32CD32', '#ffdf00', '#DB162F', '#FFA836'];
+    const sliceColor = ['#bfdfae', '#f9e484', '#ff9292', '#f8bd8a'];
     const widthAndHeight = 180;
     const formattedDate = moment(date).format('MMMM YYYY'); // August 1, 2024
 
@@ -121,24 +122,24 @@ export default function AttendanceHistory() {
 
                     {!search && (
                         <View style={styles.monthContainer}>
-                            <Text style={{ fontSize: 16, color: '#3D3C3A', marginBottom: 5, fontWeight: 'bold' }}>Statistics</Text>
-                            <Text style={{ fontSize: 16, color: '#3D3C3A', marginBottom: 10,  }}>{formattedDate}</Text>
+                            <Text style={{ fontSize: width*0.04, color: '#3D3C3A', marginBottom: 5, fontWeight: 'bold' }}>Statistics</Text>
+                            <Text style={{ fontSize: width*0.041, color: '#3D3C3A', marginBottom: 10,  }}>{formattedDate}</Text>
                             <View style={styles.monthContainerinner}>
                                 <View style={styles.statistics}>
                                     <View style={styles.statisticsline}>
-                                        <View style={{ ...styles.color, backgroundColor: '#32CD32' }}></View>
+                                        <View style={{ ...styles.color, backgroundColor: '#bfdfae' }}></View>
                                         <Text style={styles.colorTxt}>Present: {presentDates.length}</Text>
                                     </View>
                                     <View style={styles.statisticsline}>
-                                        <View style={{ ...styles.color, backgroundColor: '#FFA836' }}></View>
+                                        <View style={{ ...styles.color, backgroundColor: '#f8bd8a' }}></View>
                                         <Text style={styles.colorTxt}>Late: {lateDates.length}</Text>
                                     </View>
                                     <View style={styles.statisticsline}>
-                                        <View style={{ ...styles.color, backgroundColor: '#ffdf00' }}></View>
+                                        <View style={{ ...styles.color, backgroundColor: '#f9e484' }}></View>
                                         <Text style={styles.colorTxt}>Leaves: {leaveDates.length}</Text>
                                     </View>
                                     <View style={styles.statisticsline}>
-                                        <View style={{ ...styles.color, backgroundColor: '#DB162F' }}></View>
+                                        <View style={{ ...styles.color, backgroundColor: '#ff9292' }}></View>
                                         <Text style={styles.colorTxt}>Absent: {absentDates.length}</Text>
                                     </View>
                                 </View>
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     heading: {
-        fontSize: 30,
+        fontSize: width*0.065,
         fontFamily: 'sans-serif-black',
         color: '#4BAAC8',
     },
@@ -280,6 +281,7 @@ const styles = StyleSheet.create({
     colorTxt: {
         fontWeight: '300',
         color: '#3D3C3A',
+        fontSize:width*0.035,
     },
     img: {
         width: 40,
