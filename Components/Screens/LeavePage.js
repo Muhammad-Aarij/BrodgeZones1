@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, TextInput, ScrollView, Image, Pressable, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, TextInput, ScrollView, Image, Pressable, Dimensions, Modal } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { Dropdown } from 'react-native-element-dropdown';
 import LeaveApply from '../Functions/LeaveApply';
@@ -8,13 +8,16 @@ import SuccessModal from '../Loaders/SuccessModal';
 import FailedModal from '../Loaders/FailedModal';
 import settings from '../Images/contact-form.png';
 import history from '../Images/history.png';
+import upload from '../Images/upload.png';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import DocumentPicker from 'react-native-document-picker';
 
 const { width } = Dimensions.get('window');
 
 // e 7 medical 9 casual 8
 export default function LeavePage({ navigation }) {
     const [today] = useState(new Date()); // Get the current date
-    const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
 
     const [open, setOpen] = useState(false);
     const [open2, setOpen2] = useState(false);
@@ -28,6 +31,9 @@ export default function LeavePage({ navigation }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailModal, setShowFailModal] = useState(false);
     const [error, setError] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [message, setMessage] = useState('');
+
 
     const handleDateConfirm = (selectedDate) => {
         setOpen(false);
@@ -45,11 +51,11 @@ export default function LeavePage({ navigation }) {
     }, [error]);
 
     const data = [
-        { label: 'Short Leave', value: 'short leave' },
+        { label: 'Medical Leave', value: '1' },
         { label: 'Casual Leave', value: '2' },
-        { label: 'Emergency Leave', value: '1' },
-        { label: 'Medical Leave', value: 'medical leave' },
-        { label: 'Other', value: 'other' },
+        { label: 'Emergency Leave', value: '3' },
+        // { label: 'Annual Leave', value: '4' },
+        // { label: 'Other', value: '4' },
     ];
     const sendTo = [
         { label: 'HR', value: 'HR' },
@@ -66,6 +72,94 @@ export default function LeavePage({ navigation }) {
             <Text style={styles.dropdownItemText}>{item.label}</Text>
         </View>
     );
+
+    const requestCameraPermission = async () => {
+        const result = await request(PERMISSIONS.ANDROID.CAMERA);
+        return result;
+    };
+
+    const pickImageFromGallery = () => {
+        const options = {
+            mediaType: 'photo',
+            maxWidth: 300,
+            maxHeight: 300,
+            quality: 1,
+        };
+
+        launchImageLibrary(options, response => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.errorCode) {
+                console.log('ImagePicker Error: ', response.errorMessage);
+            } else {
+                setModalVisible(!modalVisible)
+                const file = response.assets[0];
+                // setPicture(file.uri);
+                // setNewPicture(file.uri);
+                // updateImage(file);
+            }
+        });
+    };
+
+    const takePhotoWithCamera = async () => {
+        const permissionResult = await requestCameraPermission();
+        if (permissionResult === RESULTS.GRANTED) {
+            const options = {
+                mediaType: 'photo',
+                maxWidth: 300,
+                maxHeight: 300,
+                quality: 1,
+            };
+
+            launchCamera(options, response => {
+                if (response.didCancel) {
+                    console.log('User cancelled camera');
+                } else if (response.errorCode) {
+                    console.log('Camera Error: ', response.errorMessage);
+                } else {
+                    setModalVisible(!modalVisible)
+                    const source = { uri: response.assets[0].uri };
+                    // setModalVisible(false);
+                    // setNewPicture(source.uri);
+                    // updateImage(source);
+                }
+            });
+        } else {
+            Alert.alert('Camera permission denied');
+        }
+    };
+
+    const pickDocument = async () => {
+        try {
+            const res = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+            });
+            console.log('Selected file:', res);
+            // Handle the selected file (e.g., upload it or save its URI)
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                console.log('User cancelled document picker');
+            } else {
+                throw err;
+            }
+        }
+    };
+
+
+    const updateImage = async (img) => {
+        setIsLoading(true);
+        const number = await AsyncStorage.getItem("@UserNumber");
+        console.log("Image" + img);
+        console.log("Number" + number);
+        const sendImg = await UpdateProfileImage(img, number);
+
+        if (sendImg) {
+            setIsLoading(false);
+            setPicture(img);
+        } else {
+            setIsLoading(false);
+        }
+    };
 
     const ApplyforLeave = async () => {
         const number = await AsyncStorage.getItem('@UserNumber');
@@ -87,18 +181,22 @@ export default function LeavePage({ navigation }) {
 
         setIsLoading(true);
         const data = {
-            createdBy: mail,
-            modifiedBy: mail,
-            leaveTypeId: value,
+            createdBy: "email@admin.com",
+            modifiedBy: "email@admin.com",
+            leaveAllowedId: value,
             fromDate: date,
             toDate: date2,
             phoneNumber: number,
-            availed: 0,
-            approvedBy: send
+            forwardTo: send,
+            availed: 1,
         };
-        console.log("Leave Request Data" + data);
+        // console.log("Leave Request Data");
+        // for (var i in data) {
+        //     console.log(i + " = " + data[i]);
+        // }
         const success = await LeaveApply(data);
         if (success) {
+            console.log("success");
             setShowSuccessModal(true);
             setTimeout(() => setShowSuccessModal(false), 3000);
 
@@ -117,6 +215,7 @@ export default function LeavePage({ navigation }) {
 
     return (
         <>
+        
             <ScrollView style={styles.mainContainer}>
                 <View style={styles.header}>
                     <Text style={styles.heading}>Apply for Leave</Text>
@@ -208,17 +307,19 @@ export default function LeavePage({ navigation }) {
                             />
                         </View>
                     )}
-                    <View style={{ ...styles.bodyline, marginTop: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        <Text style={styles.label}>Description</Text>
-                        <TextInput
-                            style={styles.textArea}
-                            value={description}
-                            onChangeText={setDescription}
-                            placeholder="Enter description"
-                            placeholderTextColor={"grey"}
-                            multiline
-                            numberOfLines={4}
-                        />
+                    <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        {/* <Text style={{ ...styles.label, width: "28%" }}>Upload Proof Document</Text> */}
+                        <Pressable style={styles.textArea} onPress={() => {
+                            setModalVisible(!modalVisible);
+                        }}>
+                            <Image source={upload} style={styles.uplaod}>
+                            </Image>
+                            <View onPress={() => {
+                                setModalVisible(!modalVisible);
+                            }}>
+                                <Text style={styles.txt}>Upload Proof Document / Picture</Text>
+                            </View>
+                        </Pressable>
                     </View>
                     <Text style={styles.error}>{firstError}</Text>
                     <View>
@@ -227,6 +328,33 @@ export default function LeavePage({ navigation }) {
                         </TouchableOpacity>
                     </View>
                 </View>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                        setModalVisible(!modalVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            {/* <Text style={styles.modalText}>Select Image</Text> */}
+                            <TouchableOpacity style={styles.modalButton} onPress={pickDocument}>
+                                <Text style={styles.buttonText}>Choose Document</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.modalButton} onPress={pickImageFromGallery}>
+                                <Text style={styles.buttonText}>Choose from Gallery</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButton} onPress={takePhotoWithCamera}>
+                                <Text style={styles.buttonText}>Take Photo</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButtoncross} onPress={() => setModalVisible(!modalVisible)}>
+                                <Text style={styles.buttonTextcross}>X</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
             </ScrollView>
             {showSuccessModal && <SuccessModal message={"Request Sent"} />}
             {showFailModal && <FailedModal />}
@@ -357,10 +485,13 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 10,
         color: "black",
-        width: '70%',
+        width: '100%',
         height: 150,
         fontSize: width * 0.036,
         backgroundColor: "#f9f9f9",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
     },
     selectedDateText: {
         width: "100%",
@@ -387,5 +518,73 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
         elevation: 4,
-    }
+    },
+    uplaod: {
+        width: width * 0.3,
+        height: width * 0.3,
+        objectFit: "contain",
+    },
+    txt: {
+        fontSize: width * 0.036,
+        color: "#969696",
+        marginTop: 5,
+        marginBottom: 5,
+        textAlign: "center",
+        fontWeight: "500",
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 14,
+    },
+    buttonTextcross: {
+        color: 'white',
+        fontSize: 10,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.7)',
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalButton: {
+        backgroundColor: '#4BAAC8',
+        borderRadius: 10,
+        padding: 10,
+        elevation: 2,
+        marginVertical: 5,
+        width: 190,
+    },
+    modalButtoncross: {
+        backgroundColor: 'red',
+        borderRadius: 10,
+        // padding: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        marginVertical: 5,
+        marginTop: 15,
+        width: 30,
+        height: 30,
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+        fontSize: 14,
+        color: "black",
+        fontWeight: 'bold',
+    },
 });

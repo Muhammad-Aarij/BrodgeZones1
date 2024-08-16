@@ -149,7 +149,7 @@ export default function MarkAttendance() {
                     officeCoordinates
                 );
                 setIsloadingthefirstdata(true);
-                if (distance <= 50) {
+                if (distance <= 30) {
                     try {
                         const number = await AsyncStorage.getItem('@UserNumber');
                         const result = await MarkAttendace(number, status);
@@ -208,7 +208,7 @@ export default function MarkAttendance() {
                                     onPress={() => handleAttendance("Check In")}
                                     disabled={isButtonDisabled}
                                 >
-                                    <Text style={{ fontSize: width * 0.04, color: isButtonDisabled ? "#909090" : "white" }}>
+                                    <Text style={{ fontSize: width * 0.035, color: isButtonDisabled ? "#909090" : "white" }}>
                                         Check In
                                     </Text>
                                 </TouchableOpacity>
@@ -219,7 +219,7 @@ export default function MarkAttendance() {
                                     onPress={() => handleAttendance("Check Out")}
                                     disabled={isCheckOutDisabled}
                                 >
-                                    <Text style={{ fontSize: width * 0.04, color: isCheckOutDisabled ? "#909090" : "white" }}>
+                                    <Text style={{ fontSize: width * 0.035, color: isCheckOutDisabled ? "#909090" : "white" }}>
                                         Check Out
                                     </Text>
                                 </TouchableOpacity>
@@ -266,16 +266,16 @@ const styles = StyleSheet.create({
     maincontainer: {
         flex: 1,
         backgroundColor: "#eeedec",
-        paddingTop: 17,
+        paddingTop: width*0.04,
         flexDirection: 'column',
     },
     attendacemarker: {
         width: "100%",
         // height: "auto",
-        marginTop: 15,
+        marginTop: width*0.04,
         flexDirection: "row",
         justifyContent: "space-evenly",
-        borderRadius: 10,
+        borderRadius: width*0.025,
         backgroundColor: "#FFFFFF",
         paddingTop: "5%",
         paddingBottom: "5%",
@@ -284,10 +284,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#4BAAC8",
-        width: 150,
-        paddingVertical: 10,
-        borderRadius: 5,
-        borderWidth: 1,
+        width: width*0.37,
+        paddingVertical: width*0.025,
+        borderRadius: width*0.01,
+        borderWidth: width*0.002,
         borderColor: "#4BAAC8",
         color: "black",
         shadowColor: "#000",
@@ -297,10 +297,10 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: 4,
+        elevation: width*0.01,
     },
     btnDisabled: {
-        borderRadius: 5,
+        borderRadius: width*0.01,
         backgroundColor: "#e0e0e0",
         borderColor: "#b0b0b0",
         color: "gray",
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
         color: "white",
     },
     footerText: {
-        fontSize: 16,
+        fontSize: width*0.04,
         color: 'black',
     },
     footer: {
@@ -320,96 +320,55 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 5,
-        marginTop: 15,
-        paddingVertical:10,
+        padding: width*0.01,
+        marginTop: width*0.04,
+        paddingVertical:width*0.025,
         color: 'white',
+        borderTopLeftRadius:10,
+        borderTopRightRadius:10,
     },
     row: {
         backgroundColor: "#a1dcef",
-        borderRadius: 5,
+        borderRadius: width*0.013,
     },
-    status: {
-
-        width: "100%",
-        height: 200,
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        paddingHorizontal: 30,
-        paddingTop: 70,
-        paddingBottom: 30,
-        backgroundColor: '#4BAAC8',
-        flexDirection: "column",
-        borderRadius: 10,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-        elevation: 4,
-    },
-    statusTextBig: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: 'white',
-    },
-    statusTextSmall: {
-        fontSize: 16,
-        color: 'white',
-    },
-    dailyline: {
-        flexDirection: 'row',
-        width: "100%",
-        justifyContent: "space-between",
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        marginVertical: 10,
-        backgroundColor: "white",
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: '#D3D3D3',
-        borderStyle: 'solid',
-    },
+   
+    
     contentContainer: {
         flex: 1, // This makes the container take all available space except for the footer
         width: "100%",
         // height:"100%",
         paddingHorizontal: 15,
-        // height: "70%",
     },
 
     attendance: {
         width: "100%",
-        marginTop: 15,
+        marginTop: width*0.04,
         flexDirection: "column",
         justifyContent: "space-evenly",
-        borderRadius: 10,
+        borderRadius: width*0.025,
         backgroundColor: "#4BAAC8",
-        paddingVertical: 35,
-        paddingHorizontal: 25,
+        paddingVertical: width*0.08,
+        paddingHorizontal: width*0.06,
     },
     date: {
-        fontSize: width * 0.078,
+        fontSize: width * 0.06,
         color: "white",
-        marginBottom: 10,
+        marginBottom: width*0.025,
         // fontWeight:"bold",
         fontFamily: "sans-serif-condensed",
 
     },
     time: {
         fontFamily: "sans-serif-thin",
-        fontSize: width * 0.045,
+        fontSize: width * 0.040,
         color: "white",
     },
     rowTextStyle: {
         color: "#666362",
         fontSize: width * 0.035,
-        paddingTop: 7,
+        paddingTop: width*0.02,
         alignSelf: "center",
-        paddingBottom: 7,
+        paddingBottom: width*0.017,
     },
     evenIndexText: {
         fontSize: width * 0.035,
@@ -419,7 +378,7 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 1,
         backgroundColor: '#D3D3D3',
-        marginVertical: 1.5,
+        marginVertical: width*0.005,
         borderColor: '#D3D3D3',
     }
 

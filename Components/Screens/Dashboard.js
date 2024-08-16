@@ -8,9 +8,9 @@ import LoaderModal from '../Loaders/LoaderModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GetAttendanceSheetByPhoneNumber from '../Functions/GetAttendanceSheetByPhoneNumber';
 import GetAttendanceYearly from '../Functions/GetAttendanceYearly';
-import settings from '../Images/dashboard1.png'
+import settings from '../Images/dashboard1.png';
 import { Dropdown } from 'react-native-element-dropdown';
-
+import GetRemianingLeaves from '../Functions/GetRemianingLeaves';
 
 const { width } = Dimensions.get('window');
 const chartConfig = {
@@ -28,10 +28,6 @@ const chartConfig = {
     barPercentage: 1,
     barRadius: 5,
 };
-
-const series = [1, 3, 5, 12];
-const sliceColor = ['#bfdfae', '#f9e484', '#ff9292', '#f8bd8a'];
-const widthAndHeight = 180;
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -57,6 +53,10 @@ export default function Dashboard({ navigation }) {
     const [lateDates, setLateDates] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [Employee, setEmployee] = useState(false);
+    const [casualRemaining, setCasualRemaining] = useState(0);
+    const [emergencyRemaining, setEmergencyRemaining] = useState(0);
+    const [medicalRemaining, setMedicalRemaining] = useState(0);
+    const [annualRemaining, setAnnualRemaining] = useState(0);
 
     useEffect(() => {
         const fetchDataAndCheckStatus = async () => {
@@ -145,8 +145,33 @@ export default function Dashboard({ navigation }) {
             }
         };
 
+        const fetchRemainingLeaves = async () => {
+            try {
+                setIsLoading(true);
+                const number = await AsyncStorage.getItem('@UserNumber');
+                const medicalLeaves = await GetRemianingLeaves(number, 1);
+                const casualLeaves = await GetRemianingLeaves(number, 2);
+                const emergencyLeaves = await GetRemianingLeaves(number, 3);
+
+                // Set the remaining leaves correctly
+                setMedicalRemaining(medicalLeaves || 0);
+                setCasualRemaining(casualLeaves || 0);
+                setEmergencyRemaining(emergencyLeaves || 0);
+
+                // Calculate the annual remaining leaves based on the initial annual count
+                setAnnualRemaining(0 + (medicalLeaves || 0) + (casualLeaves || 0) + (emergencyLeaves || 0));
+
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+
         fetchDataAndCheckStatus();
         fetchYearlyData();
+        fetchRemainingLeaves();
     }, []);
 
     const Employees = [
@@ -159,6 +184,12 @@ export default function Dashboard({ navigation }) {
             <Text style={styles.dropdownItemText}>{item.label}</Text>
         </View>
     );
+    widthAndHeight = 180;
+    const series = [medicalRemaining, casualRemaining, emergencyRemaining, annualRemaining];
+    const sliceColor = ['#bfdfae', '#f9e484', '#ff9292', '#f8bd8a'];
+
+    // Check if all values in the series are zero
+    const validSeries = series.some(value => value > 0) ? series : [1, 1, 1, 1]; // Fallback to prevent error
 
     return (
         <>
@@ -216,17 +247,28 @@ export default function Dashboard({ navigation }) {
                         <Text style={styles.txt}>Leave Statistics {formattedDate}</Text>
                         <View style={styles.monthContainerinner}>
                             <View style={styles.statistics}>
-                                {sliceColor.map((color, index) => (
-                                    <View key={index} style={styles.statisticsline}>
-                                        <View style={{ ...styles.color, backgroundColor: color }} />
-                                        <Text style={styles.colorTxt}>{['Casual', 'Medical', 'Emergency', 'Remaining'][index]}: </Text>
-                                    </View>
-                                ))}
+                                <View style={styles.statisticsline}>
+                                    <View style={{ ...styles.color, backgroundColor: "" }} />
+                                    <Text style={styles.colorTxt}>Medical: {medicalRemaining} </Text>
+                                </View>
+                                <View style={styles.statisticsline}>
+                                    <View style={{ ...styles.color, backgroundColor: "" }} />
+                                    <Text style={styles.colorTxt}>Casual: {casualRemaining} </Text>
+                                </View>
+                                <View style={styles.statisticsline}>
+                                    <View style={{ ...styles.color, backgroundColor: "" }} />
+                                    <Text style={styles.colorTxt}>Emergency: {emergencyRemaining} </Text>
+                                </View>
+                                <View style={styles.statisticsline}>
+                                    <View style={{ ...styles.color, backgroundColor: "" }} />
+                                    <Text style={styles.colorTxt}>Remaining: {annualRemaining} </Text>
+                                </View>
+
                             </View>
                             <PieChart
                                 coverRadius={0.65}
                                 widthAndHeight={widthAndHeight}
-                                series={series}
+                                series={validSeries}
                                 sliceColor={sliceColor}
                             />
                         </View>
@@ -512,7 +554,11 @@ const styles = StyleSheet.create({
     },
     dropdownItem: {
         padding: 10,
-        backgroundColor: '#4BAAC8',  
+        backgroundColor: '#4BAAC8',
+        borderBottomWidth: 1,
+        borderColor: 'white',
+        // paddingRight:5,
+        // paddingLeft:10,
     },
     dropdownItemText: {
         fontSize: 16,

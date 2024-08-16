@@ -23,7 +23,7 @@ export default function Homepage({ navigation }) {
                     } else {
                         navigation.navigate('Signin');
                     }
-                }, 3000); // 3 seconds timeout
+                }, 3000); 
             } catch (error) {
                 console.error('Error fetching login status:', error);
                 navigation.navigate('Signin');

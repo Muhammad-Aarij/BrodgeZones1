@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 
 const LeaveApply = async (data) => {
     try {
-        const response = await axios.post('https://api1.bridgecitycabs.com/api/LeaveManage/LeaveApply', data);
+        const response = await axios.post('https://api1.bridgecitycabs.com/api/LeaveManage/LeaveRequest', data);
         if (response.status === 200) {
             return response.data.IsSuccess;
         } else {

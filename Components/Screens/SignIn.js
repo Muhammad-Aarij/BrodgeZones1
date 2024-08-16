@@ -1,10 +1,12 @@
 import React, { Component, useEffect, useState } from 'react'
-import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, Alert, Touchable, TouchableOpacity } from 'react-native'
+import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, Alert, Touchable, TouchableOpacity, Dimensions } from 'react-native'
 import bg from '../Images/bg.png'
 import fetchOTP from '../Functions/GetOtpode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HandleBiometricAuth from '../Functions/FingerPrintScanner';
 import LoaderModal from '../Loaders/LoaderModal';
+const { width } = Dimensions.get('window');
+
 export default function SignIn({ navigation }) {
 
     const [phonenumber, setPhoneNumber] = useState('15034161315');
@@ -74,7 +76,8 @@ export default function SignIn({ navigation }) {
                     <View style={styles.inputcontainer}>
                         <TextInput
                             placeholder='+1'
-                            style={{ ...styles.input, width: 50, justifyContent: 'center', alignItems: "center" }}
+                            style={{ ...styles.input, width: width*0.12, justifyContent: 'center', alignItems: "center" }}
+                            value='+1'
                             editable={false}
                         />
                         <TextInput
@@ -107,34 +110,34 @@ const styles = StyleSheet.create({
     },
 
     txt: {
-        fontSize: 34,
-        fontFamily: "sans-serif-black",
+        fontSize: width*0.08,
+        fontFamily: "sans-serif-medium",
         // fontWeight: 'bold',
         color: '#4BAAC8',
         color: '#4BAAC8',
     },
     inputcontainer: {
         flexDirection: "row",
-        gap: 10,
+        gap: width*0.025,
     },
     input: {
-        height: 45,
+        height: width*0.12,
         width: "60%",
         borderColor: '#4BAAC8',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        borderRadius: 5,
-        fontSize: 15,
-        color: 'black',
+        borderWidth: width*0.003,
+        marginBottom: width*0.025,
+        paddingHorizontal: width*0.025,
+        borderRadius: width*0.013,
+        fontSize: width*0.036,
+        color: '#404040',
 
     },
     button: {
         backgroundColor: '#4BAAC8',
-        padding: 10,
-        borderRadius: 5,
-        marginVertical: 20,
-        width: 180,
+        padding: width*0.025,
+        borderRadius: width*0.013,
+        marginVertical: width*0.05,
+        width: width*0.43,
         alignItems: 'center',
         justifyContent: 'center',
 
@@ -145,7 +148,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0,
         shadowRadius: 5,
-        elevation: 6,
+        elevation: width*0.013,
 
 
     }

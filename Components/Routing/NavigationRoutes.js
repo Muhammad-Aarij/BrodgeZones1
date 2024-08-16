@@ -11,6 +11,8 @@ import MarkAttendance from '../Screens/MarkAttendace';
 import LeavePage from '../Screens/LeavePage';
 import Dashboard from '../Screens/Dashboard';
 import PendingRequests from '../Screens/PendingRequests';
+import LeaveApproaval from '../Screens/LeaveApproaval';
+import ApproavalPage from '../Screens/ApproavalPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +20,7 @@ const NavigationRoutes = () => {
 
 
     return (
-        <Stack.Navigator >
+        <Stack.Navigator initialRouteName='Pendingrequests' >
             <Stack.Screen name="Homepage" component={Homepage} options={{ headerShown: false }} />
             <Stack.Screen name="Signin" component={SignIn} options={{ headerShown: false }} />
             <Stack.Screen name="OTPScreen" component={OTPInput} options={{ headerShown: false }} />
@@ -30,6 +32,9 @@ const NavigationRoutes = () => {
             <Stack.Screen name="Markattendance" component={MarkAttendance} options={{ headerShown: false }} />
             <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} options={{ headerShown: false }} />
             <Stack.Screen name="Leave" component={LeavePage} options={{ headerShown: false }} />
+            <Stack.Screen name="LeaveApproaval" component={LeaveApproaval} options={{ headerShown: false }} />
+            <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: false }} />
+
         </Stack.Navigator>
     );
 }

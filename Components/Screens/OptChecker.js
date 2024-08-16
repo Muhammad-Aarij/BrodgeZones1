@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert, Dimensions } from 'react-native';
 import VerifyOTP from '../Functions/VerifyOtpCode';
 import fetchOTP from '../Functions/GetOtpode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoaderModal from '../Loaders/LoaderModal';
-
+const { width } = Dimensions.get('window');
 
 export default function OTPInput({ pinCount = 6, navigation, route }) {
     const [otp, setOtp] = useState(Array(pinCount).fill(''));
@@ -139,30 +139,30 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        marginVertical: 30,
+        marginVertical: width*0.078,
     },
     container: {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        paddingHorizontal: 20,
+        paddingHorizontal: width*0.05,
     },
     input: {
-        width: 45,
-        height: 50,
-        borderWidth: 1,
-        borderRadius: 5,
+        width: width*0.11,
+        height: width*0.11,
+        borderWidth: width*0.004,
+        borderRadius: width*0.01,
         borderColor: '#d3d3d3',
-        fontSize: 18,
+        fontSize: width*0.043,
         color:"grey",
-        marginHorizontal: 5,
+        marginHorizontal: width*0.012,
     },
     button: {
         width: '60%',
         backgroundColor: '#4BAAC8',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        paddingVertical: width*0.025,
+        paddingHorizontal: width*0.05,
         borderRadius: 5,
         shadowColor: "#7e7b7b",
         shadowOffset: {
@@ -171,20 +171,20 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0,
         shadowRadius: 5,
-        elevation: 6,
+        elevation: width*0.012,
     },
     buttonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: width*0.04,
         textAlign: 'center',
     },
     timer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 30,
+        marginBottom: width*0.08,
         width: '100%',
-        gap: 10,
+        gap: width*0.025,
 
 
     }
