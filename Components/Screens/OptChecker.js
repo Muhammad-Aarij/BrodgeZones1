@@ -115,8 +115,8 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
                             </View>
                             <View style={styles.timer}>
                                 <Text style={{ color:"#818589", fontWeight: 'bolder', fontSize: 16, fontWeight: "bold" }}>Don't receive the code?</Text>
-                                {timer != 0 && <Text style={{ fontSize: 14,color:"#848884	" }}>Wait {timer} sec</Text>}
-                                {timer == 0 && <Text style={{ fontSize: 14,color:"#848884	" }} onPress={handleFetchOTP}>Send Again</Text>}
+                                {timer != 0 && <Text style={{ fontSize: 14,color:"#848884" }}>Wait {timer} sec</Text>}
+                                {timer == 0 && <Text style={{ fontSize: 14,color:"#848884" }} onPress={handleFetchOTP}>Send Again</Text>}
                             </View>
                             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                                 <Text style={styles.buttonText}>Submit</Text>

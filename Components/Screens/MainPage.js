@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from 'react'
-import { View, Text, Image, StyleSheet, ImageBackground, TouchableOpacity, BackHandler, PermissionsAndroid, Pressable } from 'react-native'
+import { View, Text, Image, StyleSheet, ImageBackground, TouchableOpacity, BackHandler, PermissionsAndroid, Pressable, Dimensions } from 'react-native'
 import bg from '../Images/bg.png'
 import attendance from '../Images/calendar2.png'
 import settings from '../Images/dashboard.png'
@@ -12,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import LinearGradient from 'react-native-linear-gradient';
 import bell from '../Images/bell.png';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+const { width } = Dimensions.get('window');
 
 
 export default function MainPage({ navigation }) {
@@ -207,10 +208,10 @@ const styles = StyleSheet.create({
     },
 
     tile: {
-        width: 140,
-        height: 130,
-        borderRadius: 10,
-        margin: 10,
+        width: width*0.35,
+        height: width*0.35,
+        borderRadius: width*0.025,
+        margin: width*0.025,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#4BAAC8',
@@ -221,13 +222,13 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: 4,
+        elevation: width*0.01,
     },
     img: {
-        width: 50,
-        height: 50,
+        width: width*0.13,
+        height: width*0.12,
         resizeMode: 'contain',
-        marginBottom: 5,
+        marginBottom: width*0.015,
     },
     txt: {
         fontSize: 15,
@@ -239,15 +240,15 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 5,
-        marginTop: 20,
+        padding: width*0.01,
+        marginTop: width*0.05,
         color: 'white',
         // borderRadius:5,
         // marginBottom:1,
     },
     gradient: {
-        borderRadius: 15, // or any other value you need
-        margin: 5, // adjust as needed
+        borderRadius: width*0.04, // or any other value you need
+        margin: width*0.01, // adjust as needed
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -255,28 +256,28 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: 4,
+        elevation: width*0.01,
     },
     header: {
-        marginVertical: 40,
+        marginVertical: width*0.06,
         flexDirection: "row",
         // borderWidth: 2,
-        height: 70,
+        height: width*0.17,
         width: "100%",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingHorizontal: 30,
+        paddingHorizontal: width*0.1,
 
     },
     heading: {
-        fontSize: 26,
+        fontSize: width*0.06,
         fontWeight: 'bold',
         color: '#4BAAC8',
         fontFamily: 'Roboto-black',
     },
     notifications: {
-        width: 22,
-        height: 22,
+        width: width*0.065,
+        height: width*0.065,
         resizeMode: 'contain',
     },
     top: {

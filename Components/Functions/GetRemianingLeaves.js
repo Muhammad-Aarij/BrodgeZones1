@@ -7,9 +7,9 @@ const GetRemainingLeaves = async (phoneNumber, id) => {
 
         if (response.status === 200) {
             const data = response.data;
-            console.log("profile" + JSON.stringify(data));
+            // console.log("profile" + JSON.stringify(data));
 
-            console.log('Found matching LeaveTypeId:', id, data.RemainingLeaves);
+            // console.log('Found matching LeaveTypeId:', id, data.RemainingLeaves);
             return data.RemainingLeaves;;
 
         } else {

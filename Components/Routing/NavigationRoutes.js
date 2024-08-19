@@ -20,7 +20,7 @@ const NavigationRoutes = () => {
 
 
     return (
-        <Stack.Navigator initialRouteName='Pendingrequests' >
+        <Stack.Navigator  >
             <Stack.Screen name="Homepage" component={Homepage} options={{ headerShown: false }} />
             <Stack.Screen name="Signin" component={SignIn} options={{ headerShown: false }} />
             <Stack.Screen name="OTPScreen" component={OTPInput} options={{ headerShown: false }} />
@@ -33,7 +33,7 @@ const NavigationRoutes = () => {
             <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} options={{ headerShown: false }} />
             <Stack.Screen name="Leave" component={LeavePage} options={{ headerShown: false }} />
             <Stack.Screen name="LeaveApproaval" component={LeaveApproaval} options={{ headerShown: false }} />
-            <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: false }} />
+            <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: true,title:"Leave Request" }} />
 
         </Stack.Navigator>
     );

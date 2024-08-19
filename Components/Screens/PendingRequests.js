@@ -18,14 +18,17 @@ export default function PendingRequests({ route }) {
                 setLoading(true);
                 const number = await AsyncStorage.getItem('@UserNumber');
                 const data = await GetleavesStatus(number);
+
                 if (data) {
-                    // console.log(data);
-                    setLeaves(data);
-                    setLoading(false);
+                    // Filter leaves based on leaveTypeId if it's provided
+                    const filteredLeaves = type
+                        ? data.filter((leave) => leave.Status === type)
+                        : data;
+
+                    setLeaves(filteredLeaves);
                 }
             } catch (e) {
                 setError(e.message);
-                setLoading(false);
             } finally {
                 setLoading(false);
             }

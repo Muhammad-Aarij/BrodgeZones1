@@ -11,6 +11,7 @@ import GetAttendanceYearly from '../Functions/GetAttendanceYearly';
 import settings from '../Images/dashboard1.png';
 import { Dropdown } from 'react-native-element-dropdown';
 import GetRemianingLeaves from '../Functions/GetRemianingLeaves';
+import GetleavesStatus from '../Functions/GetLeavesStatus';
 
 const { width } = Dimensions.get('window');
 const chartConfig = {
@@ -19,15 +20,18 @@ const chartConfig = {
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     labelColor: (opacity = 1) => `black`,
     style: {
-        borderRadius: 16,
-        margin: 3,
+        borderRadius: width * 0.04,
+        margin: width * 0.01,
     },
     propsForLabels: {
-        fontSize: 12,
+        fontSize: width * 0.03,
+        margin: 3,
     },
     barPercentage: 1,
-    barRadius: 5,
+    barRadius: width * 0.019,
+    formatYLabel: (yValue) => `${Math.floor(yValue)}`,
 };
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -57,6 +61,11 @@ export default function Dashboard({ navigation }) {
     const [emergencyRemaining, setEmergencyRemaining] = useState(0);
     const [medicalRemaining, setMedicalRemaining] = useState(0);
     const [annualRemaining, setAnnualRemaining] = useState(0);
+    const [leaveCount, setLeaveCount] = useState({
+        Pending: 0,
+        Approved: 0,
+        Rejected: 0
+    });
 
     useEffect(() => {
         const fetchDataAndCheckStatus = async () => {
@@ -97,9 +106,10 @@ export default function Dashboard({ navigation }) {
                 setLateDates(late);
             } catch (error) {
                 console.error(error);
-            } finally {
-                setIsLoading(false);
             }
+            // finally {
+            //     setIsLoading(false);
+            // }
         };
 
         const fetchYearlyData = async () => {
@@ -126,23 +136,36 @@ export default function Dashboard({ navigation }) {
                     const currentMonthIndex = getCurrentMonthIndex();
                     const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-                    const labels = allMonths.slice(0, currentMonthIndex + 1);
-                    const data = monthlyData.slice(0, currentMonthIndex + 1).map(month => [month.Absent, month.Present]);
+                    const filteredData = monthlyData.slice(0, currentMonthIndex + 1).filter(month => month.Present !== 0 || month.Absent !== 0);
+                    const labels = allMonths.slice(0, currentMonthIndex + 1).filter((_, index) => monthlyData[index].Present !== 0 || monthlyData[index].Absent !== 0);
+                    const data = filteredData.map(month => {
+                        const barData = [];
+                        if (month.Absent !== 0) barData.push(month.Absent);
+                        if (month.Present !== 0) barData.push(month.Present);
+                        return barData;
+                    });
+
+                    // Adjust the legend to only include "Absent" or "Present" if those bars exist
+                    const legend = [];
+                    if (filteredData.some(month => month.Absent !== 0)) legend.push("Absent");
+                    if (filteredData.some(month => month.Present !== 0)) legend.push("Present");
 
                     return {
                         labels,
-                        legend: ["Absent", "Present"],
+                        legend,
                         data,
-                        barColors: ["#ff9292", "#7ED7B9"]
+                        barColors: ["#ff9292", "#7ED7B9"].slice(0, legend.length)
                     };
                 };
+
 
                 setAttendanceData(generateChartData(monthlyData));
             } catch (error) {
                 console.error(error);
-            } finally {
-                setIsLoading(false);
             }
+            // finally {
+            //     setIsLoading(false);
+            // }
         };
 
         const fetchRemainingLeaves = async () => {
@@ -154,9 +177,9 @@ export default function Dashboard({ navigation }) {
                 const emergencyLeaves = await GetRemianingLeaves(number, 3);
 
                 // Set the remaining leaves correctly
-                setMedicalRemaining(medicalLeaves || 0);
-                setCasualRemaining(casualLeaves || 0);
-                setEmergencyRemaining(emergencyLeaves || 0);
+                setMedicalRemaining(10 - medicalLeaves || 0);
+                setCasualRemaining(8 - casualLeaves || 0);
+                setEmergencyRemaining(7 - emergencyLeaves || 0);
 
                 // Calculate the annual remaining leaves based on the initial annual count
                 setAnnualRemaining(0 + (medicalLeaves || 0) + (casualLeaves || 0) + (emergencyLeaves || 0));
@@ -168,15 +191,58 @@ export default function Dashboard({ navigation }) {
             }
         };
 
+        const fetchLeavesStatus = async () => {
+            try {
+                setIsLoading(true);
+                const number = await AsyncStorage.getItem('@UserNumber');
+                const data = await GetleavesStatus(number);
+                if (data) {
+                    console.log(data);
 
+                    const calculateLeaveStatusCounts = (leaves) => {
+                        const statusCounts = {
+                            Pending: 0,
+                            Approved: 0,
+                            Rejected: 0
+                        };
+
+                        leaves.forEach(leave => {
+                            if (leave.Status === "Pending") {
+                                statusCounts.Pending += 1;
+                            } else if (leave.Status === "Approved") {
+                                statusCounts.Approved += 1;
+                            } else if (leave.Status === "Rejected") {
+                                statusCounts.Rejected += 1;
+                            }
+                        });
+
+                        return statusCounts;
+                    };
+
+                    const leaveDates = calculateLeaveStatusCounts(data);
+                    setLeaveCount(leaveDates);
+                    console.log("Leave", leaveDates);
+                }
+            } catch (e) {
+                setError(e.message);
+            }
+            // finally {
+            //     setIsLoading(false);
+            // }
+        };
+
+        fetchLeavesStatus();
         fetchDataAndCheckStatus();
         fetchYearlyData();
         fetchRemainingLeaves();
     }, []);
 
     const Employees = [
-        { label: 'HR', value: 'HR' },
-        { label: 'Team-Lead', value: 'Team-Lead' },
+        { label: 'Ahmed', value: 'HR' },
+        { label: 'Aziz', value: 'HR' },
+        { label: 'Alamgir', value: 'Team-Lead' },
+        { label: 'Adil', value: 'Team-Lead' },
+        { label: 'Asim', value: 'Team-Lead' },
     ];
 
     const renderItem = (item) => (
@@ -186,7 +252,7 @@ export default function Dashboard({ navigation }) {
     );
     widthAndHeight = 180;
     const series = [medicalRemaining, casualRemaining, emergencyRemaining, annualRemaining];
-    const sliceColor = ['#bfdfae', '#f9e484', '#ff9292', '#f8bd8a'];
+    const sliceColor = ['#f8bd8a', '#f9e484', '#ff9292', '#bfdfae'];
 
     // Check if all values in the series are zero
     const validSeries = series.some(value => value > 0) ? series : [1, 1, 1, 1]; // Fallback to prevent error
@@ -248,19 +314,19 @@ export default function Dashboard({ navigation }) {
                         <View style={styles.monthContainerinner}>
                             <View style={styles.statistics}>
                                 <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "" }} />
-                                    <Text style={styles.colorTxt}>Medical: {medicalRemaining} </Text>
-                                </View>
-                                <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "" }} />
+                                    <View style={{ ...styles.color, backgroundColor: "#f9e484" }} ></View>
                                     <Text style={styles.colorTxt}>Casual: {casualRemaining} </Text>
                                 </View>
                                 <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "" }} />
+                                    <View style={{ ...styles.color, backgroundColor: "#f8bd8a" }} ></View>
+                                    <Text style={styles.colorTxt}>Medical: {medicalRemaining} </Text>
+                                </View>
+                                <View style={styles.statisticsline}>
+                                    <View style={{ ...styles.color, backgroundColor: "#ff9292" }} ></View>
                                     <Text style={styles.colorTxt}>Emergency: {emergencyRemaining} </Text>
                                 </View>
                                 <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "" }} />
+                                    <View style={{ ...styles.color, backgroundColor: "#bfdfae" }} ></View>
                                     <Text style={styles.colorTxt}>Remaining: {annualRemaining} </Text>
                                 </View>
 
@@ -283,12 +349,12 @@ export default function Dashboard({ navigation }) {
                                     onPress={() => navigation.navigate('Pendingrequests', { type })}
                                 >
                                     <Text style={{ ...styles.lable, color: index === 1 ? "white" : "#454545" }}>{type}</Text>
-                                    <Text style={{ color: index === 1 ? "white" : "#36454F", fontSize: 15 }}>{3}</Text>
+                                    <Text style={{ color: index === 1 ? "white" : "#36454F", fontSize: 15 }}>{leaveCount[type]}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
                     </View>
-                    <View style={styles.hourscompleted}>
+                    <View style={{ ...styles.hourscompleted, marginBottom: width * 0.1 }}>
                         <View style={styles.colordisplay}>
                             <View style={styles.statisticsline}>
                                 <View style={{ ...styles.color, backgroundColor: "#7ED7B9" }} />
@@ -303,8 +369,8 @@ export default function Dashboard({ navigation }) {
                             <ScrollView horizontal>
                                 <StackedBarChart
                                     data={attendanceData}
-                                    width={screenWidth * 2}
-                                    height={220}
+                                    width={screenWidth * 1.8}
+                                    height={width * 0.52}
                                     chartConfig={chartConfig}
                                     withHorizontalLabels={true}
                                 />
@@ -319,16 +385,16 @@ export default function Dashboard({ navigation }) {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        padding: 20,
+        padding: width * 0.05,
         backgroundColor: "#eeedec"
     },
     header: {
         width: '100%',
-        height: 70,
+        height: width * 0.17,
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: width * 0.025,
     },
     heading: {
         fontSize: width * 0.065,
@@ -336,18 +402,18 @@ const styles = StyleSheet.create({
         color: '#4BAAC8',
     },
     img: {
-        width: 30,
-        height: 30,
+        width: width * 0.08,
+        height: width * 0.08,
         resizeMode: 'contain',
-        marginRight: 7,
+        marginRight: width * 0.015,
     },
     hourscompleted: {
         width: '100%',
         height: "auto",
         backgroundColor: '#FFFFFF',
-        borderRadius: 10,
-        padding: 20,
-        marginBottom: 20,
+        borderRadius: width * 0.025,
+        padding: width * 0.05,
+        marginBottom: width * 0.05,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -359,18 +425,18 @@ const styles = StyleSheet.create({
     },
     txt: {
         fontSize: width * 0.04,
-        marginVertical: 5,
+        marginVertical: width * 0.014,
         fontFamily: "sans-serif-black",
         color: '#4BAAC8',
     },
     hourlines: {
         flexDirection: 'column',
-        marginTop: 10,
-        borderWidth: 1.5,
+        marginTop: width * 0.025,
+        borderWidth: width * 0.005,
         borderColor: '#E5E5E5',
-        padding: 10,
-        borderRadius: 7,
-        gap: 10,
+        padding: width * 0.025,
+        borderRadius: width * 0.017,
+        gap: width * 0.025,
     },
     hourline1: {
         width: "100%",
@@ -384,13 +450,13 @@ const styles = StyleSheet.create({
     },
     rectangle: {
         width: '23%',
-        height: 100,
+        height: width * 0.25,
         flexDirection: 'column',
         justifyContent: "space-evenly",
         alignItems: 'center',
-        paddingHorizontal: 5,
+        paddingHorizontal: width * 0.014,
         backgroundColor: '#4BAAC8',
-        borderRadius: 10,
+        borderRadius: width * 0.025,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -398,7 +464,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.18,
         shadowRadius: 1.00,
-        elevation: 1,
+        elevation: width * 0.005,
     },
     requests: {
         flexDirection: "column",
@@ -406,10 +472,10 @@ const styles = StyleSheet.create({
         width: '100%',
         height: "auto",
         backgroundColor: '#FFFFFF',
-        borderRadius: 10,
-        padding: 20,
-        marginBottom: 20,
-        gap: 10,
+        borderRadius: width * 0.025,
+        padding: width * 0.05,
+        marginBottom: width * 0.05,
+        gap: width * 0.025,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -426,14 +492,14 @@ const styles = StyleSheet.create({
     },
     requesttiles: {
         width: '26%',
-        height: 100,
+        height: width * 0.25,
         flexDirection: 'column',
         justifyContent: "center",
         gap: 7,
         alignItems: 'center',
-        paddingHorizontal: 5,
+        paddingHorizontal: width * 0.014,
         backgroundColor: '#9dcede',
-        borderRadius: 10,
+        borderRadius: width * 0.025,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -441,35 +507,41 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.18,
         shadowRadius: 1.00,
-        elevation: 1,
+        elevation: width * 0.005,
     },
     button: {
 
     },
     lable: {
-        color: "black",
+        color: "#404040",
         fontWeight: "500",
         fontSize: width * 0.035,
+    },
+    statValue: {
+        color: "#404040",
+        fontWeight: "300",
+        fontSize: width * 0.035,
+
     },
     timetotal: {
         color: "#848884",
         fontWeight: "600",
-        fontSize: 14,
+        fontSize: width * 0.035,
     },
     timecompleted: {
         color: "#848884",
         // fontWeight: "bold",
-        fontSize: 14,
+        fontSize: width * 0.035,
     },
     piechartcontainer: {
         width: '100%',
         height: "auto",
         backgroundColor: '#FFFFFF',
-        borderRadius: 10,
-        padding: 20,
+        borderRadius: width * 0.025,
+        padding: width * 0.05,
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: 20,
+        marginBottom: width * 0.05,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -483,15 +555,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 25,
-        marginTop: 10,
-        paddingHorizontal: 5,
+        gap: width * 0.06,
+        marginTop: width * 0.025,
+        paddingHorizontal: width * 0.014,
         backgroundColor: 'white',
 
     },
     statistics: {
         flexDirection: 'column',
-        gap: 10,
+        gap: width * 0.025,
     },
     statisticsline: {
         flexDirection: 'row',
@@ -499,21 +571,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     color: {
-        width: 12,
-        height: 12,
-        borderRadius: 4,
-        marginRight: 5,
+        width: width * 0.03,
+        height: width * 0.03,
+        borderRadius: width * 0.01,
+        marginRight: width * 0.013,
     },
     chartContainer: {
-        // marginVertical: 10,
+        marginBottom: 10,
         // paddingHorizontal: 10,
     },
     colordisplay: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 10,
+        gap: width * 0.025,
+        marginBottom: width * 0.025,
         backgroundColor: 'white',
     },
     colorTxt: {
@@ -522,30 +594,30 @@ const styles = StyleSheet.create({
     },
     rectangleContainer: {
         flexDirection: "row",
-        marginTop: 10,
+        marginTop: width * 0.025,
         justifyContent: "space-evenly",
     },
     dropdown: {
-        height: 50,
+        height: width * 0.12,
         width: '100%',
         backgroundColor: '#f9f9f9',
         color: "black",
-        borderRadius: 5,
-        borderWidth: 1.5,
+        borderRadius: width * 0.012,
+        borderWidth: width * 0.002,
         borderColor: '#d3d3d3',
-        paddingHorizontal: 10,
-        marginTop: 10,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-        elevation: 4,
+        paddingHorizontal: width * 0.025,
+        marginTop: width * 0.025,
+        // shadowColor: "#000",
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 2,
+        // },
+        // shadowOpacity: 0.23,
+        // shadowRadius: 1.62,
+        // elevation: width*0.0001,
     },
     placeholderStyle: {
-        fontSize: 16,
+        fontSize: width * 0.037,
         color: '#999',
     },
     selectedTextStyle: {
@@ -553,15 +625,15 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     dropdownItem: {
-        padding: 10,
-        backgroundColor: '#4BAAC8',
+        padding: width * 0.025,
+        // backgroundColor: '#4BAAC8',
         borderBottomWidth: 1,
         borderColor: 'white',
         // paddingRight:5,
         // paddingLeft:10,
     },
     dropdownItemText: {
-        fontSize: 16,
-        color: 'white',
+        fontSize: width * 0.037,
+        color: '#404040',
     },
 });

@@ -6,12 +6,12 @@ import LeaveApply from '../Functions/LeaveApply';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SuccessModal from '../Loaders/SuccessModal';
 import FailedModal from '../Loaders/FailedModal';
-import settings from '../Images/contact-form.png';
 import history from '../Images/history.png';
 import upload from '../Images/upload.png';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import DocumentPicker from 'react-native-document-picker';
+import uploadDocuments from '../Functions/UploadDocuments';
 
 const { width } = Dimensions.get('window');
 
@@ -94,9 +94,7 @@ export default function LeavePage({ navigation }) {
             } else {
                 setModalVisible(!modalVisible)
                 const file = response.assets[0];
-                // setPicture(file.uri);
-                // setNewPicture(file.uri);
-                // updateImage(file);
+                uploadDoc(file);
             }
         });
     };
@@ -119,9 +117,8 @@ export default function LeavePage({ navigation }) {
                 } else {
                     setModalVisible(!modalVisible)
                     const source = { uri: response.assets[0].uri };
-                    // setModalVisible(false);
-                    // setNewPicture(source.uri);
-                    // updateImage(source);
+                    console.log('Selected file:', source);
+                    uploadDoc(source);
                 }
             });
         } else {
@@ -134,24 +131,31 @@ export default function LeavePage({ navigation }) {
             const res = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
             });
-            console.log('Selected file:', res);
-            // Handle the selected file (e.g., upload it or save its URI)
+    
+            if (res && res.length > 0 && res[0].uri) {
+                const source = { uri: res[0].uri };
+                console.log('Selected file:', source);
+                uploadDoc(source);
+            } else {
+                console.log('No document selected or invalid response');
+            }
         } catch (err) {
             if (DocumentPicker.isCancel(err)) {
                 console.log('User cancelled document picker');
             } else {
-                throw err;
+                console.error('Document Picker Error: ', err);
             }
         }
     };
+    
 
 
-    const updateImage = async (img) => {
+    const uploadDoc = async (img) => {
         setIsLoading(true);
         const number = await AsyncStorage.getItem("@UserNumber");
         console.log("Image" + img);
         console.log("Number" + number);
-        const sendImg = await UpdateProfileImage(img, number);
+        const sendImg = await uploadDocuments(img, number);
 
         if (sendImg) {
             setIsLoading(false);
@@ -167,9 +171,9 @@ export default function LeavePage({ navigation }) {
         const newErrors = [];
 
         if (!mail) newErrors.push("User email is required.");
-        if (!date) newErrors.push("Starting date is required.");
-        if (!date2) newErrors.push("Ending date is required.");
-        if (!value) newErrors.push("Reason is required.");
+        if (!date) newErrors.push("From date is required.");
+        // if (!date2) newErrors.push("To date is required.");
+        if (!value) newErrors.push("Leave Type is required.");
         if (!send) newErrors.push("Forward To is required.");
 
         if (newErrors.length > 0) {
@@ -190,10 +194,7 @@ export default function LeavePage({ navigation }) {
             forwardTo: send,
             availed: 1,
         };
-        // console.log("Leave Request Data");
-        // for (var i in data) {
-        //     console.log(i + " = " + data[i]);
-        // }
+        
         const success = await LeaveApply(data);
         if (success) {
             console.log("success");
@@ -276,7 +277,7 @@ export default function LeavePage({ navigation }) {
                         />
                     </View>
                     <View style={{ ...styles.bodyline, marginTop: 15 }}>
-                        <Text style={styles.label}>Select Reason</Text>
+                        <Text style={styles.label}>Select Leave Type</Text>
                         <Dropdown
                             style={styles.dropdown}
                             placeholderStyle={styles.placeholderStyle}
@@ -287,7 +288,7 @@ export default function LeavePage({ navigation }) {
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            placeholder="Select Reason"
+                            placeholder="Select Leave Type"
                             searchPlaceholder="Search..."
                             value={value}
                             onChange={item => {
@@ -338,7 +339,6 @@ export default function LeavePage({ navigation }) {
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
-                            {/* <Text style={styles.modalText}>Select Image</Text> */}
                             <TouchableOpacity style={styles.modalButton} onPress={pickDocument}>
                                 <Text style={styles.buttonText}>Choose Document</Text>
                             </TouchableOpacity>
@@ -365,19 +365,19 @@ export default function LeavePage({ navigation }) {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        padding: 20,
-        borderRadius: 10,
+        padding: width*0.05,
+        borderRadius: width*0.025,
     },
     header: {
         width: "100%",
-        height: 70,
+        height: width*0.17,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
     },
     img: {
-        width: 35,
-        height: 35,
+        width: width*0.072,
+        height: width*0.072,
         resizeMode: 'contain',
     },
     heading: {
@@ -386,13 +386,13 @@ const styles = StyleSheet.create({
         color: '#4BAAC8',
     },
     body: {
-        marginTop: 5,
-        marginBottom: 50,
+        marginTop: width*0.01,
+        marginBottom: width*0.13,
         width: "100%",
         alignItems: 'center',
         backgroundColor: "white",
-        padding: 20,
-        borderRadius: 10,
+        padding: width*0.05,
+        borderRadius: width*0.025,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     bodyline: {
-        marginTop: 5,
+        marginTop: width*0.013,
         width: "100%"
     },
     label: {
@@ -412,9 +412,9 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#4BAAC8',
-        padding: 8,
-        borderRadius: 5,
-        marginTop: 10,
+        padding: width*0.02,
+        borderRadius: width*0.012,
+        marginTop: width*0.025,
         alignItems: 'center',
         shadowColor: "#000",
         shadowOffset: {
@@ -423,18 +423,18 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: 4,
+        elevation: width*0.01,
     },
     dropdown: {
         height: 50,
         width: '100%',
         backgroundColor: '#f9f9f9',
         color: "black",
-        borderRadius: 5,
+        borderRadius: width*0.012,
         borderWidth: 1.5,
         borderColor: '#d3d3d3',
-        paddingHorizontal: 10,
-        marginTop: 10,
+        paddingHorizontal: width*0.025,
+        marginTop: width*0.025,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -442,51 +442,52 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: 4,
+        elevation: width*0.01,
     },
     placeholderStyle: {
-        fontSize: 16,
+        fontSize: width*0.034,
         color: '#999',
     },
     selectedTextStyle: {
-        fontSize: width * 0.036,
+        fontSize: width * 0.035,
         color: 'black',
     },
     inputSearchStyle: {
-        height: 40,
-        fontSize: 16,
+        height: width*0.1,
+        fontSize: width*0.04,
     },
     iconStyle: {
-        width: 20,
-        height: 20,
+        width: width*0.05,
+        height: width*0.05,
     },
     icon: {
-        marginRight: 10,
+        marginRight: width*0.025,
     },
     dropdownItem: {
-        padding: 10,
+        padding: width*0.025,
     },
     dropdownItemText: {
-        fontSize: 16,
+        fontSize: width*0.035,
         color: '#71797E',
     },
     input: {
-        height: 40,
+        height: width*0.1,
         borderColor: '#d3d3d3',
-        borderWidth: 1.5,
-        borderRadius: 5,
-        paddingHorizontal: 10,
+        borderWidth: width*0.005,
+        borderRadius: width*0.01,
+        paddingHorizontal: width*0.025,
         width: '70%',
         backgroundColor: "#f9f9f9",
     },
     textArea: {
         borderColor: '#d3d3d3',
-        borderWidth: 1.5,
-        borderRadius: 5,
-        paddingHorizontal: 10,
+        borderWidth: width*0.005,
+        borderRadius: width*0.01,
+        paddingHorizontal: width*0.04,
+        paddingVertical:width*0.06,
         color: "black",
         width: '100%',
-        height: 150,
+        height: width*0.35,
         fontSize: width * 0.036,
         backgroundColor: "#f9f9f9",
         flexDirection: "column",
@@ -495,19 +496,19 @@ const styles = StyleSheet.create({
     },
     selectedDateText: {
         width: "100%",
-        marginTop: 5,
-        fontSize: 14,
+        marginTop: width*0.01,
+        fontSize: width*0.034,
         color: 'grey',
         textAlign: "right",
     },
     error: {
         fontWeight: "500",
         color: "red",
-        marginVertical: 5,
+        marginVertical: width*0.01,
     },
     historybutton: {
         backgroundColor: '#FFFF',
-        padding: 8,
+        padding: width*0.02,
         borderRadius: 5,
         alignItems: 'center',
         shadowColor: "#000",
@@ -517,28 +518,28 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: 4,
+        elevation: width*0.01,
     },
     uplaod: {
-        width: width * 0.3,
-        height: width * 0.3,
+        width: width * 0.27,
+        height: width * 0.27,
         objectFit: "contain",
     },
     txt: {
         fontSize: width * 0.036,
         color: "#969696",
         marginTop: 5,
-        marginBottom: 5,
+        marginBottom: width*0.025,
         textAlign: "center",
         fontWeight: "500",
     },
     buttonText: {
         color: 'white',
-        fontSize: 14,
+        fontSize: width*0.037,
     },
     buttonTextcross: {
         color: 'white',
-        fontSize: 10,
+        fontSize: width*0.027,
     },
     centeredView: {
         flex: 1,
@@ -547,10 +548,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.7)',
     },
     modalView: {
-        margin: 20,
+        margin: width*0.05,
         backgroundColor: 'white',
-        borderRadius: 10,
-        padding: 35,
+        borderRadius: width*0.04,
+        padding: width*0.08,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
@@ -558,32 +559,32 @@ const styles = StyleSheet.create({
             height: 2,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        shadowRadius: width*0.01,
+        elevation: width*0.013,
     },
     modalButton: {
         backgroundColor: '#4BAAC8',
-        borderRadius: 10,
-        padding: 10,
-        elevation: 2,
-        marginVertical: 5,
-        width: 190,
+        borderRadius: width*0.025,
+        padding: width*0.025,
+        elevation: width*0.005,
+        marginVertical: width*0.012,
+        width: width*0.5,
     },
     modalButtoncross: {
         backgroundColor: 'red',
-        borderRadius: 10,
+        borderRadius: width*0.025,
         // padding: 10,
         justifyContent: "center",
         alignItems: "center",
-        marginVertical: 5,
-        marginTop: 15,
-        width: 30,
-        height: 30,
+        marginVertical: width*0.01,
+        marginTop: width*0.04,
+        width: width*0.08,
+        height: width*0.08,
     },
     modalText: {
-        marginBottom: 15,
+        marginBottom: width*0.04,
         textAlign: 'center',
-        fontSize: 14,
+        fontSize: width*0.03,
         color: "black",
         fontWeight: 'bold',
     },

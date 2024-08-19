@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 
+
 export default function LoaderModal({ message}) {
     return (
         <View style={[StyleSheet.absoluteFillObject, styles.maincontainer]}>

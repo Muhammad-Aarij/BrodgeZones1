@@ -14,6 +14,7 @@ export default function FailedModal({ message, onClose }) {
                     autoPlay
                     loop={false} // Make sure the animation does not loop
                 />
+                <Text style={styles.text}>{message}</Text>
                 <Text style={styles.text}>Try Again...</Text>
             </View>
         </View>

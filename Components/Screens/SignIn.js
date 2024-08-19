@@ -1,6 +1,8 @@
 import React, { Component, useEffect, useState } from 'react'
-import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, Alert, Touchable, TouchableOpacity, Dimensions } from 'react-native'
+import { StyleSheet, View, Text, TextInput, BackHandler, ImageBackground, Alert, Touchable, TouchableOpacity, Dimensions } from 'react-native'
 import bg from '../Images/bg.png'
+import { useFocusEffect } from '@react-navigation/native'
+
 import fetchOTP from '../Functions/GetOtpode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HandleBiometricAuth from '../Functions/FingerPrintScanner';
@@ -25,6 +27,18 @@ export default function SignIn({ navigation }) {
             navigation.navigate("Mainpage");
         }
     };
+    useFocusEffect(
+        React.useCallback(() => {
+            const backAction = () => {
+                BackHandler.exitApp();
+                return true;
+            };
+
+            const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+            return () => backHandler.remove();
+        }, [])
+    );
 
     const handleFetchOTP = async () => {
         if (phonenumber.length < 11) {
@@ -72,11 +86,11 @@ export default function SignIn({ navigation }) {
                 :
                 <ImageBackground source={bg} style={styles.container}>
                     <Text style={styles.txt}>Sign In</Text>
-                    <Text style={{ color: '#ff9292', marginVertical: 10,fontFamily:"sans-serif-medium" }}> {checkerphonenumber ? "Incorrect number" : ""}</Text>
+                    <Text style={{ color: '#ff9292', marginVertical: 10, fontFamily: "sans-serif-medium" }}> {checkerphonenumber ? "Incorrect number" : ""}</Text>
                     <View style={styles.inputcontainer}>
                         <TextInput
                             placeholder='+1'
-                            style={{ ...styles.input, width: width*0.12, justifyContent: 'center', alignItems: "center" }}
+                            style={{ ...styles.input, width: width * 0.12, justifyContent: 'center', alignItems: "center" }}
                             value='+1'
                             editable={false}
                         />
@@ -110,7 +124,7 @@ const styles = StyleSheet.create({
     },
 
     txt: {
-        fontSize: width*0.08,
+        fontSize: width * 0.08,
         fontFamily: "sans-serif-medium",
         // fontWeight: 'bold',
         color: '#4BAAC8',
@@ -118,26 +132,26 @@ const styles = StyleSheet.create({
     },
     inputcontainer: {
         flexDirection: "row",
-        gap: width*0.025,
+        gap: width * 0.025,
     },
     input: {
-        height: width*0.12,
+        height: width * 0.12,
         width: "60%",
         borderColor: '#4BAAC8',
-        borderWidth: width*0.003,
-        marginBottom: width*0.025,
-        paddingHorizontal: width*0.025,
-        borderRadius: width*0.013,
-        fontSize: width*0.036,
+        borderWidth: width * 0.003,
+        marginBottom: width * 0.025,
+        paddingHorizontal: width * 0.025,
+        borderRadius: width * 0.013,
+        fontSize: width * 0.036,
         color: '#404040',
 
     },
     button: {
         backgroundColor: '#4BAAC8',
-        padding: width*0.025,
-        borderRadius: width*0.013,
-        marginVertical: width*0.05,
-        width: width*0.43,
+        padding: width * 0.025,
+        borderRadius: width * 0.013,
+        marginVertical: width * 0.05,
+        width: width * 0.43,
         alignItems: 'center',
         justifyContent: 'center',
 
@@ -148,7 +162,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0,
         shadowRadius: 5,
-        elevation: width*0.013,
+        elevation: width * 0.013,
 
 
     }
