@@ -267,7 +267,7 @@ export default function Profile() {
                             </View>
                         </View>
                     </Modal>
-                    {showSuccessModal && <SuccessModal message={"Profile Updated"} />}
+                    {showSuccessModal && <SuccessModal  />}
                     {showFailedModal && <FailedModal message={"Profile could'nt be Updated"} />}
                 </ScrollView>
             }

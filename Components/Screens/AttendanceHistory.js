@@ -114,7 +114,7 @@ export default function AttendanceHistory() {
                 
                 <View style={styles.mainContainer}>
                     <View style={styles.header}>
-                        <Text style={styles.heading}>Summary</Text>
+                        <Text style={styles.heading}>Attendance Summary</Text>
                         {/* <Pressable onPress={() => { setSearch(!search) }}>
                             <Image source={require('../Images/magnifying.png')} style={styles.img} />
                         </Pressable> */}
@@ -160,8 +160,8 @@ export default function AttendanceHistory() {
                                 hideArrows={true}
                                 markedDates={getMarkedDates()}
                                 renderHeader={() => <View />} 
-
                             />
+                            
                         </View>
                     )}
 
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
         marginTop: width*0.025,
     },
     heading: {
-        fontSize: width*0.065,
+        fontSize: width*0.060,
         fontFamily: 'sans-serif-black',
         color: '#4BAAC8',
     },
