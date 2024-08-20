@@ -87,6 +87,9 @@ export default function PendingRequests({ route }) {
                                     </View>
                                 </View>);
                         })}
+                        <Text>
+                            No {type} Request's Available
+                        </Text>
 
                     </View>
                 </ScrollView>)

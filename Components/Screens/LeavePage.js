@@ -32,7 +32,7 @@ export default function LeavePage({ navigation }) {
     const [showFailModal, setShowFailModal] = useState(false);
     const [error, setError] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
-    const [message, setMessage] = useState('');
+    const [file, setFile] = useState(null);
 
 
     const handleDateConfirm = (selectedDate) => {
@@ -135,6 +135,7 @@ export default function LeavePage({ navigation }) {
             if (res && res.length > 0 && res[0].uri) {
                 const source = { uri: res[0].uri };
                 console.log('Selected file:', source);
+                setFile(source);
                 uploadDoc(source);
             } else {
                 console.log('No document selected or invalid response');
@@ -155,7 +156,7 @@ export default function LeavePage({ navigation }) {
         const number = await AsyncStorage.getItem("@UserNumber");
         console.log("Image" + img);
         console.log("Number" + number);
-        const sendImg = await uploadDocuments(img, number);
+        // const sendImg = await uploadDocuments(img, number);
 
         if (sendImg) {
             setIsLoading(false);
@@ -318,7 +319,7 @@ export default function LeavePage({ navigation }) {
                             <View onPress={() => {
                                 setModalVisible(!modalVisible);
                             }}>
-                                <Text style={styles.txt}>Upload Proof Document / Picture</Text>
+                                <Text style={styles.txt}> {file==null?"Upload Proof Document":file.name} </Text>
                             </View>
                         </Pressable>
                     </View>

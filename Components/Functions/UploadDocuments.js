@@ -8,7 +8,7 @@ const uploadDocuments = async (file,number) => {
   formData.append('files', {
     uri: file.uri,
     type: file.type, 
-    name: file.fileName || 'LeaveEvidence.jpg',
+    name: file.fileName ,
   });
   formData.append('Description', 'Medical Evidence');
   formData.append('ContactNo', number);

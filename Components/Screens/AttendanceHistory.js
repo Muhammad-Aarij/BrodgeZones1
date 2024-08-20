@@ -155,7 +155,7 @@ export default function AttendanceHistory() {
                                 current={new Date()}
                                 minDate={moment().startOf('month').format('YYYY-MM-DD')}
                                 maxDate={moment().endOf('month').format('YYYY-MM-DD')}
-                                onDayPress={(day) => console.log('selected day', day)}
+                                // onDayPress={(day) => console.log('selected day', day)}
                                 monthFormat={'MMMM yyyy'}
                                 hideArrows={true}
                                 markedDates={getMarkedDates()}

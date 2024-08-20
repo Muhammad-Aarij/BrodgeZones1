@@ -197,7 +197,7 @@ export default function Dashboard({ navigation }) {
                 const number = await AsyncStorage.getItem('@UserNumber');
                 const data = await GetleavesStatus(number);
                 if (data) {
-                    console.log(data);
+                    // console.log(data);
 
                     const calculateLeaveStatusCounts = (leaves) => {
                         const statusCounts = {
@@ -221,7 +221,7 @@ export default function Dashboard({ navigation }) {
 
                     const leaveDates = calculateLeaveStatusCounts(data);
                     setLeaveCount(leaveDates);
-                    console.log("Leave", leaveDates);
+                    // console.log("Leave", leaveDates);
                 }
             } catch (e) {
                 setError(e.message);
