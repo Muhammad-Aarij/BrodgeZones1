@@ -27,6 +27,7 @@ export default function LeavePage({ navigation }) {
     const [send, setSendTo] = useState(null);
     const [reason, setReason] = useState('');
     const [description, setDescription] = useState('');
+    const [ImagedOc, setImagedOc] = useState();
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailModal, setShowFailModal] = useState(false);
@@ -94,6 +95,7 @@ export default function LeavePage({ navigation }) {
             } else {
                 setModalVisible(!modalVisible)
                 const file = response.assets[0];
+                setImagedOc(source);
                 uploadDoc(file);
             }
         });
@@ -117,6 +119,7 @@ export default function LeavePage({ navigation }) {
                 } else {
                     setModalVisible(!modalVisible)
                     const source = { uri: response.assets[0].uri };
+                    setImagedOc(source);
                     console.log('Selected file:', source);
                     uploadDoc(source);
                 }
@@ -132,11 +135,11 @@ export default function LeavePage({ navigation }) {
                 type: [DocumentPicker.types.allFiles],
             });
     
-            if (res && res.length > 0 && res[0].uri) {
-                const source = { uri: res[0].uri };
-                console.log('Selected file:', source);
-                setFile(source);
-                uploadDoc(source);
+            if (res && res.length > 0) {
+                const file = res[0]; // This is the picked file object
+                console.log('Selected file:', file);
+                setFile(file);
+                uploadDoc(file);
             } else {
                 console.log('No document selected or invalid response');
             }
@@ -149,6 +152,7 @@ export default function LeavePage({ navigation }) {
         }
     };
     
+    
 
 
     const uploadDoc = async (img) => {
@@ -156,7 +160,7 @@ export default function LeavePage({ navigation }) {
         const number = await AsyncStorage.getItem("@UserNumber");
         console.log("Image" + img);
         console.log("Number" + number);
-        // const sendImg = await uploadDocuments(img, number);
+        const sendImg = await uploadDocuments(img, number);
 
         if (sendImg) {
             setIsLoading(false);
@@ -322,6 +326,9 @@ export default function LeavePage({ navigation }) {
                                 <Text style={styles.txt}> {file==null?"Upload Proof Document":file.name} </Text>
                             </View>
                         </Pressable>
+                    </View>
+                    <View style={{...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        
                     </View>
                     <Text style={styles.error}>{firstError}</Text>
                     <View>

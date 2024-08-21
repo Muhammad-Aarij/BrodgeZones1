@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-const uploadDocuments = async (file,number) => {
+const uploadDocuments = async (file, number) => {
   // Create a new FormData object to handle the file and data
   const formData = new FormData();
 
-  // Append the files and other fields to the FormData object
+  // Append the file and other fields to the FormData object
   formData.append('files', {
     uri: file.uri,
     type: file.type, 
-    name: file.fileName ,
+    name: file.fileName || file.name, // Use file.fileName or file.name depending on availability
   });
   formData.append('Description', 'Medical Evidence');
   formData.append('ContactNo', number);
@@ -25,10 +25,10 @@ const uploadDocuments = async (file,number) => {
     if (response.data.isSuccess) {
       console.log('Documents uploaded successfully');
     } else {
-      console.error('Failed to upload documents');
+      console.error('Failed to upload documents:', response.data.message || 'Unknown error');
     }
   } catch (error) {
-    console.error('Error uploading documents:', error);
+    console.error('Error uploading documents:', error.response?.data || error.message || error);
   }
 };
 
