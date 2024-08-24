@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, TextInput, ScrollView, Image, Pressable, Dimensions, Modal } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -12,6 +12,8 @@ import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import DocumentPicker from 'react-native-document-picker';
 import uploadDocuments from '../Functions/UploadDocuments';
+import GetListofTeamLeads from '../Functions/GetListofTeamLeads';
+import LoaderModal from '../Loaders/LoaderModal';
 
 const { width } = Dimensions.get('window');
 
@@ -34,7 +36,33 @@ export default function LeavePage({ navigation }) {
     const [error, setError] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
     const [file, setFile] = useState(null);
+    const [emplyeeList, setEmployeeList] = useState([]);
 
+    useEffect(() => {
+        const getlist = async () => {
+            setIsLoading(true);
+            try {
+                const response = await GetListofTeamLeads();
+                if (response!=null) {
+                    const transformedList = response.map(item => ({
+                        label: item.Name,
+                        value: item.UserIdentityId
+                    }));
+                    setEmployeeList(transformedList);
+                    console.log("first employeeee" + emplyeeList[0].label);
+                    setIsLoading(false);
+                }
+                else {
+                    setIsLoading(false);
+                }
+            } catch (e) {
+                setIsLoading(false);
+                console.error(e);
+            }
+        };
+
+        getlist();
+    }, []);
 
     const handleDateConfirm = (selectedDate) => {
         setOpen(false);
@@ -57,10 +85,6 @@ export default function LeavePage({ navigation }) {
         { label: 'Emergency Leave', value: '3' },
         // { label: 'Annual Leave', value: '4' },
         // { label: 'Other', value: '4' },
-    ];
-    const sendTo = [
-        { label: 'HR', value: 'HR' },
-        { label: 'Team-Lead', value: 'Team-Lead' },
     ];
 
     const renderItem = (item) => (
@@ -134,7 +158,7 @@ export default function LeavePage({ navigation }) {
             const res = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
             });
-    
+
             if (res && res.length > 0) {
                 const file = res[0]; // This is the picked file object
                 console.log('Selected file:', file);
@@ -151,8 +175,8 @@ export default function LeavePage({ navigation }) {
             }
         }
     };
-    
-    
+
+
 
 
     const uploadDoc = async (img) => {
@@ -199,7 +223,7 @@ export default function LeavePage({ navigation }) {
             forwardTo: send,
             availed: 1,
         };
-        
+
         const success = await LeaveApply(data);
         if (success) {
             console.log("success");
@@ -220,152 +244,155 @@ export default function LeavePage({ navigation }) {
     };
 
     return (
-        <>
-        
-            <ScrollView style={styles.mainContainer}>
-                <View style={styles.header}>
-                    <Text style={styles.heading}>Apply for Leave</Text>
-                    <Pressable style={styles.historybutton} onPress={() => navigation.navigate('Pendingrequests', { type: '' })}>
-                        <Image style={styles.img} source={history}></Image>
-                    </Pressable>
-                </View>
-                <View style={styles.body}>
-                    <View style={styles.bodyline}>
-                        <Text style={styles.label}>From</Text>
-                        <TouchableOpacity style={styles.button} onPress={() => setOpen(true)}>
-                            <Text style={{ fontSize: width * 0.036, color: "white" }}>{date == null ? "Select Date" : date.toDateString()}</Text>
-                        </TouchableOpacity>
-                        <DatePicker
-                            modal
-                            mode='date'
-                            open={open}
-                            date={date || new Date()}
-                            minimumDate={new Date()}
-                            onConfirm={handleDateConfirm}
-                            onCancel={() => setOpen(false)}
-                        />
-                    </View>
-                    <View style={styles.bodyline}>
-                        <Text style={styles.label}>To</Text>
-                        <TouchableOpacity style={styles.button} onPress={() => setOpen2(true)}>
-                            <Text style={{ fontSize: width * 0.036, color: "white" }}>{date2 == null ? "Select Date" : date2.toDateString()}</Text>
-                        </TouchableOpacity>
-                        <DatePicker
-                            modal
-                            mode='date'
-                            open={open2}
-                            date={date2 || date} // Set the initial date for the end date picker
-                            minimumDate={date} // Set the minimum selectable date for the end date picker
-                            onConfirm={handleDateConfirm2}
-                            onCancel={() => setOpen2(false)}
-                        />
-                    </View>
-                    <View style={{ ...styles.bodyline, marginTop: 15, }}>
-                        <Text style={styles.label}>Forward To</Text>
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={sendTo}
-                            maxHeight={250}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select Employee"
-                            searchPlaceholder="Search..."
-                            value={send}
-                            renderItem={renderItem}
-                            onChange={item => {
-                                setSendTo(item.value);
-                            }}
-                        />
-                    </View>
-                    <View style={{ ...styles.bodyline, marginTop: 15 }}>
-                        <Text style={styles.label}>Select Leave Type</Text>
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={data}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select Leave Type"
-                            searchPlaceholder="Search..."
-                            value={value}
-                            onChange={item => {
-                                setValue(item.value);
-                            }}
-                            renderItem={renderItem2}
-                        />
-                    </View>
-                    {value === "other" && (
-                        <View style={{ ...styles.bodyline, marginTop: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                            <Text style={styles.label}>Reason</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={reason}
-                                onChangeText={setReason}
-                                placeholder="Enter reason"
-                            />
-                        </View>
-                    )}
-                    <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        {/* <Text style={{ ...styles.label, width: "28%" }}>Upload Proof Document</Text> */}
-                        <Pressable style={styles.textArea} onPress={() => {
-                            setModalVisible(!modalVisible);
-                        }}>
-                            <Image source={upload} style={styles.uplaod}>
-                            </Image>
-                            <View onPress={() => {
-                                setModalVisible(!modalVisible);
-                            }}>
-                                <Text style={styles.txt}> {file==null?"Upload Proof Document":file.name} </Text>
-                            </View>
+        <>{
+            isLoading ?
+                <LoaderModal />
+                :
+                <ScrollView style={styles.mainContainer}>
+                    <View style={styles.header}>
+                        <Text style={styles.heading}>Apply for Leave</Text>
+                        <Pressable style={styles.historybutton} onPress={() => navigation.navigate('Pendingrequests', { type: '' })}>
+                            <Image style={styles.img} source={history}></Image>
                         </Pressable>
                     </View>
-                    <View style={{...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        
-                    </View>
-                    <Text style={styles.error}>{firstError}</Text>
-                    <View>
-                        <TouchableOpacity style={{ ...styles.button, width: 170, }} onPress={ApplyforLeave}>
-                            <Text style={{ fontSize: width * 0.036, color: "white" }}>Submit</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => {
-                        setModalVisible(!modalVisible);
-                    }}
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <TouchableOpacity style={styles.modalButton} onPress={pickDocument}>
-                                <Text style={styles.buttonText}>Choose Document</Text>
+                    <View style={styles.body}>
+                        <View style={styles.bodyline}>
+                            <Text style={styles.label}>From</Text>
+                            <TouchableOpacity style={styles.button} onPress={() => setOpen(true)}>
+                                <Text style={{ fontSize: width * 0.036, color: "white" }}>{date == null ? "Select Date" : date.toDateString()}</Text>
                             </TouchableOpacity>
+                            <DatePicker
+                                modal
+                                mode='date'
+                                open={open}
+                                date={date || new Date()}
+                                minimumDate={new Date()}
+                                onConfirm={handleDateConfirm}
+                                onCancel={() => setOpen(false)}
+                            />
+                        </View>
+                        <View style={styles.bodyline}>
+                            <Text style={styles.label}>To</Text>
+                            <TouchableOpacity style={styles.button} onPress={() => setOpen2(true)}>
+                                <Text style={{ fontSize: width * 0.036, color: "white" }}>{date2 == null ? "Select Date" : date2.toDateString()}</Text>
+                            </TouchableOpacity>
+                            <DatePicker
+                                modal
+                                mode='date'
+                                open={open2}
+                                date={date2 || date} // Set the initial date for the end date picker
+                                minimumDate={date} // Set the minimum selectable date for the end date picker
+                                onConfirm={handleDateConfirm2}
+                                onCancel={() => setOpen2(false)}
+                            />
+                        </View>
+                        <View style={{ ...styles.bodyline, marginTop: 15, }}>
+                            <Text style={styles.label}>Forward To</Text>
+                            <Dropdown
+                                style={styles.dropdown}
+                                placeholderStyle={styles.placeholderStyle}
+                                selectedTextStyle={styles.selectedTextStyle}
+                                inputSearchStyle={styles.inputSearchStyle}
+                                iconStyle={styles.iconStyle}
+                                data={emplyeeList}
+                                maxHeight={250}
+                                labelField="label"
+                                valueField="value"
+                                placeholder="Select Employee"
+                                searchPlaceholder="Search..."
+                                value={send}
+                                renderItem={renderItem}
+                                onChange={item => {
+                                    setSendTo(item.value);
+                                }}
+                            />
+                        </View>
+                        <View style={{ ...styles.bodyline, marginTop: 15 }}>
+                            <Text style={styles.label}>Select Leave Type</Text>
+                            <Dropdown
+                                style={styles.dropdown}
+                                placeholderStyle={styles.placeholderStyle}
+                                selectedTextStyle={styles.selectedTextStyle}
+                                inputSearchStyle={styles.inputSearchStyle}
+                                iconStyle={styles.iconStyle}
+                                data={data}
+                                maxHeight={300}
+                                labelField="label"
+                                valueField="value"
+                                placeholder="Select Leave Type"
+                                searchPlaceholder="Search..."
+                                value={value}
+                                onChange={item => {
+                                    setValue(item.value);
+                                }}
+                                renderItem={renderItem2}
+                            />
+                        </View>
+                        {value === "other" && (
+                            <View style={{ ...styles.bodyline, marginTop: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                                <Text style={styles.label}>Reason</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={reason}
+                                    onChangeText={setReason}
+                                    placeholder="Enter reason"
+                                />
+                            </View>
+                        )}
+                        <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                            {/* <Text style={{ ...styles.label, width: "28%" }}>Upload Proof Document</Text> */}
+                            <Pressable style={styles.textArea} onPress={() => {
+                                setModalVisible(!modalVisible);
+                            }}>
+                                <Image source={upload} style={styles.uplaod}>
+                                </Image>
+                                <View onPress={() => {
+                                    setModalVisible(!modalVisible);
+                                }}>
+                                    <Text style={styles.txt}> {file == null ? "Upload Proof Document" : file.name} </Text>
+                                </View>
+                            </Pressable>
+                        </View>
+                        <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
 
-                            <TouchableOpacity style={styles.modalButton} onPress={pickImageFromGallery}>
-                                <Text style={styles.buttonText}>Choose from Gallery</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalButton} onPress={takePhotoWithCamera}>
-                                <Text style={styles.buttonText}>Take Photo</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalButtoncross} onPress={() => setModalVisible(!modalVisible)}>
-                                <Text style={styles.buttonTextcross}>X</Text>
+                        </View>
+                        <Text style={styles.error}>{firstError}</Text>
+                        <View>
+                            <TouchableOpacity style={{ ...styles.button, width: 170, }} onPress={ApplyforLeave}>
+                                <Text style={{ fontSize: width * 0.036, color: "white" }}>Submit</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>
-            </ScrollView>
-            {showSuccessModal && <SuccessModal message={"Request Sent"} />}
-            {showFailModal && <FailedModal />}
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                            setModalVisible(!modalVisible);
+                        }}
+                    >
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <TouchableOpacity style={styles.modalButton} onPress={pickDocument}>
+                                    <Text style={styles.buttonText}>Choose Document</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={styles.modalButton} onPress={pickImageFromGallery}>
+                                    <Text style={styles.buttonText}>Choose from Gallery</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalButton} onPress={takePhotoWithCamera}>
+                                    <Text style={styles.buttonText}>Take Photo</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalButtoncross} onPress={() => setModalVisible(!modalVisible)}>
+                                    <Text style={styles.buttonTextcross}>X</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+                    {showSuccessModal && <SuccessModal message={"Request Sent"} />}
+                    {showFailModal && <FailedModal />}
+                </ScrollView>
+        }
         </>
     );
 }
@@ -373,19 +400,19 @@ export default function LeavePage({ navigation }) {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        padding: width*0.05,
-        borderRadius: width*0.025,
+        padding: width * 0.05,
+        borderRadius: width * 0.025,
     },
     header: {
         width: "100%",
-        height: width*0.17,
+        height: width * 0.17,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
     },
     img: {
-        width: width*0.072,
-        height: width*0.072,
+        width: width * 0.072,
+        height: width * 0.072,
         resizeMode: 'contain',
     },
     heading: {
@@ -394,13 +421,13 @@ const styles = StyleSheet.create({
         color: '#4BAAC8',
     },
     body: {
-        marginTop: width*0.01,
-        marginBottom: width*0.13,
+        marginTop: width * 0.01,
+        marginBottom: width * 0.13,
         width: "100%",
         alignItems: 'center',
         backgroundColor: "white",
-        padding: width*0.05,
-        borderRadius: width*0.025,
+        padding: width * 0.05,
+        borderRadius: width * 0.025,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -411,7 +438,7 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     bodyline: {
-        marginTop: width*0.013,
+        marginTop: width * 0.013,
         width: "100%"
     },
     label: {
@@ -420,9 +447,9 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#4BAAC8',
-        padding: width*0.02,
-        borderRadius: width*0.012,
-        marginTop: width*0.025,
+        padding: width * 0.02,
+        borderRadius: width * 0.012,
+        marginTop: width * 0.025,
         alignItems: 'center',
         shadowColor: "#000",
         shadowOffset: {
@@ -431,18 +458,18 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: width*0.01,
+        elevation: width * 0.01,
     },
     dropdown: {
         height: 50,
         width: '100%',
         backgroundColor: '#f9f9f9',
         color: "black",
-        borderRadius: width*0.012,
+        borderRadius: width * 0.012,
         borderWidth: 1.5,
         borderColor: '#d3d3d3',
-        paddingHorizontal: width*0.025,
-        marginTop: width*0.025,
+        paddingHorizontal: width * 0.025,
+        marginTop: width * 0.025,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -450,10 +477,10 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: width*0.01,
+        elevation: width * 0.01,
     },
     placeholderStyle: {
-        fontSize: width*0.034,
+        fontSize: width * 0.034,
         color: '#999',
     },
     selectedTextStyle: {
@@ -461,41 +488,41 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     inputSearchStyle: {
-        height: width*0.1,
-        fontSize: width*0.04,
+        height: width * 0.1,
+        fontSize: width * 0.04,
     },
     iconStyle: {
-        width: width*0.05,
-        height: width*0.05,
+        width: width * 0.05,
+        height: width * 0.05,
     },
     icon: {
-        marginRight: width*0.025,
+        marginRight: width * 0.025,
     },
     dropdownItem: {
-        padding: width*0.025,
+        padding: width * 0.025,
     },
     dropdownItemText: {
-        fontSize: width*0.035,
+        fontSize: width * 0.035,
         color: '#71797E',
     },
     input: {
-        height: width*0.1,
+        height: width * 0.1,
         borderColor: '#d3d3d3',
-        borderWidth: width*0.005,
-        borderRadius: width*0.01,
-        paddingHorizontal: width*0.025,
+        borderWidth: width * 0.005,
+        borderRadius: width * 0.01,
+        paddingHorizontal: width * 0.025,
         width: '70%',
         backgroundColor: "#f9f9f9",
     },
     textArea: {
         borderColor: '#d3d3d3',
-        borderWidth: width*0.005,
-        borderRadius: width*0.01,
-        paddingHorizontal: width*0.04,
-        paddingVertical:width*0.06,
+        borderWidth: width * 0.005,
+        borderRadius: width * 0.01,
+        paddingHorizontal: width * 0.04,
+        paddingVertical: width * 0.06,
         color: "black",
         width: '100%',
-        height: width*0.35,
+        height: width * 0.35,
         fontSize: width * 0.036,
         backgroundColor: "#f9f9f9",
         flexDirection: "column",
@@ -504,19 +531,19 @@ const styles = StyleSheet.create({
     },
     selectedDateText: {
         width: "100%",
-        marginTop: width*0.01,
-        fontSize: width*0.034,
+        marginTop: width * 0.01,
+        fontSize: width * 0.034,
         color: 'grey',
         textAlign: "right",
     },
     error: {
         fontWeight: "500",
         color: "red",
-        marginVertical: width*0.01,
+        marginVertical: width * 0.01,
     },
     historybutton: {
         backgroundColor: '#FFFF',
-        padding: width*0.02,
+        padding: width * 0.02,
         borderRadius: 5,
         alignItems: 'center',
         shadowColor: "#000",
@@ -526,7 +553,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: width*0.01,
+        elevation: width * 0.01,
     },
     uplaod: {
         width: width * 0.27,
@@ -537,17 +564,17 @@ const styles = StyleSheet.create({
         fontSize: width * 0.036,
         color: "#969696",
         marginTop: 5,
-        marginBottom: width*0.025,
+        marginBottom: width * 0.025,
         textAlign: "center",
         fontWeight: "500",
     },
     buttonText: {
         color: 'white',
-        fontSize: width*0.037,
+        fontSize: width * 0.037,
     },
     buttonTextcross: {
         color: 'white',
-        fontSize: width*0.027,
+        fontSize: width * 0.027,
     },
     centeredView: {
         flex: 1,
@@ -556,10 +583,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.7)',
     },
     modalView: {
-        margin: width*0.05,
+        margin: width * 0.05,
         backgroundColor: 'white',
-        borderRadius: width*0.04,
-        padding: width*0.08,
+        borderRadius: width * 0.04,
+        padding: width * 0.08,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
@@ -567,32 +594,32 @@ const styles = StyleSheet.create({
             height: 2,
         },
         shadowOpacity: 0.25,
-        shadowRadius: width*0.01,
-        elevation: width*0.013,
+        shadowRadius: width * 0.01,
+        elevation: width * 0.013,
     },
     modalButton: {
         backgroundColor: '#4BAAC8',
-        borderRadius: width*0.025,
-        padding: width*0.025,
-        elevation: width*0.005,
-        marginVertical: width*0.012,
-        width: width*0.5,
+        borderRadius: width * 0.025,
+        padding: width * 0.025,
+        elevation: width * 0.005,
+        marginVertical: width * 0.012,
+        width: width * 0.5,
     },
     modalButtoncross: {
         backgroundColor: 'red',
-        borderRadius: width*0.025,
+        borderRadius: width * 0.025,
         // padding: 10,
         justifyContent: "center",
         alignItems: "center",
-        marginVertical: width*0.01,
-        marginTop: width*0.04,
-        width: width*0.08,
-        height: width*0.08,
+        marginVertical: width * 0.01,
+        marginTop: width * 0.04,
+        width: width * 0.08,
+        height: width * 0.08,
     },
     modalText: {
-        marginBottom: width*0.04,
+        marginBottom: width * 0.04,
         textAlign: 'center',
-        fontSize: width*0.03,
+        fontSize: width * 0.03,
         color: "black",
         fontWeight: 'bold',
     },
