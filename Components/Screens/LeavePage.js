@@ -14,6 +14,8 @@ import DocumentPicker from 'react-native-document-picker';
 import uploadDocuments from '../Functions/UploadDocuments';
 import GetListofTeamLeads from '../Functions/GetListofTeamLeads';
 import LoaderModal from '../Loaders/LoaderModal';
+import GetLeaveAllowedId from '../Functions/GetLeaveAllowedId';
+import GetRemainingLeaves from '../Functions/GetRemianingLeaves';
 
 const { width } = Dimensions.get('window');
 
@@ -37,19 +39,21 @@ export default function LeavePage({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [file, setFile] = useState(null);
     const [emplyeeList, setEmployeeList] = useState([]);
+    const [RemainingLeaves, setRemianingLeaves] = useState({});
+    const [LeaveAllowedId, setLeaveAllowedId] = useState(0);
 
     useEffect(() => {
         const getlist = async () => {
             setIsLoading(true);
             try {
                 const response = await GetListofTeamLeads();
-                if (response!=null) {
+                if (response != null) {
                     const transformedList = response.map(item => ({
                         label: item.Name,
                         value: item.UserIdentityId
                     }));
                     setEmployeeList(transformedList);
-                    console.log("first employeeee" + emplyeeList[0].label);
+                    // console.log("first employeeee" + emplyeeList[0].label);
                     setIsLoading(false);
                 }
                 else {
@@ -63,6 +67,25 @@ export default function LeavePage({ navigation }) {
 
         getlist();
     }, []);
+
+    const getLeaveTypeDetails = async (id) => {
+        setIsLoading(true);
+        const phone = await AsyncStorage.getItem("@UserNumber");
+        try {
+            const getid = await GetLeaveAllowedId(phone, id);
+            if (getid) {
+                console.log("get RemainingLeaves", getid.RemainingLeaves);
+                console.log("get id", getid.LeaveAllowedId);
+                setLeaveAllowedId(getid.LeaveAllowedId); // Set LeaveAllowedId state
+                setRemianingLeaves(getid); // Set RemainingLeaves state
+            } else {
+                console.log("Failed to fetch leave details");
+            }
+        } catch (error) {
+            console.error("Error fetching leave details:", error);
+        }
+        setIsLoading(false);
+    };
 
     const handleDateConfirm = (selectedDate) => {
         setOpen(false);
@@ -193,43 +216,51 @@ export default function LeavePage({ navigation }) {
             setIsLoading(false);
         }
     };
-
     const ApplyforLeave = async () => {
         const number = await AsyncStorage.getItem('@UserNumber');
         const mail = await AsyncStorage.getItem('@UserEmail');
         const newErrors = [];
-
+    
         if (!mail) newErrors.push("User email is required.");
         if (!date) newErrors.push("From date is required.");
-        // if (!date2) newErrors.push("To date is required.");
         if (!value) newErrors.push("Leave Type is required.");
         if (!send) newErrors.push("Forward To is required.");
-
+    
         if (newErrors.length > 0) {
             setError([newErrors[0]]); // Store only the first error
             console.log(error);
             return;
         }
         setError([]);
-
+    
         setIsLoading(true);
+        
+        // Use the latest LeaveAllowedId directly
         const data = {
-            createdBy: "email@admin.com",
-            modifiedBy: "email@admin.com",
-            leaveAllowedId: value,
             fromDate: date,
             toDate: date2,
             phoneNumber: number,
+            createdBy: "email@admin.com",
+            modifiedBy: "email@admin.com",
+            leaveAllowedId: LeaveAllowedId, // This should be defined after getLeaveTypeDetails is called
             forwardTo: send,
             availed: 1,
         };
-
+    
+        console.log(
+            "leaveallowedid:", LeaveAllowedId,
+            "from:", date,
+            "to:", date2,
+            "number:", number,
+            "formard:", send
+        );
+    
         const success = await LeaveApply(data);
         if (success) {
             console.log("success");
             setShowSuccessModal(true);
             setTimeout(() => setShowSuccessModal(false), 3000);
-
+    
             setValue(null);
             setDate(new Date());
             setDate2(null);
@@ -322,9 +353,11 @@ export default function LeavePage({ navigation }) {
                                 placeholder="Select Leave Type"
                                 searchPlaceholder="Search..."
                                 value={value}
-                                onChange={item => {
-                                    setValue(item.value);
-                                }}
+                                onChange={
+                                    item => {
+                                        setValue(item.value);
+                                        getLeaveTypeDetails(item.value);
+                                    }}
                                 renderItem={renderItem2}
                             />
                         </View>

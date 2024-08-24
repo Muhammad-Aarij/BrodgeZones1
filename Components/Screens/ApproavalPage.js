@@ -9,47 +9,65 @@ import reject from '../Images/reject.png'
 
 const { width } = Dimensions.get('window');
 
-export default function ApproavalPage() {
+export default function ApproavalPage({ route }) {
+    const { data } = route.params;
+    console.log(data.FromDate);
+
+    function convertToDateOnly(dateTimeString) {
+        // Create a Date object from the date-time string
+        const date = new Date(dateTimeString);
+
+        // Extract year, month, and day
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+        const day = date.getDate().toString().padStart(2, '0');
+
+        // Return the formatted date string
+        return `${year}-${month}-${day}`;
+    }
+
     return (
         <View style={styles.maincontainer}>
             <View style={styles.header}>
                 <Image source={user} style={styles.img}></Image>
-                <Text style={styles.title}>Muhammad Ali</Text>
+                <Text style={styles.title}>{data.Name}</Text>
             </View>
 
             <View style={styles.info}>
                 <View style={styles.infotile}>
                     <Text style={styles.txt}>Applied Date</Text>
-                    <Text style={styles.txtlight}>25/4/512</Text>
+                    <Text style={styles.txtlight}>{convertToDateOnly(data.CreatedDate)}</Text>
                 </View>
                 <View style={styles.infotile}>
                     <View style={styles.infotileleft}>
                         <Image source={calendar} style={styles.smallimg}></Image>
                         <Text style={styles.txt}>From</Text>
                     </View>
-                    <Text style={styles.txtlight}>25/4/512</Text>
+                    <Text style={styles.txtlight}>{convertToDateOnly(data.FromDate)}</Text>
                 </View>
                 <View style={styles.infotile}>
                     <View style={styles.infotileleft}>
                         <Image source={calendar} style={styles.smallimg}></Image>
                         <Text style={styles.txt}>To</Text>
                     </View>
-                    <Text style={styles.txtlight}>23/4/512</Text>
+                    <Text style={styles.txtlight}>{convertToDateOnly(data.ToDate)}</Text>
                 </View>
                 <View style={styles.infotile}>
                     <View style={styles.infotileleft}>
                         <Image source={menu} style={styles.smallimg}></Image>
                         <Text style={styles.txt}>Leave Type</Text>
                     </View>
-                    <Text style={styles.txtlight}>Medical</Text>
+                    {data.LeaveTypeId == 1 && <Text style={styles.txtlight}>Medical</Text>}
+                    {data.LeaveTypeId == 2 && <Text style={styles.txtlight}>Casual</Text>}
+                    {data.LeaveTypeId == 3 && <Text style={styles.txtlight}>Emergency</Text>}
                 </View>
-                <View style={styles.infotile}>
+                {/* <View style={styles.infotile}>
                     <View style={styles.infotileleft}>
                         <Image source={docs} style={styles.smallimg}></Image>
                         <Text style={styles.txt}>Document</Text>
                     </View>
                     <Text style={styles.txtlight}>---</Text>
-                </View>
+                </View> */}
 
             </View>
             <View style={styles.btncontainer}>
@@ -114,8 +132,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 5,
         height: 50,
-        
-        borderBottomWidth:0.5,
+
+        borderBottomWidth: 0.5,
         borderBottomColor: '#ccc',
     },
     infotileleft: {
@@ -156,9 +174,9 @@ const styles = StyleSheet.create({
         // padding: 10,
     },
     btn: {
-        flexDirection:"row",
+        flexDirection: "row",
         width: width * 0.4,
-        paddingVertical:7,
+        paddingVertical: 7,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 5,
