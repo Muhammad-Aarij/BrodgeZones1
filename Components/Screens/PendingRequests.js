@@ -19,7 +19,7 @@ export default function PendingRequests({ navigation }) {
 
     function convertToDateOnly(dateTimeString) {
         const date = new Date(dateTimeString);
-    
+
         const year = date.getFullYear();
         const monthNames = [
             "Jan", "Feb", "Mar", "Apr", "May", "June",
@@ -27,7 +27,7 @@ export default function PendingRequests({ navigation }) {
         ];
         const month = monthNames[date.getMonth()]; // Get the month name
         const day = date.getDate().toString().padStart(2, '0');
-    
+
         return `${day}-${month}-${year}`;
     }
 
@@ -168,7 +168,11 @@ export default function PendingRequests({ navigation }) {
                                                 </View>
                                                 <View style={styles.tileright}>
                                                     <Text style={styles.heading}>{type}</Text>
-                                                    <Text style={styles.date}>{convertToDateOnly(request.FromDate)} - {convertToDateOnly(request.ToDate)}</Text>
+                                                    <Text style={styles.date}>
+                                                        {request.FromDate === request.ToDate
+                                                            ? convertToDateOnly(request.FromDate)
+                                                            : `${convertToDateOnly(request.FromDate)} - ${convertToDateOnly(request.ToDate)}`}
+                                                    </Text>
                                                     <Text style={[styles.content, getStatusColor(request.Status)]}>
                                                         {request.Status}
                                                     </Text>
@@ -306,12 +310,12 @@ const styles = StyleSheet.create({
     },
     content: {
         fontSize: width * 0.033,
-        fontWeight:"bold",
-        backgroundColor:"#FFFFFF",
-        borderRadius:5,
-        width:"40%",
-        padding:2,
-        paddingLeft:5,
+        fontWeight: "bold",
+        backgroundColor: "#FFFFFF",
+        borderRadius: 5,
+        width: "40%",
+        padding: 2,
+        paddingLeft: 5,
 
         shadowColor: '#000',
         shadowOffset: {

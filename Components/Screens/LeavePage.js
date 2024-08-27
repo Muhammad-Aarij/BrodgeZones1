@@ -41,6 +41,7 @@ export default function LeavePage({ navigation }) {
     const [emplyeeList, setEmployeeList] = useState([]);
     const [RemainingLeaves, setRemianingLeaves] = useState();
     const [LeaveAllowedId, setLeaveAllowedId] = useState(0);
+    const [source,setSource] =useState(null); 
 
     useEffect(() => {
         const getlist = async () => {
@@ -142,13 +143,17 @@ export default function LeavePage({ navigation }) {
             } else {
                 setModalVisible(!modalVisible)
                 const file = response.assets[0];
-                setImagedOc(source);
-                uploadDoc(file);
+                console.log('Selected file:', file);
+                setImagedOc(file);
+                setSource(file);
+                // uploadDoc(file);
             }
         });
     };
 
     const takePhotoWithCamera = async () => {
+        setFile(null);
+        setImagedOc(null);
         const permissionResult = await requestCameraPermission();
         if (permissionResult === RESULTS.GRANTED) {
             const options = {
@@ -165,10 +170,11 @@ export default function LeavePage({ navigation }) {
                     console.log('Camera Error: ', response.errorMessage);
                 } else {
                     setModalVisible(!modalVisible)
-                    const source = { uri: response.assets[0].uri };
+                    const source = response.assets[0];
                     setImagedOc(source);
                     console.log('Selected file:', source);
-                    uploadDoc(source);
+                    // uploadDoc(source);
+                    setSource(source);
                 }
             });
         } else {
@@ -177,16 +183,19 @@ export default function LeavePage({ navigation }) {
     };
 
     const pickDocument = async () => {
+        setImagedOc(null);
         try {
             const res = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
             });
 
             if (res && res.length > 0) {
-                const file = res[0]; // This is the picked file object
+                const file = res[0];
                 console.log('Selected file:', file);
                 setFile(file);
-                uploadDoc(file);
+                // uploadDoc(file);
+                setSource(file);
+                setModalVisible(false);
             } else {
                 console.log('No document selected or invalid response');
             }
@@ -237,7 +246,7 @@ export default function LeavePage({ navigation }) {
 
         const data = {
             fromDate: date,
-            toDate: date2,
+            toDate: date2 ? date2 : date,
             phoneNumber: number,
             createdBy: "email@admin.com",
             modifiedBy: "email@admin.com",
@@ -246,15 +255,9 @@ export default function LeavePage({ navigation }) {
             availed: 1,
             CreatedDate: today,
         };
-
-        console.log(
-            "leaveallowedid:", LeaveAllowedId,
-            "from:", date,
-            "to:", date2,
-            "number:", number,
-            "formard:", send
-        );
-
+        if(source!=null)   {
+            uploadDoc(source);
+        }
         const success = await LeaveApply(data);
         if (success) {
             console.log("success");
@@ -267,6 +270,10 @@ export default function LeavePage({ navigation }) {
             setReason('');
             setDescription('');
             setSendTo('');
+            setRemianingLeaves(null);
+            setSource(null);
+            setImagedOc(null);
+            setFile(null);
         } else {
             setShowFailModal(true);
             setTimeout(() => setShowFailModal(false), 3000);
@@ -395,6 +402,12 @@ export default function LeavePage({ navigation }) {
                                 </View>
                             </Pressable>
                         </View>
+                        {ImagedOc != null && <View style={{ ...styles.bodyline, marginTop: 15 }}>
+                            <Text style={{ ...styles.smalltxt, alignSelf: "center" }}>** Image Added **</Text>
+                        </View>}
+                        {file != null && <View style={{ ...styles.bodyline, marginTop: 15 }}>
+                            <Text style={{ ...styles.smalltxt, alignSelf: "center" }}>** Document Added **</Text>
+                        </View>}
                         <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
 
                         </View>

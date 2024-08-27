@@ -1,6 +1,6 @@
 import React, { Component, useEffect, useState } from 'react'
 import { View, Text, Image, StyleSheet, ImageBackground, TouchableOpacity, BackHandler, PermissionsAndroid, Pressable, Dimensions } from 'react-native'
-import bg from '../Images/bg.png'
+// import bg from '../Images/bg.png'
 import attendance from '../Images/calendar2.png'
 import settings from '../Images/dashboard.png'
 import leave from '../Images/leave.png'
@@ -9,7 +9,7 @@ import user from '../Images/user.png'
 import mappin from '../Images/map-pin.png'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native'
-import LinearGradient from 'react-native-linear-gradient';
+// import LinearGradient from 'react-native-linear-gradient';
 import bell from '../Images/bell.png';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 const { width } = Dimensions.get('window');
@@ -62,7 +62,7 @@ export default function MainPage({ navigation }) {
 
     return (
 
-        <ImageBackground style={styles.maincontainer}>
+        <View style={styles.maincontainer}>
             <View style={styles.top}>
                 <View style={styles.header}>
                     <Text style={styles.heading}>Attendance App</Text>
@@ -184,7 +184,7 @@ export default function MainPage({ navigation }) {
                 <Text style={styles.txt}>2024 BridgeZones ©</Text>
                 <Text style={styles.txt}>All rights reserved</Text>
             </View>
-        </ImageBackground>
+        </View>
     )
 }
 
