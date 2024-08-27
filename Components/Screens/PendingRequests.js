@@ -1,194 +1,364 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react'
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions, } from 'react-native'
-import GetleavesStatus from '../Functions/GetLeavesStatus';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, TouchableOpacity, ScrollView, Dimensions, Image, Pressable } from 'react-native';
+import { Text } from 'react-native-paper';
 import LoaderModal from '../Loaders/LoaderModal';
+import moment from 'moment';
+import GetleavesStatus from '../Functions/GetLeavesStatus';
+import bell from '../Images/bell.png';
+import emergency from '../Images/emergency.png';
+import medical from '../Images/medical.png';
+import casual from '../Images/casual.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
-export default function PendingRequests({ route }) {
+export default function PendingRequests({ navigation }) {
+    const [requestList, setRequestList] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [requesttype, setRequestType] = useState('');
 
-    const { type } = route.params;
-    const [leavesdata, setLeaves] = useState([]);
-    const [isLoading, setLoading] = useState(false);
+    function convertToDateOnly(dateTimeString) {
+        const date = new Date(dateTimeString);
+    
+        const year = date.getFullYear();
+        const monthNames = [
+            "Jan", "Feb", "Mar", "Apr", "May", "June",
+            "July", "Aug", "Sept", "Oct", "Nov", "Dec"
+        ];
+        const month = monthNames[date.getMonth()]; // Get the month name
+        const day = date.getDate().toString().padStart(2, '0');
+    
+        return `${day}-${month}-${year}`;
+    }
 
     useEffect(() => {
-        const fetchLeavesStatus = async () => {
+        const getPendingLeaves = async () => {
+            setIsLoading(true);
             try {
-                setLoading(true);
                 const number = await AsyncStorage.getItem('@UserNumber');
-                const data = await GetleavesStatus(number);
-
-                if (data) {
-                    // Filter leaves based on leaveTypeId if it's provided
-                    const filteredLeaves = type
-                        ? data.filter((leave) => leave.Status === type)
-                        : data;
-
-                    setLeaves(filteredLeaves);
+                const response = await GetleavesStatus(number);
+                if (response != null) {
+                    setRequestList(response);
+                    console.log(response);
                 }
             } catch (e) {
-                setError(e.message);
+                console.error(e);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
-        fetchLeavesStatus();
+        getPendingLeaves();
     }, []);
+
+    const getLeaveTypeDetails = (LeaveTypeId) => {
+        switch (LeaveTypeId) {
+            case 1:
+                return { type: 'Medical Leave Request', image: medical };
+            case 2:
+                return { type: 'Casual Leave Request', image: casual };
+            case 3:
+                return { type: 'Emergency Leave Request', image: emergency };
+            default:
+                return { type: 'Unknown Leave Type', image: bell };
+        }
+    };
+
+    const categorizeByDate = (date) => {
+        const today = moment().startOf('day');
+        const yesterday = moment().subtract(1, 'days').startOf('day');
+        const requestDate = moment(date).startOf('day');
+
+        if (requestDate.isSame(today, 'd')) {
+            return 'Today';
+        } else if (requestDate.isSame(yesterday, 'd')) {
+            return 'Yesterday';
+        } else {
+            return requestDate.format('DD MMMM YYYY');
+        }
+    };
+
+    const sortedRequests = [...requestList].sort((a, b) => moment(b.CreatedDate) - moment(a.CreatedDate));
+    const groupedRequests = sortedRequests.reduce((groups, request) => {
+        const dateCategory = categorizeByDate(request.CreatedDate);
+        if (!groups[dateCategory]) {
+            groups[dateCategory] = [];
+        }
+        groups[dateCategory].push(request);
+        return groups;
+    }, {});
+
+    const filteredGroups = Object.keys(groupedRequests).reduce((result, dateCategory) => {
+        const filteredRequests = groupedRequests[dateCategory].filter((request) => {
+            if (requesttype === 'All' || requesttype === '') return true;
+            if (requesttype === 'Pending Request') return request.Status === 'Pending';
+            if (requesttype === 'Approved Request') return request.Status === 'Approved';
+            if (requesttype === 'Rejected Request') return request.Status === 'Rejected';
+            if (requesttype === 'Medical Leaves') return request.LeaveTypeId === 1;
+            if (requesttype === 'Casual Leaves') return request.LeaveTypeId === 2;
+            if (requesttype === 'Emergency Leaves') return request.LeaveTypeId === 3;
+            return false;
+        });
+        if (filteredRequests.length > 0) {
+            result[dateCategory] = filteredRequests;
+        }
+        return result;
+    }, {});
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Pending':
+                return styles.pending;
+            case 'Rejected':
+                return styles.rejected;
+            case 'Approved':
+                return styles.approved;
+            default:
+                return styles.default;
+        }
+    };
 
     return (
         <>
-            {isLoading ? <LoaderModal /> : (
-                <ScrollView style={styles.mainContainer}>
-                    <View style={styles.header}>
-                        <Text style={styles.heading}>{type} Requests</Text>
-                    </View>
+            {isLoading ? (
+                <LoaderModal />
+            ) : (
+                <ScrollView style={styles.maincontainer} >
+                    <>
+                        <View style={styles.header}>
+                            <Text style={styles.title}>Notification's</Text>
+                        </View>
+                        <ScrollView horizontal style={styles.headerbtncontainer}>
+                            <TouchableOpacity onPress={() => setRequestType('All')}>
+                                <Text style={styles.headerbtn}>All</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRequestType('Pending Request')}>
+                                <Text style={styles.headerbtn}>Pending</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRequestType('Approved Request')}>
+                                <Text style={styles.headerbtn}>Approved</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRequestType('Rejected Request')}>
+                                <Text style={styles.headerbtn}>Rejected</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRequestType('Medical Leaves')}>
+                                <Text style={styles.headerbtn}>Medical Leaves</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRequestType('Casual Leaves')}>
+                                <Text style={styles.headerbtn}>Casual Leaves</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRequestType('Emergency Leaves')}>
+                                <Text style={styles.headerbtn}>Emergency Leaves</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
 
-                    <View style={styles.hourscompleted}>
-                        {leavesdata != null && leavesdata.map((leave, index) => {
-                            const fromDate = new Date(leave.FromDate).toLocaleDateString();
-                            const toDate = new Date(leave.ToDate).toLocaleDateString();
-                            const statusColor = {
-                                Pending: '#E4D00A',
-                                Approved: '#4BAAC8',
-                                Rejected: '#ff9292'
-                            }[leave.Status] || '#4BAAC8';
-                            let leaveType = "Leave";
-                            switch (leave.LeaveTypeId) {
-                                case 1:
-                                    leaveType = "Medical Leave";
-                                    break;
-                                case 2:
-                                    leaveType = "Casual Leave";
-                                    break;
-                                case 3:
-                                    leaveType = "Emergency Leave";
-                                    break;
-                                case 4:
-                                    leaveType = "Annual Leave"; 
-                                    break;
-                                default:
-                                    leaveType = "Leave";
-                            }
-                            return (
-                                <View style={styles.hourlines}>
-                                    <View styles={{ width: "100%", flexDirection: "row", }}>
-                                        <View style={styles.hourline1}>
-                                            <Text style={styles.label}>{leaveType} </Text>
-                                            <View style={{ ...styles.btn, backgroundColor: statusColor }}>
-                                                <Text style={styles.txt}>{leave.Status}</Text>
-                                            </View>
-                                        </View>
-                                        <View style={styles.hours}>
-                                            <Text style={styles.timecompleted}>{fromDate} -</Text>
-                                            <Text style={styles.timetotal}> {toDate}</Text>
-                                        </View>
-                                    </View>
-                                </View>);
-                        })}
-                        <Text>
-                            No {type} Request's Available
-                        </Text>
+                        {Object.keys(filteredGroups).map((dateCategory, index) => (
+                            <View key={index} style={styles.datecontainer}>
+                                <Text style={styles.date}>{dateCategory}</Text>
+                                <View style={styles.tilecontainer}>
+                                    {filteredGroups[dateCategory].map((request, idx) => {
+                                        const { type, image } = getLeaveTypeDetails(request.LeaveTypeId);
+                                        return (
+                                            <Pressable
+                                                key={idx}
+                                                style={styles.tile}
+                                            >
+                                                <View style={styles.tileleft}>
+                                                    <Image style={styles.img} source={image} />
+                                                </View>
+                                                <View style={styles.tileright}>
+                                                    <Text style={styles.heading}>{type}</Text>
+                                                    <Text style={styles.date}>{convertToDateOnly(request.FromDate)} - {convertToDateOnly(request.ToDate)}</Text>
+                                                    <Text style={[styles.content, getStatusColor(request.Status)]}>
+                                                        {request.Status}
+                                                    </Text>
+                                                </View>
+                                            </Pressable>
+                                        );
+                                    })}
+                                </View>
+                            </View>
+                        ))}
 
-                    </View>
-                </ScrollView>)
-            }
+                        {Object.keys(filteredGroups).length === 0 && (
+                            <View style={styles.nocontainer}>
+                                <Text>No {requesttype} Available</Text>
+                            </View>
+                        )}
+
+                    </>
+                    {/* <View style={styles.footer}>
+                        <Text style={styles.txt}>2024 BridgeZones ©</Text>
+                        <Text style={styles.txt}>All rights reserved</Text>
+                    </View> */}
+                </ScrollView>
+            )}
         </>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
-    mainContainer: {
+    maincontainer: {
         flex: 1,
-        padding: width*0.05,
+        backgroundColor: '#FFFFFF',
+        padding: width * 0.05,
     },
     header: {
         width: '100%',
-        height: width*0.18,
+        height: width * 0.18,
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        marginBottom: width*0.025,
+        marginBottom: width * 0.025,
+        marginTop: width * 0.025,
     },
-    heading: {
-        fontSize: width*0.06,
+    title: {
+        fontSize: width * 0.065,
         fontFamily: 'sans-serif-black',
         color: '#4BAAC8',
     },
-    hourscompleted: {
-        width: '100%',
-        height: "auto",
-        backgroundColor: '#FFFFFF',
-        borderRadius: width*0.025,
-        padding: width*0.05,
-        marginBottom: width*0.05,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.18,
-        shadowRadius: 1.00,
-        elevation: 1,
-        marginBottom:width*0.12,
+    datecontainer: {
+        backgroundColor: '#fff',
+        paddingBottom: 25,
     },
-    txt: {
-        fontSize: width*0.036,
-        fontFamily: "sans-serif-light",
-        color: 'white',
+    date: {
+        paddingBottom: width * 0.012,
+        fontFamily: "sans-serif-regular",
+        fontSize: width * 0.03,
+        // fontWeight: 'bold',
+        color: "rgba(51, 51, 51, 1)",
     },
-    hourlines: {
-        flexDirection: 'column',
-        marginTop: width*0.025,
-        borderWidth: width*0.0025,
-        borderColor: '#E5E5E5',
-        padding: width*0.025,
-        borderRadius: width*0.015,
-        gap: width*0.025,
-    },
-    hourline1: {
-        width: "100%",
-        flexDirection: "row",
-        justifyContent: 'space-between',
-        alignItems: "center",
-    },
-    hours: {
-        marginTop: width*0.01,
+    nocontainer: {
+        height: 100,
+        backgroundColor: "rgba(241, 241, 241, 1)",
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        alignItems: 'center',
+        alignItems: "flex-start",
+        marginTop: width * 0.02,
+        marginBottom: width * 0.05,
+        padding: width * 0.03,
+        borderRadius: width * 0.04,
+        alignItems: "center",
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 3,
+            height: 3,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    btn: {
-        backgroundColor: '#4BAAC8',
-        width: width*0.23,
-        height: width*0.08,
-        justifyContent: 'center',
+    tilecontainer: {
+        padding: width * 0.025,
+
+        backgroundColor: '#fff',
+        gap: width * 0.02,
+    },
+    tile: {
+        backgroundColor: "rgba(241, 241, 241, 1)",
+        flexDirection: 'row',
+        marginBottom: width * 0.02,
+        padding: width * 0.015,
+        borderRadius: width * 0.04,
+        alignItems: "center",
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 3,
+            height: 3,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    tileleft: {
+        width: width * 0.17,
+        height: width * 0.17,
         alignItems: 'center',
-        borderRadius: width*0.01,
-        shadowColor: "#000",
+        justifyContent: 'center',
+        borderRadius: width * 0.025,
+        margin: width * 0.005,
+        backgroundColor: "#FFFFFF",
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 1,
+            height: 2,
         },
-        shadowOpacity: 0.18,
-        shadowRadius: 1.00,
-        elevation: width*0.005,
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 1,
 
+        // borderWidth:4,
     },
-    label: {
-        fontSize: width*0.04,
-        fontFamily: "sans-serif-regular",
-        color: '#404040',
+    img: {
+        width: width * 0.075,
+        height: width * 0.075,
     },
-    timetotal: {
-        color: "#848884",
-        fontWeight: "600",
-        fontSize: width*0.034,
+    tileright: {
+        flex: 1,
+        marginLeft: width * 0.02,
     },
-    timecompleted: {
-        color: "#848884",
-        fontWeight: "600",
-        fontSize: width*0.034,
+    heading: {
+        fontSize: width * 0.032,
+        fontFamily: "sans-serif-medium",
+        color: "rgba(18, 18, 18, 1)",
+        fontWeight: 'bold',
+        marginBottom: width * 0.01,
     },
-})
+    content: {
+        fontSize: width * 0.033,
+        fontWeight:"bold",
+        backgroundColor:"#FFFFFF",
+        borderRadius:5,
+        width:"40%",
+        padding:2,
+        paddingLeft:5,
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 3,
+            height: 3,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 2,
+        elevation: 1.5,
+    },
+    headerbtn: {
+        padding: width * 0.025,
+        paddingHorizontal: width * 0.04,
+        backgroundColor: '#4BAAC8',
+        borderRadius: width * 0.06,
+        fontFamily: "sans-serif-medium",
+        fontSize: width * 0.035,
+        color: "#FFFFFF",
+        fontWeight: "400",
+        marginRight: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 1,
+    },
+    headerbtncontainer: {
+        flexDirection: "row",
+        marginBottom: width * 0.025,
+        gap: 30,
+        width: "auto",
+    },
+    pending: {
+        color: 'orange', // Or any other color you want for Pending
+    },
+    rejected: {
+        color: 'red', // Or any other color you want for Rejected
+    },
+    approved: {
+        color: 'green', // Or any other color you want for Approved
+    },
+    default: {
+        color: 'black', // Default color if none of the above
+    }
+});

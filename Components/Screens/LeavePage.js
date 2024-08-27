@@ -39,7 +39,7 @@ export default function LeavePage({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [file, setFile] = useState(null);
     const [emplyeeList, setEmployeeList] = useState([]);
-    const [RemainingLeaves, setRemianingLeaves] = useState({});
+    const [RemainingLeaves, setRemianingLeaves] = useState();
     const [LeaveAllowedId, setLeaveAllowedId] = useState(0);
 
     useEffect(() => {
@@ -220,33 +220,33 @@ export default function LeavePage({ navigation }) {
         const number = await AsyncStorage.getItem('@UserNumber');
         const mail = await AsyncStorage.getItem('@UserEmail');
         const newErrors = [];
-    
+
         if (!mail) newErrors.push("User email is required.");
         if (!date) newErrors.push("From date is required.");
         if (!value) newErrors.push("Leave Type is required.");
         if (!send) newErrors.push("Forward To is required.");
-    
+
         if (newErrors.length > 0) {
             setError([newErrors[0]]); // Store only the first error
             console.log(error);
             return;
         }
         setError([]);
-    
+
         setIsLoading(true);
-        
-        // Use the latest LeaveAllowedId directly
+
         const data = {
             fromDate: date,
             toDate: date2,
             phoneNumber: number,
             createdBy: "email@admin.com",
             modifiedBy: "email@admin.com",
-            leaveAllowedId: LeaveAllowedId, // This should be defined after getLeaveTypeDetails is called
+            leaveAllowedId: LeaveAllowedId,
             forwardTo: send,
             availed: 1,
+            CreatedDate: today,
         };
-    
+
         console.log(
             "leaveallowedid:", LeaveAllowedId,
             "from:", date,
@@ -254,13 +254,13 @@ export default function LeavePage({ navigation }) {
             "number:", number,
             "formard:", send
         );
-    
+
         const success = await LeaveApply(data);
         if (success) {
             console.log("success");
             setShowSuccessModal(true);
             setTimeout(() => setShowSuccessModal(false), 3000);
-    
+
             setValue(null);
             setDate(new Date());
             setDate2(null);
@@ -287,6 +287,12 @@ export default function LeavePage({ navigation }) {
                         </Pressable>
                     </View>
                     <View style={styles.body}>
+                        {/* <View style={styles.bodyline}>
+                            <View>
+                                <Text>1-Day </Text>
+                            </View>
+                        </View> */}
+
                         <View style={styles.bodyline}>
                             <Text style={styles.label}>From</Text>
                             <TouchableOpacity style={styles.button} onPress={() => setOpen(true)}>
@@ -361,7 +367,10 @@ export default function LeavePage({ navigation }) {
                                 renderItem={renderItem2}
                             />
                         </View>
-                        {value === "other" && (
+                        {RemainingLeaves != null && <View style={{ ...styles.bodyline, marginTop: 15 }}>
+                            <Text style={styles.smalltxt}>Leaves Available : {RemainingLeaves.RemainingLeaves}</Text>
+                        </View>}
+                        {/* {value === "other" && (
                             <View style={{ ...styles.bodyline, marginTop: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                                 <Text style={styles.label}>Reason</Text>
                                 <TextInput
@@ -371,7 +380,7 @@ export default function LeavePage({ navigation }) {
                                     placeholder="Enter reason"
                                 />
                             </View>
-                        )}
+                        )} */}
                         <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                             {/* <Text style={{ ...styles.label, width: "28%" }}>Upload Proof Document</Text> */}
                             <Pressable style={styles.textArea} onPress={() => {
@@ -477,6 +486,13 @@ const styles = StyleSheet.create({
     label: {
         fontSize: width * 0.036,
         color: '#333',
+    },
+    smalltxt: {
+        fontSize: width * 0.032,
+        alignSelf: "flex-end",
+        color: 'green',
+        fontFamily: "sans-serif-regular",
+        fontWeight: "900",
     },
     button: {
         backgroundColor: '#4BAAC8',
