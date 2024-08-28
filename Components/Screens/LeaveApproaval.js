@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Dimensions, StyleSheet, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import bell from '../Images/bell.png';
@@ -8,6 +8,7 @@ import casual from '../Images/casual.png';
 import GetLeavesforApproval from '../Functions/GetLeavesForApproaval';
 import LoaderModal from '../Loaders/LoaderModal';
 import moment from 'moment';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -16,23 +17,31 @@ export default function LeaveApproval({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [requesttype, setRequestType] = useState('');
 
-    useEffect(() => {
-        const getlist = async () => {
-            setIsLoading(true);
-            try {
-                const response = await GetLeavesforApproval();
-                if (response != null) {
-                    setRequestList(response);
+    useFocusEffect(
+        useCallback(() => {
+            const getlist = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await GetLeavesforApproval();
+                    if (response && response.length > 0) {
+                        setRequestList(response);
+                    } else {
+                        setRequestList([]); // Handle empty state
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    setIsLoading(false);
                 }
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+            };
 
-        getlist();
-    }, []);
+            getlist();
+
+            return () => {
+                // Optional: Cleanup if needed
+            };
+        }, [])
+    );
 
     // Helper function to determine leave type and image source
     const getLeaveTypeDetails = (LeaveTypeId) => {
@@ -108,12 +117,6 @@ export default function LeaveApproval({ navigation }) {
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setRequestType('Pending')}>
                                 <Text style={styles.headerbtn}>Pending</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setRequestType('Approved')}>
-                                <Text style={styles.headerbtn}>Approved</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setRequestType('Rejected')}>
-                                <Text style={styles.headerbtn}>Rejected</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setRequestType('Medical Leaves')}>
                                 <Text style={styles.headerbtn}>Medical Leaves</Text>

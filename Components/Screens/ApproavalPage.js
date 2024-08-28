@@ -15,7 +15,7 @@ const { width } = Dimensions.get('window');
 export default function ApproavalPage({ route }) {
     const { data } = route.params;
     const [leavedata, setData] = useState(data);
-    console.log(leavedata.FromDate);
+    // console.log(leavedata.FromDate);
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailModal, setShowFailModal] = useState(false);
@@ -37,23 +37,18 @@ export default function ApproavalPage({ route }) {
         const data = {
             fromDate: leavedata.FromDate,
             toDate: leavedata.ToDate,
-            phoneNumber: leavedata.PhoneNumber,
+            phoneNumber: leavedata.Name,  // Make sure this is the correct field expected by the backend
             availed: leavedata.Availed,
-            leaveAllowedId: leavedata.LeaveAllowedId,
-            AllowedBy: "HR",
-            createdBy: leavedata.CreatedDate,
-            modifiedBy: leavedata.ModifiedDate,
+            leaveRequestId: leavedata.LeaveRequestId,
+            ApprovedBy: leavedata.ForwardTo,
+            createdBy: "email@gmail.com",
+            modifiedBy: "email@gmail.com",
             Status: state,
         };
 
-        // console.log(
-        //     "leaveallowedid:", LeaveAllowedId,
-        //     "from:", date,
-        //     "to:", date2,
-        //     "number:", number,
-        //     "formard:", send
-        // );
-
+        for(var i in data) {
+            console.log(data[i]);
+        }
         const success = await ApproaveLeave(data);
         if (success) {
             console.log("success");
@@ -116,7 +111,7 @@ export default function ApproavalPage({ route }) {
                         <Image source={reject} style={styles.smallimg}></Image>
                         <Text style={styles.btntxt}>Reject</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ ...styles.btn, backgroundColor: "#79b433" }} onPress={() => { Submit("Approaved") }}>
+                    <TouchableOpacity style={{ ...styles.btn, backgroundColor: "#79b433" }} onPress={() => { Submit("Approved") }}>
                         <Image source={approave} style={styles.smallimg}></Image>
                         <Text style={styles.btntxt}>Approave</Text>
                     </TouchableOpacity>
