@@ -177,7 +177,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFFFF',
         padding: width * 0.05,
-        // borderWidth:4,
+        // paddingBottom:width*0.1,
+        // borderWidth: width * 0.01, // Example
         // borderColor:"red",
     },
     header: {
@@ -195,15 +196,8 @@ const styles = StyleSheet.create({
         color: '#4BAAC8',
     },
     datecontainer: {
-        // height:80,
-        // borderWidth:2,
-        // marginTop: width * 0.01,
-        // marginBottom: 5,
-        // paddingTop:13,
-        // padding: width * 0.01,
         backgroundColor: '#fff',
-        paddingBottom:25,
-
+        paddingBottom: width * 0.025, // Example
     },
     date: {
         paddingBottom: width * 0.012,
@@ -213,7 +207,7 @@ const styles = StyleSheet.create({
         color: "rgba(51, 51, 51, 1)",
     },
     nocontainer: {
-        height: 100,
+        height: width * 0.1, // Example
         backgroundColor: "rgba(241, 241, 241, 1)",
         flexDirection: 'row',
         justifyContent: 'flex-start',
@@ -225,18 +219,18 @@ const styles = StyleSheet.create({
         alignItems: "center",
         shadowColor: '#000',
         shadowOffset: {
-            width: 3,
-            height: 3,
+            width: width * 0.003, // Example
+            height: width * 0.003, // Example
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 2,
+        shadowRadius: width * 0.01, // Example
+        elevation: width * 0.002, // Example
     },
     tilecontainer: {
         padding: width * 0.025,
         backgroundColor: '#fff',
         gap: width * 0.02,
-        // borderWidth: 1,
+        // borderWidth: width * 0.01, // Example
         // borderColor: '#ccc',
     },
     tile: {
@@ -248,12 +242,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         shadowColor: '#000',
         shadowOffset: {
-            width: 3,
-            height: 3,
+            width: width * 0.003, // Example
+            height: width * 0.003, // Example
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 2,
+        shadowRadius: width * 0.01, // Example
+        elevation: width * 0.002, // Example
     },
     tileleft: {
         width: width * 0.12,
@@ -266,11 +260,11 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: width * 0.002, // Example
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 1,
+        shadowRadius: width * 0.01, // Example
+        elevation: width * 0.001, // Example
     },
     img: {
         width: width * 0.06,
@@ -299,23 +293,23 @@ const styles = StyleSheet.create({
         fontSize: width * 0.035,
         color: "#FFFFFF",
         fontWeight: "400",
-        marginRight: 4,
+        marginRight: width * 0.004, // Example
 
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: width * 0.002, // Example
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 1,
+        shadowRadius: width * 0.01, // Example
+        elevation: width * 0.001, // Example
     },
     headerbtncontainer: {
         flexDirection: "row",
-        marginBottom: width * 0.025,
-        gap: 30,
+        marginBottom: width * 0.055,
+        gap: width * 0.03,
         width: "auto",
     },
 
@@ -328,10 +322,10 @@ const styles = StyleSheet.create({
         padding: width * 0.01,
         marginTop: width * 0.05,
         color: 'white',
-        paddingBottom: 0.02,
+        paddingBottom: width * 0.02, // Example
     },
     txt: {
-        fontSize: 15,
+        fontSize: width * 0.04, // Example
         color: "white",
     },
-})
+});

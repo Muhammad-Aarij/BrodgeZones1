@@ -223,17 +223,16 @@ const styles = StyleSheet.create({
     },
     datecontainer: {
         backgroundColor: '#fff',
-        paddingBottom: 25,
+        paddingBottom: width * 0.06,
     },
     date: {
         paddingBottom: width * 0.012,
         fontFamily: "sans-serif-regular",
         fontSize: width * 0.03,
-        // fontWeight: 'bold',
         color: "rgba(51, 51, 51, 1)",
     },
     nocontainer: {
-        height: 100,
+        height: width * 0.27,
         backgroundColor: "rgba(241, 241, 241, 1)",
         flexDirection: 'row',
         justifyContent: 'flex-start',
@@ -242,19 +241,17 @@ const styles = StyleSheet.create({
         marginBottom: width * 0.05,
         padding: width * 0.03,
         borderRadius: width * 0.04,
-        alignItems: "center",
         shadowColor: '#000',
         shadowOffset: {
-            width: 3,
-            height: 3,
+            width: width * 0.008,
+            height: width * 0.008,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 2,
+        shadowRadius: width * 0.01,
+        elevation: width * 0.01,
     },
     tilecontainer: {
         padding: width * 0.025,
-
         backgroundColor: '#fff',
         gap: width * 0.02,
     },
@@ -267,12 +264,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         shadowColor: '#000',
         shadowOffset: {
-            width: 3,
-            height: 3,
+            width: width * 0.008,
+            height: width * 0.008,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 2,
+        shadowOpacity: 0.015,
+        shadowRadius: width * 0.011,
+        elevation: width * 0.007,
     },
     tileleft: {
         width: width * 0.17,
@@ -285,13 +282,11 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: width * 0.005,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 1,
-
-        // borderWidth:4,
+        shadowRadius: width * 0.01,
+        elevation: width * 0.005,
     },
     img: {
         width: width * 0.075,
@@ -312,57 +307,56 @@ const styles = StyleSheet.create({
         fontSize: width * 0.033,
         fontWeight: "bold",
         backgroundColor: "#FFFFFF",
-        borderRadius: 5,
+        borderRadius: width * 0.01,
         width: "40%",
-        padding: 2,
-        paddingLeft: 5,
-
+        padding: width * 0.005,
+        paddingLeft: width * 0.012,
         shadowColor: '#000',
         shadowOffset: {
-            width: 3,
-            height: 3,
+            width: width * 0.008,
+            height: width * 0.008,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 2,
-        elevation: 1.5,
+        shadowRadius: width * 0.05,
+        elevation: width * 0.005,
     },
     headerbtn: {
         padding: width * 0.025,
         paddingHorizontal: width * 0.04,
         backgroundColor: '#4BAAC8',
-        borderRadius: width * 0.06,
+        borderRadius: width * 0.04,
         fontFamily: "sans-serif-medium",
         fontSize: width * 0.035,
         color: "#FFFFFF",
         fontWeight: "400",
-        marginRight: 4,
+        marginRight: width * 0.02,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: width * 0.001,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 1,
+        shadowRadius: width * 0.011,
+        elevation: width * 0.005,
     },
     headerbtncontainer: {
         flexDirection: "row",
         marginBottom: width * 0.025,
-        gap: 30,
+        gap: width * 0.09,
         width: "auto",
     },
     pending: {
-        color: 'orange', // Or any other color you want for Pending
+        color: 'orange',
     },
     rejected: {
-        color: 'red', // Or any other color you want for Rejected
+        color: 'red',
     },
     approved: {
-        color: 'green', // Or any other color you want for Approved
+        color: 'green',
     },
     default: {
-        color: 'black', // Default color if none of the above
+        color: 'black',
     }
 });

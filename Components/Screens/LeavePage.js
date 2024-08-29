@@ -330,7 +330,7 @@ export default function LeavePage({ navigation }) {
                                 onCancel={() => setOpen2(false)}
                             />
                         </View>
-                        <View style={{ ...styles.bodyline, marginTop: 15, }}>
+                        <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
                             <Text style={styles.label}>Forward To</Text>
                             <Dropdown
                                 style={styles.dropdown}
@@ -351,7 +351,7 @@ export default function LeavePage({ navigation }) {
                                 }}
                             />
                         </View>
-                        <View style={{ ...styles.bodyline, marginTop: 15 }}>
+                        <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
                             <Text style={styles.label}>Select Leave Type</Text>
                             <Dropdown
                                 style={styles.dropdown}
@@ -388,7 +388,7 @@ export default function LeavePage({ navigation }) {
                                 />
                             </View>
                         )} */}
-                        <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <View style={{ ...styles.bodyline, marginTop:  width * 0.05, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                             {/* <Text style={{ ...styles.label, width: "28%" }}>Upload Proof Document</Text> */}
                             <Pressable style={styles.textArea} onPress={() => {
                                 setModalVisible(!modalVisible);
@@ -402,18 +402,18 @@ export default function LeavePage({ navigation }) {
                                 </View>
                             </Pressable>
                         </View>
-                        {ImagedOc != null && <View style={{ ...styles.bodyline, marginTop: 15 }}>
+                        {ImagedOc != null && <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
                             <Text style={{ ...styles.smalltxt, alignSelf: "center" }}>** Image Added **</Text>
                         </View>}
-                        {file != null && <View style={{ ...styles.bodyline, marginTop: 15 }}>
+                        {file != null && <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
                             <Text style={{ ...styles.smalltxt, alignSelf: "center" }}>** Document Added **</Text>
                         </View>}
-                        <View style={{ ...styles.bodyline, marginTop: 20, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <View style={{ ...styles.bodyline, marginTop:  width * 0.05, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
 
                         </View>
                         <Text style={styles.error}>{firstError}</Text>
                         <View>
-                            <TouchableOpacity style={{ ...styles.button, width: 170, }} onPress={ApplyforLeave}>
+                            <TouchableOpacity style={{ ...styles.button, width:  width * 0.45, }} onPress={ApplyforLeave}>
                                 <Text style={{ fontSize: width * 0.036, color: "white" }}>Submit</Text>
                             </TouchableOpacity>
                         </View>
@@ -451,7 +451,6 @@ export default function LeavePage({ navigation }) {
         </>
     );
 }
-
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
@@ -472,7 +471,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontFamily: "sans-serif-black",
-        fontSize: width * 0.060,
+        fontSize: width * 0.06,
         color: '#4BAAC8',
     },
     body: {
@@ -484,17 +483,14 @@ const styles = StyleSheet.create({
         padding: width * 0.05,
         borderRadius: width * 0.025,
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.18,
-        shadowRadius: 1.00,
+        shadowRadius: 1.0,
         elevation: 1,
     },
     bodyline: {
         marginTop: width * 0.013,
-        width: "100%"
+        width: "100%",
     },
     label: {
         fontSize: width * 0.036,
@@ -514,10 +510,7 @@ const styles = StyleSheet.create({
         marginTop: width * 0.025,
         alignItems: 'center',
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
         elevation: width * 0.01,
@@ -533,10 +526,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: width * 0.025,
         marginTop: width * 0.025,
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
         elevation: width * 0.01,
@@ -587,7 +577,6 @@ const styles = StyleSheet.create({
         height: width * 0.35,
         fontSize: width * 0.036,
         backgroundColor: "#f9f9f9",
-        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
     },
@@ -609,10 +598,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
         elevation: width * 0.01,
@@ -620,7 +606,7 @@ const styles = StyleSheet.create({
     uplaod: {
         width: width * 0.27,
         height: width * 0.27,
-        objectFit: "contain",
+        resizeMode: "contain",
     },
     txt: {
         fontSize: width * 0.036,
@@ -651,10 +637,7 @@ const styles = StyleSheet.create({
         padding: width * 0.08,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: width * 0.01,
         elevation: width * 0.013,
@@ -670,7 +653,6 @@ const styles = StyleSheet.create({
     modalButtoncross: {
         backgroundColor: 'red',
         borderRadius: width * 0.025,
-        // padding: 10,
         justifyContent: "center",
         alignItems: "center",
         marginVertical: width * 0.01,

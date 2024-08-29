@@ -33,7 +33,7 @@ const NavigationRoutes = () => {
             <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} options={{ headerShown: false }} />
             <Stack.Screen name="Leave" component={LeavePage} options={{ headerShown: false }} />
             <Stack.Screen name="LeaveApproaval" component={LeaveApproaval} options={{ headerShown: false }} />
-            <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: true,title:"Leave Request" }} />
+            <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: false,title:"Leave Request" }} />
 
         </Stack.Navigator>
     );

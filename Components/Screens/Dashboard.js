@@ -12,8 +12,12 @@ import settings from '../Images/dashboard1.png';
 import { Dropdown } from 'react-native-element-dropdown';
 import GetRemianingLeaves from '../Functions/GetRemianingLeaves';
 import GetleavesStatus from '../Functions/GetLeavesStatus';
+import GetEmployeeList from '../Functions/GetEmployeeList';
+import Loader from '../Loaders/Loader';
 
 const { width } = Dimensions.get('window');
+
+// BarChart Configuration
 const chartConfig = {
     backgroundGradientFrom: "#ffffff",
     backgroundGradientTo: "#ffffff",
@@ -39,9 +43,9 @@ function getMonthName(date) {
     const options = { month: 'long' };
     return new Intl.DateTimeFormat('en-US', options).format(date);
 }
-
 const date = new Date();
 const formattedDate = moment(date).format(' YYYY');
+
 
 export default function Dashboard({ navigation }) {
     const [attendanceData, setAttendanceData] = useState({
@@ -56,194 +60,220 @@ export default function Dashboard({ navigation }) {
     const [leaveDates, setLeaveDates] = useState([]);
     const [lateDates, setLateDates] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoading1, setIsLoading1] = useState(false);
+    const [isLoading2, setIsLoading2] = useState(false);
+    const [isLoading3, setIsLoading3] = useState(false);
+    const [isLoading4, setIsLoading4] = useState(false);
     const [Employee, setEmployee] = useState(false);
     const [casualRemaining, setCasualRemaining] = useState(0);
     const [emergencyRemaining, setEmergencyRemaining] = useState(0);
     const [medicalRemaining, setMedicalRemaining] = useState(0);
     const [annualRemaining, setAnnualRemaining] = useState(0);
+    const [emplyeeList, setEmployeeList] = useState([]);
     const [leaveCount, setLeaveCount] = useState({
         Pending: 0,
         Approved: 0,
         Rejected: 0
     });
 
-    useEffect(() => {
-        const fetchDataAndCheckStatus = async () => {
-            try {
-                setIsLoading(true);
+    const fetchDataAndCheckStatus = async () => {
+        try {
+            setIsLoading1(true);
 
-                const number = await AsyncStorage.getItem('@UserNumber');
-                const data = await GetAttendanceSheetByPhoneNumber(number);
+            const number = await AsyncStorage.getItem('@UserNumber');
+            const data = await GetAttendanceSheetByPhoneNumber(number);
 
-                const present = [];
-                const absent = [];
-                const leave = [];
-                const late = [];
+            const present = [];
+            const absent = [];
+            const leave = [];
+            const late = [];
 
-                data.forEach(item => {
-                    const date = moment(item.Date).format('YYYY-MM-DD');
-                    switch (item.Remarks) {
-                        case 'Present':
-                            present.push(date);
-                            break;
-                        case 'Absent':
-                            absent.push(date);
-                            break;
-                        case 'Leave':
-                            leave.push(date);
-                            break;
-                        case 'Late':
-                            late.push(date);
-                            break;
-                        default:
-                            break;
-                    }
+            data.forEach(item => {
+                const date = moment(item.Date).format('YYYY-MM-DD');
+                switch (item.Remarks) {
+                    case 'Present':
+                        present.push(date);
+                        break;
+                    case 'Absent':
+                        absent.push(date);
+                        break;
+                    case 'Leave':
+                        leave.push(date);
+                        break;
+                    case 'Late':
+                        late.push(date);
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            setPresentDates(present);
+            setAbsentDates(absent);
+            setLeaveDates(leave);
+            setLateDates(late);
+            setIsLoading1(false);
+        } catch (error) {
+            setIsLoading1(false);
+            console.error(error);
+        }
+    };
+
+    const fetchYearlyData = async () => {
+        try {
+            setIsLoading3(true);
+
+            const number = await AsyncStorage.getItem('@UserNumber');
+            const data = await GetAttendanceYearly(number);
+
+            const monthlyData = Array(12).fill().map(() => ({ Present: 0, Absent: 0 }));
+
+            data.forEach(item => {
+                const month = moment(item.Date).month();
+                if (item.Remarks === 'Present' || item.Remarks === 'Late') {
+                    monthlyData[month].Present += 1;
+                } else if (item.Remarks === 'Absent') {
+                    monthlyData[month].Absent += 1;
+                }
+            });
+
+            const getCurrentMonthIndex = () => new Date().getMonth();
+
+            const generateChartData = (monthlyData) => {
+                const currentMonthIndex = getCurrentMonthIndex();
+                const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                const filteredData = monthlyData.slice(0, currentMonthIndex + 1).filter(month => month.Present !== 0 || month.Absent !== 0);
+                const labels = allMonths.slice(0, currentMonthIndex + 1).filter((_, index) => monthlyData[index].Present !== 0 || monthlyData[index].Absent !== 0);
+                const data = filteredData.map(month => {
+                    const barData = [];
+                    if (month.Absent !== 0) barData.push(month.Absent);
+                    if (month.Present !== 0) barData.push(month.Present);
+                    return barData;
                 });
 
-                setPresentDates(present);
-                setAbsentDates(absent);
-                setLeaveDates(leave);
-                setLateDates(late);
-            } catch (error) {
-                console.error(error);
-            }
-            // finally {
-            //     setIsLoading(false);
-            // }
-        };
-
-        const fetchYearlyData = async () => {
-            try {
-                setIsLoading(true);
-
-                const number = await AsyncStorage.getItem('@UserNumber');
-                const data = await GetAttendanceYearly(number);
-
-                const monthlyData = Array(12).fill().map(() => ({ Present: 0, Absent: 0 }));
-
-                data.forEach(item => {
-                    const month = moment(item.Date).month();
-                    if (item.Remarks === 'Present' || item.Remarks === 'Late') {
-                        monthlyData[month].Present += 1;
-                    } else if (item.Remarks === 'Absent') {
-                        monthlyData[month].Absent += 1;
-                    }
-                });
-
-                const getCurrentMonthIndex = () => new Date().getMonth();
-
-                const generateChartData = (monthlyData) => {
-                    const currentMonthIndex = getCurrentMonthIndex();
-                    const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-                    const filteredData = monthlyData.slice(0, currentMonthIndex + 1).filter(month => month.Present !== 0 || month.Absent !== 0);
-                    const labels = allMonths.slice(0, currentMonthIndex + 1).filter((_, index) => monthlyData[index].Present !== 0 || monthlyData[index].Absent !== 0);
-                    const data = filteredData.map(month => {
-                        const barData = [];
-                        if (month.Absent !== 0) barData.push(month.Absent);
-                        if (month.Present !== 0) barData.push(month.Present);
-                        return barData;
-                    });
-
-                    // Adjust the legend to only include "Absent" or "Present" if those bars exist
-                    const legend = [];
-                    if (filteredData.some(month => month.Absent !== 0)) legend.push("Absent");
-                    if (filteredData.some(month => month.Present !== 0)) legend.push("Present");
-
-                    return {
-                        labels,
-                        legend,
-                        data,
-                        barColors: ["#ff9292", "#7ED7B9"].slice(0, legend.length)
-                    };
+                // Adjust the legend to only include "Absent" or "Present" if those bars exist
+                const legend = [];
+                if (filteredData.some(month => month.Absent !== 0)) legend.push("Absent");
+                if (filteredData.some(month => month.Present !== 0)) legend.push("Present");
+                return {
+                    labels,
+                    legend,
+                    data,
+                    barColors: ["#ff9292", "#7ED7B9"].slice(0, legend.length)
                 };
 
+            };
+            setAttendanceData(generateChartData(monthlyData));
+            setTimeout(() => {
+                setIsLoading3(false);
+            }, 2000); 
+    
+        } catch (error) {
+            setIsLoading3(false);
+            console.error(error);
+        }
 
-                setAttendanceData(generateChartData(monthlyData));
-            } catch (error) {
-                console.error(error);
-            }
-            // finally {
-            //     setIsLoading(false);
-            // }
-        };
+    };
 
-        const fetchRemainingLeaves = async () => {
-            try {
-                setIsLoading(true);
-                const number = await AsyncStorage.getItem('@UserNumber');
-                const medicalLeaves = await GetRemianingLeaves(number, 1);
-                const casualLeaves = await GetRemianingLeaves(number, 2);
-                const emergencyLeaves = await GetRemianingLeaves(number, 3);
+    const fetchRemainingLeaves = async () => {
+        try {
+            setIsLoading(true);
+            const number = await AsyncStorage.getItem('@UserNumber');
+            const medicalLeaves = await GetRemianingLeaves(number, 1);
+            const casualLeaves = await GetRemianingLeaves(number, 2);
+            const emergencyLeaves = await GetRemianingLeaves(number, 3);
 
-                // Set the remaining leaves correctly
-                setMedicalRemaining(10 - medicalLeaves || 0);
-                setCasualRemaining(8 - casualLeaves || 0);
-                setEmergencyRemaining(7 - emergencyLeaves || 0);
+            // Set the remaining leaves correctly
+            setMedicalRemaining(10 - medicalLeaves || 0);
+            setCasualRemaining(8 - casualLeaves || 0);
+            setEmergencyRemaining(7 - emergencyLeaves || 0);
 
-                // Calculate the annual remaining leaves based on the initial annual count
-                setAnnualRemaining(0 + (medicalLeaves || 0) + (casualLeaves || 0) + (emergencyLeaves || 0));
+            // Calculate the annual remaining leaves based on the initial annual count
+            setAnnualRemaining(0 + (medicalLeaves || 0) + (casualLeaves || 0) + (emergencyLeaves || 0));
 
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        const fetchLeavesStatus = async () => {
-            try {
-                setIsLoading(true);
-                const number = await AsyncStorage.getItem('@UserNumber');
-                const data = await GetleavesStatus(number);
-                if (data) {
-                    // console.log(data);
+    const fetchLeavesStatus = async () => {
+        try {
+            setIsLoading2(true);
+            const number = await AsyncStorage.getItem('@UserNumber');
+            const data = await GetleavesStatus(number);
+            if (data) {
+                // console.log(data);
 
-                    const calculateLeaveStatusCounts = (leaves) => {
-                        const statusCounts = {
-                            Pending: 0,
-                            Approved: 0,
-                            Rejected: 0
-                        };
-
-                        leaves.forEach(leave => {
-                            if (leave.Status === "Pending") {
-                                statusCounts.Pending += 1;
-                            } else if (leave.Status === "Approved") {
-                                statusCounts.Approved += 1;
-                            } else if (leave.Status === "Rejected") {
-                                statusCounts.Rejected += 1;
-                            }
-                        });
-
-                        return statusCounts;
+                const calculateLeaveStatusCounts = (leaves) => {
+                    const statusCounts = {
+                        Pending: 0,
+                        Approved: 0,
+                        Rejected: 0
                     };
 
-                    const leaveDates = calculateLeaveStatusCounts(data);
-                    setLeaveCount(leaveDates);
-                    // console.log("Leave", leaveDates);
-                }
-            } catch (e) {
-                setError(e.message);
-            }
-            // finally {
-            //     setIsLoading(false);
-            // }
-        };
+                    leaves.forEach(leave => {
+                        if (leave.Status === "Pending") {
+                            statusCounts.Pending += 1;
+                        } else if (leave.Status === "Approved") {
+                            statusCounts.Approved += 1;
+                        } else if (leave.Status === "Rejected") {
+                            statusCounts.Rejected += 1;
+                        }
+                    });
 
+                    return statusCounts;
+                };
+
+                const leaveDates = calculateLeaveStatusCounts(data);
+                setLeaveCount(leaveDates);
+                setIsLoading2(false);
+            }
+        } catch (e) {
+            setIsLoading2(false);
+            setError(e.message);
+        }
+
+    };
+
+    const getlist = async () => {
+        setIsLoading(true);
+        try {
+            const response = await GetEmployeeList();
+            if (response != null) {
+                const transformedList = response.map(item => ({
+                    label: item.Name,
+                    value: item.UserIdentityId
+                }));
+                setEmployeeList(transformedList);
+                // console.log("first employeeee" + emplyeeList[0].label);
+                setIsLoading(false);
+            }
+            else {
+                setIsLoading(false);
+            }
+        } catch (e) {
+            setIsLoading(false);
+            console.error(e);
+        }
+    };
+    useEffect(() => {
+        getlist();
         fetchLeavesStatus();
         fetchDataAndCheckStatus();
         fetchYearlyData();
         fetchRemainingLeaves();
     }, []);
 
-    const Employees = [
-        { label: 'Ahmed', value: 'HR' },
-        { label: 'Aziz', value: 'HR' },
-        { label: 'Alamgir', value: 'Team-Lead' },
-        { label: 'Adil', value: 'Team-Lead' },
-        { label: 'Asim', value: 'Team-Lead' },
-    ];
+    // const Employees = [
+    //     { label: 'Ahmed', value: 'HR' },
+    //     { label: 'Aziz', value: 'HR' },
+    //     { label: 'Alamgir', value: 'Team-Lead' },
+    //     { label: 'Adil', value: 'Team-Lead' },
+    //     { label: 'Asim', value: 'Team-Lead' },
+    // ];
 
     const renderItem = (item) => (
         <View style={styles.dropdownItem}>
@@ -259,126 +289,139 @@ export default function Dashboard({ navigation }) {
 
     return (
         <>
-            {isLoading ?
-                <LoaderModal />
-                :
-                <ScrollView style={styles.mainContainer}>
-                    <View style={styles.header}>
-                        <Image style={styles.img} source={settings} />
-                        <Text style={styles.heading}>Dashboard</Text>
+            <ScrollView style={styles.mainContainer}>
+                <View style={styles.header}>
+                    <Image style={styles.img} source={settings} />
+                    <Text style={styles.heading}>Dashboard</Text>
+                </View>
+                <View style={styles.hourscompleted}>
+                    <Text style={styles.txt}>Select Employee</Text>
+                    <Dropdown
+                        style={styles.dropdown}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={emplyeeList}
+                        maxHeight={200}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="Select Employee"
+                        searchPlaceholder="Search..."
+                        value={Employee}
+                        renderItem={renderItem}
+                        onChange={item => {
+                            setEmployee(item.value);
+                        }}
+                    />
+                </View>
+                <View style={styles.hourscompleted}>
+                    <Text style={styles.txt}>{getMonthName(date)}'s Statistics</Text>
+                    <View style={styles.rectangleContainer}>
+                        {isLoading1 ? (
+                            <Loader />
+                        ) : (
+                            <>
+                                <View style={{ ...styles.rectangle, backgroundColor: "#bfdfae" }}>
+                                    <Text style={styles.lable}>Present</Text>
+                                    <Text style={styles.statValue}>{presentDates.length}</Text>
+                                </View>
+                                <View style={{ ...styles.rectangle, backgroundColor: "#f9e484" }}>
+                                    <Text style={styles.lable}>Leaves</Text>
+                                    <Text style={styles.statValue}>{leaveDates.length}</Text>
+                                </View>
+                                <View style={{ ...styles.rectangle, backgroundColor: "#f8bd8a" }}>
+                                    <Text style={styles.lable}>Late</Text>
+                                    <Text style={styles.statValue}>{lateDates.length}</Text>
+                                </View>
+                                <View style={{ ...styles.rectangle, backgroundColor: "#ff9292" }}>
+                                    <Text style={styles.lable}>Absent</Text>
+                                    <Text style={styles.statValue}>{absentDates.length}</Text>
+                                </View>
+                            </>
+                        )}
                     </View>
-                    <View style={styles.hourscompleted}>
-                        <Text style={styles.txt}>Select Employee</Text>
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            iconStyle={styles.iconStyle}
-                            data={Employees}
-                            maxHeight={200}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select Employee"
-                            searchPlaceholder="Search..."
-                            value={Employee}
-                            renderItem={renderItem}
-                            onChange={item => {
-                                setEmployee(item.value);
-                            }}
-                        />
-                    </View>
-                    <View style={styles.hourscompleted}>
-                        <Text style={styles.txt}>{getMonthName(date)}'s Statistics</Text>
-                        <View style={styles.rectangleContainer}>
-                            <View style={{ ...styles.rectangle, backgroundColor: "#bfdfae" }}>
-                                <Text style={styles.lable}>Present</Text>
-                                <Text style={styles.statValue}>{presentDates.length}</Text>
-                            </View>
-                            <View style={{ ...styles.rectangle, backgroundColor: "#f9e484" }}>
-                                <Text style={styles.lable}>Leaves</Text>
-                                <Text style={styles.statValue}>{leaveDates.length}</Text>
-                            </View>
-                            <View style={{ ...styles.rectangle, backgroundColor: "#f8bd8a" }}>
-                                <Text style={styles.lable}>Late</Text>
-                                <Text style={styles.statValue}>{lateDates.length}</Text>
-                            </View>
-                            <View style={{ ...styles.rectangle, backgroundColor: "#ff9292" }}>
-                                <Text style={styles.lable}>Absent</Text>
-                                <Text style={styles.statValue}>{absentDates.length}</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.piechartcontainer}>
-                        <Text style={styles.txt}>Leave Statistics {formattedDate}</Text>
-                        <View style={styles.monthContainerinner}>
-                            <View style={styles.statistics}>
-                                <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "#f9e484" }} ></View>
-                                    <Text style={styles.colorTxt}>Casual: {casualRemaining} </Text>
-                                </View>
-                                <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "#f8bd8a" }} ></View>
-                                    <Text style={styles.colorTxt}>Medical: {medicalRemaining} </Text>
-                                </View>
-                                <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "#ff9292" }} ></View>
-                                    <Text style={styles.colorTxt}>Emergency: {emergencyRemaining} </Text>
-                                </View>
-                                <View style={styles.statisticsline}>
-                                    <View style={{ ...styles.color, backgroundColor: "#bfdfae" }} ></View>
-                                    <Text style={styles.colorTxt}>Remaining: {annualRemaining} </Text>
-                                </View>
 
-                            </View>
-                            <PieChart
-                                coverRadius={0.65}
-                                widthAndHeight={widthAndHeight}
-                                series={validSeries}
-                                sliceColor={sliceColor}
-                            />
-                        </View>
-                    </View>
-                    <View style={styles.requests}>
-                        <Text style={styles.txt}>Requests</Text>
-                        <View style={styles.requesttilescontainer}>
-                            {['Pending', 'Approved', 'Rejected'].map((type, index) => (
-                                <TouchableOpacity
-                                    key={type}
-                                    style={{ ...styles.requesttiles, width: index === 1 ? "35%" : "26%", backgroundColor: index === 1 ? "#4BAAC8" : "#9dcede" }}
-                                    onPress={() => navigation.navigate('Pendingrequests', { type })}
-                                >
-                                    <Text style={{ ...styles.lable, color: index === 1 ? "white" : "#454545" }}>{type}</Text>
-                                    <Text style={{ color: index === 1 ? "white" : "#36454F", fontSize: 15 }}>{leaveCount[type]}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </View>
-                    <View style={{ ...styles.hourscompleted, marginBottom: width * 0.1 }}>
-                        <View style={styles.colordisplay}>
-                            <View style={styles.statisticsline}>
-                                <View style={{ ...styles.color, backgroundColor: "#7ED7B9" }} />
-                                <Text style={styles.colorTxt}>Present's </Text>
-                            </View>
-                            <View style={styles.statisticsline}>
-                                <View style={{ ...styles.color, backgroundColor: "#ff9292" }} />
-                                <Text style={styles.colorTxt}>Absent's</Text>
-                            </View>
-                        </View>
-                        <View style={styles.chartContainer}>
-                            <ScrollView horizontal>
-                                <StackedBarChart
-                                    data={attendanceData}
-                                    width={screenWidth * 1.8}
-                                    height={width * 0.52}
-                                    chartConfig={chartConfig}
-                                    withHorizontalLabels={true}
+                </View>
+                <View style={styles.piechartcontainer}>
+                    <Text style={styles.txt}>Leave Statistics {formattedDate}</Text>
+                    <View style={styles.monthContainerinner}>
+                        {isLoading2 ?
+                            <Loader />
+                            :
+                            <>
+                                <View style={styles.statistics}>
+                                    <View style={styles.statisticsline}>
+                                        <View style={{ ...styles.color, backgroundColor: "#f9e484" }} ></View>
+                                        <Text style={styles.colorTxt}>Casual: {casualRemaining} </Text>
+                                    </View>
+                                    <View style={styles.statisticsline}>
+                                        <View style={{ ...styles.color, backgroundColor: "#f8bd8a" }} ></View>
+                                        <Text style={styles.colorTxt}>Medical: {medicalRemaining} </Text>
+                                    </View>
+                                    <View style={styles.statisticsline}>
+                                        <View style={{ ...styles.color, backgroundColor: "#ff9292" }} ></View>
+                                        <Text style={styles.colorTxt}>Emergency: {emergencyRemaining} </Text>
+                                    </View>
+                                    <View style={styles.statisticsline}>
+                                        <View style={{ ...styles.color, backgroundColor: "#bfdfae" }} ></View>
+                                        <Text style={styles.colorTxt}>Remaining: {annualRemaining} </Text>
+                                    </View>
+                                </View>
+                                <PieChart
+                                    coverRadius={0.65}
+                                    widthAndHeight={widthAndHeight}
+                                    series={validSeries}
+                                    sliceColor={sliceColor}
                                 />
-                            </ScrollView>
-                        </View>
+                            </>
+                        }
                     </View>
-                </ScrollView>
-            }
+                </View>
+                <View style={styles.requests}>
+                    <Text style={styles.txt}>Requests</Text>
+                    <View style={styles.requesttilescontainer}>
+                        {['Pending', 'Approved', 'Rejected'].map((type, index) => (
+                            <TouchableOpacity
+                                key={type}
+                                style={{ ...styles.requesttiles, width: index === 1 ? "35%" : "26%", backgroundColor: index === 1 ? "#4BAAC8" : "#9dcede" }}
+                                onPress={() => navigation.navigate('Pendingrequests', { type })}
+                            >
+                                <Text style={{ ...styles.lable, color: index === 1 ? "white" : "#454545" }}>{type}</Text>
+                                <Text style={{ color: index === 1 ? "white" : "#36454F", fontSize: 15 }}>{leaveCount[type]}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+                <View style={{ ...styles.hourscompleted, marginBottom: width * 0.1 }}>
+                    {isLoading3 ?
+                        <Loader /> :
+                        <>
+                            <View style={styles.colordisplay}>
+                                <View style={styles.statisticsline}>
+                                    <View style={{ ...styles.color, backgroundColor: "#7ED7B9" }} />
+                                    <Text style={styles.colorTxt}>Present's </Text>
+                                </View>
+                                <View style={styles.statisticsline}>
+                                    <View style={{ ...styles.color, backgroundColor: "#ff9292" }} />
+                                    <Text style={styles.colorTxt}>Absent's</Text>
+                                </View>
+                            </View>
+                            <View style={styles.chartContainer}>
+                                <ScrollView horizontal>
+                                    <StackedBarChart
+                                        data={attendanceData}
+                                        width={screenWidth * 1.8}
+                                        height={width * 0.52}
+                                        chartConfig={chartConfig}
+                                        withHorizontalLabels={true}
+                                    />
+                                </ScrollView>
+                            </View>
+                        </>}
+                </View>
+            </ScrollView>
+
         </>
     );
 }
