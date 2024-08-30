@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 const API_BASE_URL = 'https://api1.bridgecitycabs.com/api/Auth/GetOTPCodeforDriverSignup';
 
 const fetchOTP = async (phoneNumber) => {
-    console.log("in fetchOTP");
+    // console.log("in fetchOTP");
     try {
         const response = await axios.post(`${API_BASE_URL}`, {
             phonenumber: phoneNumber,

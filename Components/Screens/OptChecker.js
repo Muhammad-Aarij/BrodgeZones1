@@ -74,9 +74,16 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
         if (otpCode.length === pinCount) {
             setIsLoading(true);
             const verify = await VerifyOTP(otpCode);
-            if (verify) {
+            if (verify.IsSuccess) {
                 setIsLoading(false);
                 await AsyncStorage.setItem("@Login", "true");
+                if (verify.Role == "Admin") {
+                    await AsyncStorage.setItem("@role", "true");
+                }
+                else {
+
+                    await AsyncStorage.setItem("@role", "false");
+                }
                 navigation.navigate("Mainpage");
             } else {
                 setIsLoading(false);
@@ -92,12 +99,12 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
         <>
             {
                 isLoading ?
-                    <LoaderModal /> 
+                    <LoaderModal />
                     :
                     <View style={styles.maincontainer}>
                         <View style={styles.container}>
-                            <Text style={{ ...styles.title, fontWeight: 'bold', fontSize: 24, marginBottom: 10,color:"#71797E" }}>Verification</Text>
-                            <Text style={{color:"#818589"}}>Enter the 6-digit OTP code sent to <Text style={{ fontWeight: "bold",color:"#71797E" }}>+{route.params.phoneNo}</Text></Text>
+                            <Text style={{ ...styles.title, fontWeight: 'bold', fontSize: 24, marginBottom: 10, color: "#71797E" }}>Verification</Text>
+                            <Text style={{ color: "#818589" }}>Enter the 6-digit OTP code sent to <Text style={{ fontWeight: "bold", color: "#71797E" }}>+{route.params.phoneNo}</Text></Text>
                             <View style={styles.containerinputs}>
                                 {otp.map((_, index) => (
                                     <TextInput
@@ -114,9 +121,9 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
                                 ))}
                             </View>
                             <View style={styles.timer}>
-                                <Text style={{ color:"#818589", fontWeight: 'bolder', fontSize: 16, fontWeight: "bold" }}>Don't receive the code?</Text>
-                                {timer != 0 && <Text style={{ fontSize: 14,color:"#848884" }}>Wait {timer} sec</Text>}
-                                {timer == 0 && <Text style={{ fontSize: 14,color:"#848884" }} onPress={handleFetchOTP}>Send Again</Text>}
+                                <Text style={{ color: "#818589", fontWeight: 'bolder', fontSize: 16, fontWeight: "bold" }}>Don't receive the code?</Text>
+                                {timer != 0 && <Text style={{ fontSize: 14, color: "#848884" }}>Wait {timer} sec</Text>}
+                                {timer == 0 && <Text style={{ fontSize: 14, color: "#848884" }} onPress={handleFetchOTP}>Send Again</Text>}
                             </View>
                             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                                 <Text style={styles.buttonText}>Submit</Text>
@@ -139,30 +146,30 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        marginVertical: width*0.078,
+        marginVertical: width * 0.078,
     },
     container: {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        paddingHorizontal: width*0.05,
+        paddingHorizontal: width * 0.05,
     },
     input: {
-        width: width*0.11,
-        height: width*0.11,
-        borderWidth: width*0.004,
-        borderRadius: width*0.01,
+        width: width * 0.11,
+        height: width * 0.11,
+        borderWidth: width * 0.004,
+        borderRadius: width * 0.01,
         borderColor: '#d3d3d3',
-        fontSize: width*0.043,
-        color:"grey",
-        marginHorizontal: width*0.012,
+        fontSize: width * 0.043,
+        color: "grey",
+        marginHorizontal: width * 0.012,
     },
     button: {
         width: '60%',
         backgroundColor: '#4BAAC8',
-        paddingVertical: width*0.025,
-        paddingHorizontal: width*0.05,
+        paddingVertical: width * 0.025,
+        paddingHorizontal: width * 0.05,
         borderRadius: 5,
         shadowColor: "#7e7b7b",
         shadowOffset: {
@@ -171,20 +178,20 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0,
         shadowRadius: 5,
-        elevation: width*0.012,
+        elevation: width * 0.012,
     },
     buttonText: {
         color: '#fff',
-        fontSize: width*0.04,
+        fontSize: width * 0.04,
         textAlign: 'center',
     },
     timer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: width*0.08,
+        marginBottom: width * 0.08,
         width: '100%',
-        gap: width*0.025,
+        gap: width * 0.025,
 
 
     }

@@ -16,6 +16,7 @@ const { width } = Dimensions.get('window');
 
 
 export default function MainPage({ navigation }) {
+    const [role, setRole] = useState(false);
 
     useEffect(() => {
         const requestLocationPermission = async () => {
@@ -38,6 +39,18 @@ export default function MainPage({ navigation }) {
             return false;
         };
         requestLocationPermission();
+
+        const getRole = async () => {
+            const role = await AsyncStorage.getItem("@role");
+            if (role == "true") {
+                setRole(true);
+            }
+            else {
+                setRole(false);
+            }
+            console.log("Role" + role);
+        };
+        getRole();
     }, [])
 
     useFocusEffect(
@@ -66,11 +79,12 @@ export default function MainPage({ navigation }) {
             <View style={styles.top}>
                 <View style={styles.header}>
                     <Text style={styles.heading}>Attendance App</Text>
-                    <Pressable onPress={()=>{
+                    {/* {!role && <Pressable onPress={() => { */}
+                    { <Pressable onPress={() => {
                         navigation.navigate("LeaveApproaval");
                     }}>
                         <Image source={bell} style={styles.notifications}></Image>
-                    </Pressable>
+                    </Pressable>}
                 </View>
                 <View style={styles.tilesContainer}>
 
@@ -197,7 +211,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: "#FFFFFF",
     },
-    
+
     tilesContainer: {
         flexWrap: 'wrap',
         flexDirection: 'row',
@@ -208,27 +222,27 @@ const styles = StyleSheet.create({
     },
 
     tile: {
-        width: width*0.35,
-        height: width*0.35,
-        borderRadius: width*0.025,
-        margin: width*0.025,
+        width: width * 0.35,
+        height: width * 0.35,
+        borderRadius: width * 0.025,
+        margin: width * 0.025,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#4BAAC8',
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height:  width * 0.005,
+            height: width * 0.005,
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: width*0.01,
+        elevation: width * 0.01,
     },
     img: {
-        width: width*0.13,
-        height: width*0.12,
+        width: width * 0.13,
+        height: width * 0.12,
         resizeMode: 'contain',
-        marginBottom: width*0.015,
+        marginBottom: width * 0.015,
     },
     txt: {
         fontSize: 15,
@@ -240,44 +254,44 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: width*0.01,
-        marginTop: width*0.05,
+        padding: width * 0.01,
+        marginTop: width * 0.05,
         color: 'white',
         // borderRadius:5,
         // marginBottom:1,
     },
     gradient: {
-        borderRadius: width*0.04, // or any other value you need
-        margin: width*0.01, // adjust as needed
+        borderRadius: width * 0.04, // or any other value you need
+        margin: width * 0.01, // adjust as needed
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height:  width * 0.055,
+            height: width * 0.055,
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: width*0.01,
+        elevation: width * 0.01,
     },
     header: {
-        marginVertical: width*0.06,
+        marginVertical: width * 0.06,
         flexDirection: "row",
         // borderWidth: 2,
-        height: width*0.17,
+        height: width * 0.17,
         width: "100%",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingHorizontal: width*0.1,
+        paddingHorizontal: width * 0.1,
 
     },
     heading: {
-        fontSize: width*0.06,
+        fontSize: width * 0.06,
         fontWeight: 'bold',
         color: '#4BAAC8',
         fontFamily: 'Roboto-black',
     },
     notifications: {
-        width: width*0.065,
-        height: width*0.065,
+        width: width * 0.065,
+        height: width * 0.065,
         resizeMode: 'contain',
     },
     top: {

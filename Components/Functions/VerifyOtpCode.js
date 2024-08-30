@@ -18,7 +18,7 @@ const VerifyOTP = async (OTP) => {
             const data = response.data;
             await AsyncStorage.setItem('@Login', 'true');
             console.log("Success: ", data);
-            return data.IsSuccess;
+            return data;
         } else if (response.status === 400) {
             return response.data.IsSuccess;
         }

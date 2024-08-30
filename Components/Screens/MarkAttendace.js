@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, SafeAreaView, Text, TouchableOpacity, View, Alert, ScrollView, Platform, PermissionsAndroid, Animated, useWindowDimensions, Dimensions } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, TouchableOpacity, View, Alert, ScrollView, Platform, PermissionsAndroid, Image, useWindowDimensions, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MarkAttendace from '../Functions/MarkAttendance';
 import { Table, Row } from 'react-native-table-component';
@@ -11,6 +11,11 @@ import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import moment from 'moment';
 import LoaderModal from '../Loaders/LoaderModal';
 import SuccessModal from '../Loaders/SuccessModal';
+import set from '../Images/settings.png'
+import cancel from '../Images/reject.png'
+import DatePicker from 'react-native-date-picker';
+import { Dropdown } from 'react-native-element-dropdown';
+
 
 const { width } = Dimensions.get('window');
 export default function MarkAttendance() {
@@ -21,6 +26,20 @@ export default function MarkAttendance() {
     const [isloadingthefirstdata, setIsloadingthefirstdata] = useState(true);
     const [formattedTime, setFormattedTime] = useState(moment().format('hh:mm A'));
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [settings, setSettings] = useState(false);
+
+
+
+    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [openDatePicker, setOpenDatePicker] = useState(false);
+    const [openTimePicker, setOpenTimePicker] = useState(false);
+
+    const statusOptions = [
+        { label: 'Check In', value: 'Check In' },
+        { label: 'Check Out', value: 'Check Out' }
+    ];
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -188,8 +207,7 @@ export default function MarkAttendance() {
     const tableHead = ['Date', 'Check In', 'Check Out', 'Remarks'];
     const widthArr = [75, 75, 85, 75];
     const date = new Date();
-    const formattedDate = moment(date).format('MMMM D, YYYY'); // August 1, 2024
-
+    const formattedDate = moment(date).format('MMMM D, YYYY'); 
     return (
         <>
             {isloadingthefirstdata ?
@@ -198,59 +216,142 @@ export default function MarkAttendance() {
                 <SafeAreaView style={styles.maincontainer}>
                     <View style={styles.contentContainer}>
                         <View style={styles.attendance}>
-                            <Text style={styles.date}>{formattedDate}</Text>
+                            <View style={styles.dateContainer}>
+                                <Text style={styles.date}>{formattedDate}</Text>
+                                <TouchableOpacity onPress={() => {
+                                    setSettings(!settings);
+                                }}>
+                                    {settings ?
+                                        <Image style={styles.img} source={cancel}></Image>
+                                        :
+                                        <Image style={styles.img} source={set}></Image>}
+                                </TouchableOpacity>
+                            </View>
                             <Text style={styles.time}>{formattedTime}</Text>
                         </View>
-                        <View style={styles.attendacemarker}>
-                            <View style={[styles.attendaceline, isButtonDisabled && styles.btnDisabled]}>
-                                <TouchableOpacity
-                                    style={[styles.btn, isButtonDisabled && styles.btnDisabled]}
-                                    onPress={() => handleAttendance("Check In")}
-                                    disabled={isButtonDisabled}
-                                >
-                                    <Text style={{ fontSize: width * 0.035, color: isButtonDisabled ? "#909090" : "white" }}>
-                                        Check In
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={[styles.attendaceline, isCheckOutDisabled && styles.btnDisabled]}>
-                                <TouchableOpacity
-                                    style={[styles.btn, isCheckOutDisabled && styles.btnDisabled]}
-                                    onPress={() => handleAttendance("Check Out")}
-                                    disabled={isCheckOutDisabled}
-                                >
-                                    <Text style={{ fontSize: width * 0.035, color: isCheckOutDisabled ? "#909090" : "white" }}>
-                                        Check Out
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                        <View style={{ ...styles.attendacemarker, paddingHorizontal: 20, flex: 1 }}>
-                            {!isLoading ?
-                                <View>
-                                    <Table borderStyle={{ alignSelf: "center" }}>
-                                        <Row data={tableHead} widthArr={widthArr} style={styles.header} textStyle={{ color: "black", backgroundColor: "#F0FFFF", fontSize: width * 0.035, marginBottom: 10, alignSelf: "center", }} />
-                                    </Table>
-                                    <ScrollView style={styles.dataWrapper}>
-                                        <Table borderStyle={{ borderWidth: 0 }}>
-                                            {
-                                                attendanceData.map((rowData, index) => (
-                                                    <Row
-                                                        key={index}
-                                                        data={rowData}
-                                                        widthArr={widthArr}
-                                                        style={StyleSheet.flatten([styles.row, index % 2 && { backgroundColor: '', borderRadius: 5, }])}
-                                                        textStyle={[styles.rowTextStyle, index % 2 === 0 && styles.evenIndexText]}
-                                                    />
-                                                ))
-                                            }
-                                        </Table>
-                                    </ScrollView>
+                        {!settings ?
+                            (<>
+                                <View style={styles.attendacemarker}>
+                                    <View style={[styles.attendaceline, isButtonDisabled && styles.btnDisabled]}>
+                                        <TouchableOpacity
+                                            style={[styles.btn, isButtonDisabled && styles.btnDisabled]}
+                                            onPress={() => handleAttendance("Check In")}
+                                            disabled={isButtonDisabled}
+                                        >
+                                            <Text style={{ fontSize: width * 0.035, color: isButtonDisabled ? "#909090" : "white" }}>
+                                                Check In
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={[styles.attendaceline, isCheckOutDisabled && styles.btnDisabled]}>
+                                        <TouchableOpacity
+                                            style={[styles.btn, isCheckOutDisabled && styles.btnDisabled]}
+                                            onPress={() => handleAttendance("Check Out")}
+                                            disabled={isCheckOutDisabled}
+                                        >
+                                            <Text style={{ fontSize: width * 0.035, color: isCheckOutDisabled ? "#909090" : "white" }}>
+                                                Check Out
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                                :
-                                <Loader />
-                            }
-                        </View>
+                                <View style={{ ...styles.attendacemarker, paddingHorizontal: 20, flex: 1 }}>
+                                    {!isLoading ?
+                                        <View>
+                                            <Table borderStyle={{ alignSelf: "center" }}>
+                                                <Row data={tableHead} widthArr={widthArr} style={styles.header} textStyle={{ color: "black", backgroundColor: "#F0FFFF", fontSize: width * 0.035, marginBottom: 10, alignSelf: "center", }} />
+                                            </Table>
+                                            <ScrollView style={styles.dataWrapper}>
+                                                <Table borderStyle={{ borderWidth: 0 }}>
+                                                    {
+                                                        attendanceData.map((rowData, index) => (
+                                                            <Row
+                                                                key={index}
+                                                                data={rowData}
+                                                                widthArr={widthArr}
+                                                                style={StyleSheet.flatten([styles.row, index % 2 && { backgroundColor: '', borderRadius: 5, }])}
+                                                                textStyle={[styles.rowTextStyle, index % 2 === 0 && styles.evenIndexText]}
+                                                            />
+                                                        ))
+                                                    }
+                                                </Table>
+                                            </ScrollView>
+                                        </View>
+                                        :
+                                        <Loader />
+                                    }
+                                </View>
+                            </>
+                            )
+                            :
+                            <>
+                                <View style={[styles.attendacemarker, styles.editcontainer]}>
+                                    <View style={styles.dropdownContainer}>
+                                        <Text>Select Status</Text>
+                                        <Dropdown
+                                            style={styles.dropdown}
+                                            data={statusOptions}
+                                            labelField="label"
+                                            valueField="value"
+                                            placeholder="Select status"
+                                            value={selectedStatus}
+                                            onChange={item => setSelectedStatus(item.value)}
+                                            placeholderStyle={styles.placeholderStyle}
+                                            selectedTextStyle={styles.selectedTextStyle}
+                                        />
+                                    </View>
+
+                                    <View style={{ ...styles.datePickerContainer, marginBottom: 20, }}>
+                                        <Text>Select Date</Text>
+                                        <TouchableOpacity onPress={() => setOpenDatePicker(true)}>
+                                            <Text style={styles.dateText}>{moment(selectedDate).format('MMMM D, YYYY')}</Text>
+                                        </TouchableOpacity>
+                                        <DatePicker
+                                            style={styles.picker}
+                                            modal
+                                            open={openDatePicker}
+                                            date={selectedDate}
+                                            mode="date" // Set mode to "date" to only show the date picker
+                                            onConfirm={date => {
+                                                setOpenDatePicker(false);
+                                                setSelectedDate(date);
+                                            }}
+                                            onCancel={() => setOpenDatePicker(false)}
+                                        />
+                                    </View>
+
+                                    <View style={styles.timePickerContainer}>
+                                        <Text>Select Time</Text>
+                                        <TouchableOpacity onPress={() => setOpenTimePicker(true)}>
+                                            <Text style={styles.dateText}>{moment(selectedTime).format('hh:mm A')}</Text>
+                                        </TouchableOpacity>
+                                        <DatePicker
+                                            style={styles.picker}
+                                            modal
+                                            open={openTimePicker}
+                                            date={selectedTime}
+                                            mode="time"
+                                            onConfirm={time => {
+                                                setOpenTimePicker(false);
+                                                setSelectedTime(time);
+                                            }}
+                                            onCancel={() => setOpenTimePicker(false)}
+                                        />
+                                    </View>
+
+                                    <TouchableOpacity
+                                        style={[styles.btn, styles.btnEdit]}
+                                        // onPress={() => handleAttendance("Check In")}
+                                        >
+                                        <Text style={{ fontSize: width * 0.035, color: "white" }}>
+                                            Submit
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                </View>
+                            </>
+
+                        }
                     </View>
                     <View style={styles.footer}>
                         <Text style={styles.txt}>2024 BridgeZones ©</Text>
@@ -266,16 +367,16 @@ const styles = StyleSheet.create({
     maincontainer: {
         flex: 1,
         backgroundColor: "#eeedec",
-        paddingTop: width*0.04,
+        paddingTop: width * 0.04,
         flexDirection: 'column',
     },
     attendacemarker: {
         width: "100%",
         // height: "auto",
-        marginTop: width*0.04,
+        marginTop: width * 0.04,
         flexDirection: "row",
         justifyContent: "space-evenly",
-        borderRadius: width*0.025,
+        borderRadius: width * 0.025,
         backgroundColor: "#FFFFFF",
         paddingTop: "5%",
         paddingBottom: "5%",
@@ -284,10 +385,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#4BAAC8",
-        width: width*0.37,
-        paddingVertical: width*0.025,
-        borderRadius: width*0.01,
-        borderWidth: width*0.002,
+        width: width * 0.37,
+        paddingVertical: width * 0.025,
+        borderRadius: width * 0.01,
+        borderWidth: width * 0.002,
         borderColor: "#4BAAC8",
         color: "black",
         shadowColor: "#000",
@@ -297,10 +398,10 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        elevation: width*0.01,
+        elevation: width * 0.01,
     },
     btnDisabled: {
-        borderRadius: width*0.01,
+        borderRadius: width * 0.01,
         backgroundColor: "#e0e0e0",
         borderColor: "#b0b0b0",
         color: "gray",
@@ -310,7 +411,7 @@ const styles = StyleSheet.create({
         color: "white",
     },
     footerText: {
-        fontSize: width*0.04,
+        fontSize: width * 0.04,
         color: 'black',
     },
     footer: {
@@ -320,19 +421,19 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: width*0.01,
-        marginTop: width*0.04,
-        paddingVertical:width*0.025,
+        padding: width * 0.01,
+        marginTop: width * 0.04,
+        paddingVertical: width * 0.025,
         color: 'white',
-        borderTopLeftRadius:10,
-        borderTopRightRadius:10,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
     },
     row: {
         backgroundColor: "#a1dcef",
-        borderRadius: width*0.013,
+        borderRadius: width * 0.013,
     },
-   
-    
+
+
     contentContainer: {
         flex: 1, // This makes the container take all available space except for the footer
         width: "100%",
@@ -342,18 +443,18 @@ const styles = StyleSheet.create({
 
     attendance: {
         width: "100%",
-        marginTop: width*0.04,
+        marginTop: width * 0.04,
         flexDirection: "column",
         justifyContent: "space-evenly",
-        borderRadius: width*0.025,
+        borderRadius: width * 0.025,
         backgroundColor: "#4BAAC8",
-        paddingVertical: width*0.08,
-        paddingHorizontal: width*0.06,
+        paddingVertical: width * 0.08,
+        paddingHorizontal: width * 0.06,
     },
     date: {
         fontSize: width * 0.06,
         color: "white",
-        marginBottom: width*0.025,
+        marginBottom: width * 0.025,
         // fontWeight:"bold",
         fontFamily: "sans-serif-condensed",
 
@@ -366,9 +467,9 @@ const styles = StyleSheet.create({
     rowTextStyle: {
         color: "#666362",
         fontSize: width * 0.035,
-        paddingTop: width*0.02,
+        paddingTop: width * 0.02,
         alignSelf: "center",
-        paddingBottom: width*0.017,
+        paddingBottom: width * 0.017,
     },
     evenIndexText: {
         fontSize: width * 0.035,
@@ -378,8 +479,73 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 1,
         backgroundColor: '#D3D3D3',
-        marginVertical: width*0.005,
+        marginVertical: width * 0.005,
         borderColor: '#D3D3D3',
-    }
+    },
 
+    img: {
+        width: width * 0.085,
+        height: width * 0.085,
+    },
+    dateContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+
+    dropdownContainer: {
+        marginVertical: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+    dropdown: {
+        height: 40,
+        width: "45%",
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        fontSize: 14,
+    },
+    datePickerContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginVertical: 10,
+    },
+    timePickerContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginVertical: 10,
+    },
+    dateText: {
+        fontSize: 14,
+        color: '#333',
+    },
+    editcontainer: {
+        flexDirection: "column",
+        padding: 20,
+    },
+    picker: {
+        height: 40,
+        // width:"60%",
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        fontSize: 14,
+    },
+    btnEdit: {
+        alignSelf: "center",
+        marginTop: 30,
+        color:"#ffffFF",
+    },
+    placeholderStyle: {
+        fontSize: 14,
+    },
+    selectedTextStyle: {
+        fontSize: 14,
+    },
 });

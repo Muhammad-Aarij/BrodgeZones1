@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, StyleSheet, Text, Image, Dimensions, TouchableOpacity } from 'react-native';
-import { ProgressBar } from 'react-native-paper';
 import { StackedBarChart } from 'react-native-chart-kit';
 import PieChart from 'react-native-pie-chart';
 import moment from 'moment';
-import LoaderModal from '../Loaders/LoaderModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GetAttendanceSheetByPhoneNumber from '../Functions/GetAttendanceSheetByPhoneNumber';
 import GetAttendanceYearly from '../Functions/GetAttendanceYearly';
@@ -59,6 +57,7 @@ export default function Dashboard({ navigation }) {
     const [absentDates, setAbsentDates] = useState([]);
     const [leaveDates, setLeaveDates] = useState([]);
     const [lateDates, setLateDates] = useState([]);
+    const [currentEmployeeNumber, setcurrentEmployeeNumber] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isLoading1, setIsLoading1] = useState(false);
     const [isLoading2, setIsLoading2] = useState(false);
@@ -70,17 +69,36 @@ export default function Dashboard({ navigation }) {
     const [medicalRemaining, setMedicalRemaining] = useState(0);
     const [annualRemaining, setAnnualRemaining] = useState(0);
     const [emplyeeList, setEmployeeList] = useState([]);
+    const [numberNew, setnumber] = useState("");
+    const [role, setRole] = useState(false);
     const [leaveCount, setLeaveCount] = useState({
         Pending: 0,
         Approved: 0,
         Rejected: 0
     });
 
-    const fetchDataAndCheckStatus = async () => {
+    useEffect(() => {
+        const getNumber = async () => {
+            const Usernumber = await AsyncStorage.getItem('@UserNumber');
+            setnumber(Usernumber);
+            const role = await AsyncStorage.getItem("@role");
+            if (role == "true") {
+                setRole(true);
+            }
+            else {
+                setRole(false);
+            }
+            console.log("Role" + role);
+
+        };
+        getNumber();
+
+    }, [])
+
+    const fetchDataAndCheckStatus = async (number) => {
         try {
             setIsLoading1(true);
 
-            const number = await AsyncStorage.getItem('@UserNumber');
             const data = await GetAttendanceSheetByPhoneNumber(number);
 
             const present = [];
@@ -119,11 +137,11 @@ export default function Dashboard({ navigation }) {
         }
     };
 
-    const fetchYearlyData = async () => {
+    const fetchYearlyData = async (number) => {
         try {
             setIsLoading3(true);
 
-            const number = await AsyncStorage.getItem('@UserNumber');
+            // const number = await AsyncStorage.getItem('@UserNumber');
             const data = await GetAttendanceYearly(number);
 
             const monthlyData = Array(12).fill().map(() => ({ Present: 0, Absent: 0 }));
@@ -165,10 +183,8 @@ export default function Dashboard({ navigation }) {
 
             };
             setAttendanceData(generateChartData(monthlyData));
-            setTimeout(() => {
-                setIsLoading3(false);
-            }, 2000); 
-    
+            setIsLoading3(false); // 2000 ms = 2 seconds
+
         } catch (error) {
             setIsLoading3(false);
             console.error(error);
@@ -176,10 +192,10 @@ export default function Dashboard({ navigation }) {
 
     };
 
-    const fetchRemainingLeaves = async () => {
+    const fetchRemainingLeaves = async (number) => {
         try {
             setIsLoading(true);
-            const number = await AsyncStorage.getItem('@UserNumber');
+            // const number = await AsyncStorage.getItem('@UserNumber');
             const medicalLeaves = await GetRemianingLeaves(number, 1);
             const casualLeaves = await GetRemianingLeaves(number, 2);
             const emergencyLeaves = await GetRemianingLeaves(number, 3);
@@ -192,17 +208,19 @@ export default function Dashboard({ navigation }) {
             // Calculate the annual remaining leaves based on the initial annual count
             setAnnualRemaining(0 + (medicalLeaves || 0) + (casualLeaves || 0) + (emergencyLeaves || 0));
 
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 2000);
         } catch (error) {
             console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        setIsLoading(false);
+        } 
     };
 
-    const fetchLeavesStatus = async () => {
+    const fetchLeavesStatus = async (number) => {
         try {
             setIsLoading2(true);
-            const number = await AsyncStorage.getItem('@UserNumber');
+            // const number = await AsyncStorage.getItem('@UserNumber');
             const data = await GetleavesStatus(number);
             if (data) {
                 // console.log(data);
@@ -239,41 +257,46 @@ export default function Dashboard({ navigation }) {
     };
 
     const getlist = async () => {
-        setIsLoading(true);
+        setIsLoading4(true);
         try {
             const response = await GetEmployeeList();
             if (response != null) {
                 const transformedList = response.map(item => ({
                     label: item.Name,
-                    value: item.UserIdentityId
+                    value: item.PhoneNumber
                 }));
                 setEmployeeList(transformedList);
                 // console.log("first employeeee" + emplyeeList[0].label);
-                setIsLoading(false);
+                setIsLoading4(false);
             }
             else {
-                setIsLoading(false);
+                setIsLoading4(false);
             }
         } catch (e) {
-            setIsLoading(false);
+            setIsLoading4(false);
             console.error(e);
         }
     };
     useEffect(() => {
-        getlist();
-        fetchLeavesStatus();
-        fetchDataAndCheckStatus();
-        fetchYearlyData();
-        fetchRemainingLeaves();
+        const getnumber=async ()=>{
+            const number = await AsyncStorage.getItem('@UserNumber');
+            getlist();
+            fetchLeavesStatus(number);
+            fetchDataAndCheckStatus(number);
+            fetchYearlyData(number);
+            fetchRemainingLeaves(number);
+        }
+
+        getnumber();
     }, []);
 
-    // const Employees = [
-    //     { label: 'Ahmed', value: 'HR' },
-    //     { label: 'Aziz', value: 'HR' },
-    //     { label: 'Alamgir', value: 'Team-Lead' },
-    //     { label: 'Adil', value: 'Team-Lead' },
-    //     { label: 'Asim', value: 'Team-Lead' },
-    // ];
+
+    const update =async (numberNew)=>{
+        fetchLeavesStatus();
+        fetchDataAndCheckStatus(numberNew);
+        fetchYearlyData(numberNew);
+        fetchRemainingLeaves(numberNew);
+    };
 
     const renderItem = (item) => (
         <View style={styles.dropdownItem}>
@@ -294,27 +317,35 @@ export default function Dashboard({ navigation }) {
                     <Image style={styles.img} source={settings} />
                     <Text style={styles.heading}>Dashboard</Text>
                 </View>
-                <View style={styles.hourscompleted}>
-                    <Text style={styles.txt}>Select Employee</Text>
-                    <Dropdown
-                        style={styles.dropdown}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        iconStyle={styles.iconStyle}
-                        data={emplyeeList}
-                        maxHeight={200}
-                        labelField="label"
-                        valueField="value"
-                        placeholder="Select Employee"
-                        searchPlaceholder="Search..."
-                        value={Employee}
-                        renderItem={renderItem}
-                        onChange={item => {
-                            setEmployee(item.value);
-                        }}
-                    />
-                </View>
+                {/* {role && */}
+                {
+                    <View style={styles.hourscompleted}>
+                        <Text style={styles.txt}>Select Employee</Text>
+                        {isLoading4 ?
+                        <Loader/>
+                        :
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={emplyeeList}
+                            maxHeight={200}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Select Employee"
+                            searchPlaceholder="Search..."
+                            value={Employee}
+                            renderItem={renderItem}
+                            onChange={item => {
+                                setEmployee(item.value);
+                                setnumber(item.value);
+                                // console.log(number);
+                                update(item.value);
+                            }}
+                        />}
+                    </View>}
                 <View style={styles.hourscompleted}>
                     <Text style={styles.txt}>{getMonthName(date)}'s Statistics</Text>
                     <View style={styles.rectangleContainer}>
@@ -346,7 +377,7 @@ export default function Dashboard({ navigation }) {
                 <View style={styles.piechartcontainer}>
                     <Text style={styles.txt}>Leave Statistics {formattedDate}</Text>
                     <View style={styles.monthContainerinner}>
-                        {isLoading2 ?
+                        {isLoading ?
                             <Loader />
                             :
                             <>
@@ -380,18 +411,21 @@ export default function Dashboard({ navigation }) {
                 </View>
                 <View style={styles.requests}>
                     <Text style={styles.txt}>Requests</Text>
-                    <View style={styles.requesttilescontainer}>
-                        {['Pending', 'Approved', 'Rejected'].map((type, index) => (
-                            <TouchableOpacity
-                                key={type}
-                                style={{ ...styles.requesttiles, width: index === 1 ? "35%" : "26%", backgroundColor: index === 1 ? "#4BAAC8" : "#9dcede" }}
-                                onPress={() => navigation.navigate('Pendingrequests', { type })}
-                            >
-                                <Text style={{ ...styles.lable, color: index === 1 ? "white" : "#454545" }}>{type}</Text>
-                                <Text style={{ color: index === 1 ? "white" : "#36454F", fontSize: 15 }}>{leaveCount[type]}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                    {isLoading2 ?
+                        <Loader />
+                        :
+                        <View style={styles.requesttilescontainer}>
+                            {['Pending', 'Approved', 'Rejected'].map((type, index) => (
+                                <TouchableOpacity
+                                    key={type}
+                                    style={{ ...styles.requesttiles, width: index === 1 ? "35%" : "26%", backgroundColor: index === 1 ? "#4BAAC8" : "#9dcede" }}
+                                    onPress={() => navigation.navigate('Pendingrequests', { type })}
+                                >
+                                    <Text style={{ ...styles.lable, color: index === 1 ? "white" : "#454545" }}>{type}</Text>
+                                    <Text style={{ color: index === 1 ? "white" : "#36454F", fontSize: 15 }}>{leaveCount[type]}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>}
                 </View>
                 <View style={{ ...styles.hourscompleted, marginBottom: width * 0.1 }}>
                     {isLoading3 ?

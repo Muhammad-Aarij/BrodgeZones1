@@ -12,10 +12,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
-export default function PendingRequests({ navigation }) {
+export default function PendingRequests({ navigation, route }) {
+    const { type } = route.params;
     const [requestList, setRequestList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [requesttype, setRequestType] = useState('');
+    const [requesttype, setRequestType] = useState(`${type} Request`);
 
     function convertToDateOnly(dateTimeString) {
         const date = new Date(dateTimeString);
@@ -154,7 +155,7 @@ export default function PendingRequests({ navigation }) {
 
                         {Object.keys(filteredGroups).map((dateCategory, index) => (
                             <View key={index} style={styles.datecontainer}>
-                                <Text style={styles.date}>{dateCategory}</Text>
+                                <Text style={styles.datecategory}>{dateCategory}</Text>
                                 <View style={styles.tilecontainer}>
                                     {filteredGroups[dateCategory].map((request, idx) => {
                                         const { type, image } = getLeaveTypeDetails(request.LeaveTypeId);
@@ -224,6 +225,12 @@ const styles = StyleSheet.create({
     datecontainer: {
         backgroundColor: '#fff',
         paddingBottom: width * 0.06,
+    },
+    datecategory: {
+        paddingBottom: width * 0.012,
+        fontFamily: "sans-serif-black",
+        fontSize: width * 0.03,
+        color: "rgba(51, 51, 51, 1)",
     },
     date: {
         paddingBottom: width * 0.012,
@@ -343,7 +350,7 @@ const styles = StyleSheet.create({
     },
     headerbtncontainer: {
         flexDirection: "row",
-        marginBottom: width * 0.025,
+        marginBottom: width * 0.05,
         gap: width * 0.09,
         width: "auto",
     },

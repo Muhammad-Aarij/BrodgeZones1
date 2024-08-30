@@ -10,7 +10,7 @@ const GetAttendanceYearly = async (phoneNumber) => {
         const response = await axios.get(`${API_BASE_URL}?PhoneNumber=${phoneNumber}&FromDate=2024-1-01&ToDate=2024-${month}-${dayOfMonth}`);
         // console.log(response);
         if (response.status === 200) {
-            console.log("resp"+response.data)
+            // console.log("resp"+response.data)
             return response.data;
         } else {
             return response;

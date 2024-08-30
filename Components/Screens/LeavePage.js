@@ -41,7 +41,8 @@ export default function LeavePage({ navigation }) {
     const [emplyeeList, setEmployeeList] = useState([]);
     const [RemainingLeaves, setRemianingLeaves] = useState();
     const [LeaveAllowedId, setLeaveAllowedId] = useState(0);
-    const [source,setSource] =useState(null); 
+    const [source, setSource] = useState(null);
+
 
     useEffect(() => {
         const getlist = async () => {
@@ -255,7 +256,7 @@ export default function LeavePage({ navigation }) {
             availed: 1,
             CreatedDate: today,
         };
-        if(source!=null)   {
+        if (source != null) {
             uploadDoc(source);
         }
         const success = await LeaveApply(data);
@@ -330,7 +331,7 @@ export default function LeavePage({ navigation }) {
                                 onCancel={() => setOpen2(false)}
                             />
                         </View>
-                        <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
+                        <View style={{ ...styles.bodyline, marginTop: width * 0.04 }}>
                             <Text style={styles.label}>Forward To</Text>
                             <Dropdown
                                 style={styles.dropdown}
@@ -351,7 +352,7 @@ export default function LeavePage({ navigation }) {
                                 }}
                             />
                         </View>
-                        <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
+                        <View style={{ ...styles.bodyline, marginTop: width * 0.04 }}>
                             <Text style={styles.label}>Select Leave Type</Text>
                             <Dropdown
                                 style={styles.dropdown}
@@ -388,7 +389,7 @@ export default function LeavePage({ navigation }) {
                                 />
                             </View>
                         )} */}
-                        <View style={{ ...styles.bodyline, marginTop:  width * 0.05, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <View style={{ ...styles.bodyline, marginTop: width * 0.05, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                             {/* <Text style={{ ...styles.label, width: "28%" }}>Upload Proof Document</Text> */}
                             <Pressable style={styles.textArea} onPress={() => {
                                 setModalVisible(!modalVisible);
@@ -402,18 +403,18 @@ export default function LeavePage({ navigation }) {
                                 </View>
                             </Pressable>
                         </View>
-                        {ImagedOc != null && <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
+                        {ImagedOc != null && <View style={{ ...styles.bodyline, marginTop: width * 0.04 }}>
                             <Text style={{ ...styles.smalltxt, alignSelf: "center" }}>** Image Added **</Text>
                         </View>}
-                        {file != null && <View style={{ ...styles.bodyline, marginTop:  width * 0.04 }}>
+                        {file != null && <View style={{ ...styles.bodyline, marginTop: width * 0.04 }}>
                             <Text style={{ ...styles.smalltxt, alignSelf: "center" }}>** Document Added **</Text>
                         </View>}
-                        <View style={{ ...styles.bodyline, marginTop:  width * 0.05, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <View style={{ ...styles.bodyline, marginTop: width * 0.05, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
 
                         </View>
                         <Text style={styles.error}>{firstError}</Text>
                         <View>
-                            <TouchableOpacity style={{ ...styles.button, width:  width * 0.45, }} onPress={ApplyforLeave}>
+                            <TouchableOpacity style={{ ...styles.button, width: width * 0.45, }} onPress={ApplyforLeave}>
                                 <Text style={{ fontSize: width * 0.036, color: "white" }}>Submit</Text>
                             </TouchableOpacity>
                         </View>

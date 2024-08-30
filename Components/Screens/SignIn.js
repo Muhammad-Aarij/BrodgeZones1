@@ -17,8 +17,8 @@ export default function SignIn({ navigation }) {
 
     const handlePhoneNumberChange = (text) => {
         // Remove any non-numeric characters
-        const cleaned = text.replace(/[^0-9]/g, '');
-        setPhoneNumber(cleaned);
+        // const cleaned = text.replace(/[^0-10]/g, '');
+        setPhoneNumber(text);
     };
 
     const handleFingerPrint = async () => {
@@ -100,7 +100,7 @@ export default function SignIn({ navigation }) {
                             onChangeText={handlePhoneNumberChange}
                             value={phonenumber}
                             keyboardType='numeric'
-                            maxLength={11}
+                            maxLength={12}
                         />
                     </View>
 

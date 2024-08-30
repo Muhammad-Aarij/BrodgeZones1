@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 const API_BASE_URL = 'https://api1.bridgecitycabs.com/api/Attendance/MarkAttendance';
 
 const MarkAttendace = async (phoneNumber,Status) => {
-    console.log(phoneNumber,Status);
+    // console.log(phoneNumber,Status);
     try {
         const response = await axios.post(`${API_BASE_URL}`, {
             createdBy: "string",

@@ -5,10 +5,13 @@ import bell from '../Images/bell.png';
 import emergency from '../Images/emergency.png';
 import medical from '../Images/medical.png';
 import casual from '../Images/casual.png';
+import inn from '../Images/in.png';
+import out from '../Images/out.png';
 import GetLeavesforApproval from '../Functions/GetLeavesForApproaval';
 import LoaderModal from '../Loaders/LoaderModal';
 import moment from 'moment';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -16,12 +19,14 @@ export default function LeaveApproval({ navigation }) {
     const [requestList, setRequestList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [requesttype, setRequestType] = useState('');
+    const [selectedLeave, setSelectedLeave] = useState(true);
 
     useFocusEffect(
         useCallback(() => {
             const getlist = async () => {
                 setIsLoading(true);
                 try {
+                    const number=await AsyncStorage.getItem("@UserNumber");
                     const response = await GetLeavesforApproval();
                     if (response && response.length > 0) {
                         setRequestList(response);
@@ -111,64 +116,119 @@ export default function LeaveApproval({ navigation }) {
                         <View style={styles.header}>
                             <Text style={styles.title}>Notification's</Text>
                         </View>
-                        <ScrollView horizontal style={styles.headerbtncontainer}>
-                            <TouchableOpacity onPress={() => setRequestType('All')}>
-                                <Text style={styles.headerbtn}>All</Text>
+                        <View style={styles.categoryContainer}>
+                            <TouchableOpacity style={{ ...styles.categorybtn, borderTopLeftRadius: width * 0.04, backgroundColor: selectedLeave ? '#4BAAC8' : "#C0C0C0" }} onPress={() => { setSelectedLeave(true) }}>
+                                <Text style={{ ...styles.categorytext }}>Leave Request</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setRequestType('Pending')}>
-                                <Text style={styles.headerbtn}>Pending</Text>
+                            <TouchableOpacity style={{ ...styles.categorybtn, borderBottomRightRadius: width * 0.04, backgroundColor: selectedLeave ? "#C0C0C0" : '#4BAAC8' }} onPress={() => { setSelectedLeave(false) }}>
+                                <Text style={styles.categorytext}>Attendance Request</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setRequestType('Medical Leaves')}>
-                                <Text style={styles.headerbtn}>Medical Leaves</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setRequestType('Casual Leaves')}>
-                                <Text style={styles.headerbtn}>Casual Leaves</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setRequestType('Emergency Leaves')}>
-                                <Text style={styles.headerbtn}>Emergency Leaves</Text>
-                            </TouchableOpacity>
-                        </ScrollView>
+                        </View>
 
-                        {Object.keys(filteredGroups).map((dateCategory, index) => (
-                            <View key={index} style={styles.datecontainer}>
-                                <Text style={styles.date}>{dateCategory}</Text>
-                                <View style={styles.tilecontainer}>
-                                    {filteredGroups[dateCategory].map((request, idx) => {
-                                        const { type, image } = getLeaveTypeDetails(request.LeaveTypeId);
-                                        return (
+                        {selectedLeave ?
+                            (<>
+                                <ScrollView horizontal style={styles.headerbtncontainer}>
+                                    <TouchableOpacity onPress={() => setRequestType('All')}>
+                                        <Text style={styles.headerbtn}>All</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setRequestType('Pending')}>
+                                        <Text style={styles.headerbtn}>Pending</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setRequestType('Medical Leaves')}>
+                                        <Text style={styles.headerbtn}>Medical Leaves</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setRequestType('Casual Leaves')}>
+                                        <Text style={styles.headerbtn}>Casual Leaves</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setRequestType('Emergency Leaves')}>
+                                        <Text style={styles.headerbtn}>Emergency Leaves</Text>
+                                    </TouchableOpacity>
+                                </ScrollView>
+
+                                {Object.keys(filteredGroups).map((dateCategory, index) => (
+                                    <View key={index} style={styles.datecontainer}>
+                                        <Text style={styles.date}>{dateCategory}</Text>
+                                        <View style={styles.tilecontainer}>
+                                            {filteredGroups[dateCategory].map((request, idx) => {
+                                                const { type, image } = getLeaveTypeDetails(request.LeaveTypeId);
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={idx}
+                                                        style={styles.tile}
+                                                        onPress={() => navigation.navigate('ApproavalPage', { data: request })}
+                                                    >
+                                                        <View style={styles.tileleft}>
+                                                            <Image style={styles.img} source={image} />
+                                                        </View>
+                                                        <View style={styles.tileright}>
+                                                            <Text style={styles.heading}>{request.Name}</Text>
+                                                            <Text style={styles.content}>{type}</Text>
+                                                            <Text style={styles.content}>{request.Status}</Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </View>
+                                ))}
+
+                                {Object.keys(filteredGroups).length === 0 && (
+                                    <View style={styles.nocontainer}>
+                                        <Text>No {requesttype} Available</Text>
+                                    </View>
+                                )}
+                            </>)
+                            :
+                            (
+                                <>
+                                    <View style={styles.datecontainer}>
+                                        <Text style={styles.date}>Today</Text>
+                                        <View style={styles.tilecontainer}>
                                             <TouchableOpacity
-                                                key={idx}
+                                                // key={idx}
                                                 style={styles.tile}
-                                                onPress={() => navigation.navigate('ApproavalPage', { data: request })}
+                                                // onPress={() => navigation.navigate('ApproavalPage', { data: request })}
+                                                onPress={() => navigation.navigate('AttendaceApproaval')}
                                             >
                                                 <View style={styles.tileleft}>
-                                                    <Image style={styles.img} source={image} />
+                                                    <Image style={styles.img} source={inn} />
                                                 </View>
                                                 <View style={styles.tileright}>
-                                                    <Text style={styles.heading}>{request.Name}</Text>
-                                                    <Text style={styles.content}>{type}</Text>
-                                                    <Text style={styles.content}>{request.Status}</Text>
+                                                    <Text style={styles.heading}>Muhammad Aarij</Text>
+                                                    <Text style={styles.content}>Check In Request</Text>
+                                                    <Text style={styles.content}>Pending</Text>
                                                 </View>
                                             </TouchableOpacity>
-                                        );
-                                    })}
-                                </View>
-                            </View>
-                        ))}
 
-                        {Object.keys(filteredGroups).length === 0 && (
-                            <View style={styles.nocontainer}>
-                                <Text>No {requesttype} Available</Text>
-                            </View>
-                        )}
+                                        </View>
+                                        <View style={styles.tilecontainer}>
+                                            <TouchableOpacity
+                                                // key={idx}
+                                                style={styles.tile}
+                                                // onPress={() => navigation.navigate('ApproavalPage', { data: request })}
+                                                onPress={() => navigation.navigate('AttendaceApproaval')}
+                                            >
+                                                <View style={styles.tileleft}>
+                                                    <Image style={styles.img} source={out} />
+                                                </View>
+                                                <View style={styles.tileright}>
+                                                    <Text style={styles.heading}>Muhammad Aarij</Text>
+                                                    <Text style={styles.content}>Check Out Request</Text>
+                                                    <Text style={styles.content}>Pending</Text>
+                                                </View>
+                                            </TouchableOpacity>
+
+                                        </View>
+                                    </View>
+                                </>
+                            )
+                        }
 
                     </>
-                    {/* <View style={styles.footer}>
-                        <Text style={styles.txt}>2024 BridgeZones ©</Text>
-                        <Text style={styles.txt}>All rights reserved</Text>
-                    </View> */}
-                </ScrollView>
-            )}
+
+                </ScrollView >
+            )
+            }
         </>
     );
 }
@@ -327,5 +387,37 @@ const styles = StyleSheet.create({
     txt: {
         fontSize: width * 0.04, // Example
         color: "white",
+    },
+
+    categoryContainer: {
+        flexDirection: "row",
+        marginBottom: width * 0.055,
+        width: "100%",
+        justifyContent: "center",
+    },
+    categorytext: {
+        fontSize: width * 0.032,
+        color: "white",
+        fontWeight: "bold",
+    },
+    categorybtn: {
+        padding: width * 0.025,
+        paddingHorizontal: width * 0.06,
+        backgroundColor: '#4BAAC8',
+        fontFamily: "sans-serif-medium",
+        fontSize: width * 0.035,
+        color: "#FFFFFF",
+        fontWeight: "400",
+
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: width * 0.005,
+            height: width * 0.005, // Example
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: width * 0.01, // Example
+        elevation: width * 0.005, // Example
     },
 });

@@ -6,7 +6,7 @@ const GetEmployeeProfileDetails = async (phoneNumber) => {
         const response = await axios.get(`https://api1.bridgecitycabs.com/api/DriverManage/DriverProfile?PhoneNumber=${phoneNumber}`);
         // console.log(response);
         if (response.status === 200) {
-            console.log("profile"+response.data);
+            // console.log("profile"+response.data);
             return response.data;
         } else {
             return response;

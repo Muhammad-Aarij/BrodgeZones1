@@ -13,6 +13,7 @@ import Dashboard from '../Screens/Dashboard';
 import PendingRequests from '../Screens/PendingRequests';
 import LeaveApproaval from '../Screens/LeaveApproaval';
 import ApproavalPage from '../Screens/ApproavalPage';
+import AttendanceApprovel from '../Screens/AttendanceApprovel';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,7 @@ const NavigationRoutes = () => {
             <Stack.Screen name="Leave" component={LeavePage} options={{ headerShown: false }} />
             <Stack.Screen name="LeaveApproaval" component={LeaveApproaval} options={{ headerShown: false }} />
             <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: false,title:"Leave Request" }} />
+            <Stack.Screen name="AttendaceApproaval" component={AttendanceApprovel} options={{ headerShown: false,title:"Leave Request" }} />
 
         </Stack.Navigator>
     );
