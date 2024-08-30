@@ -79,7 +79,7 @@ export default function MainPage({ navigation }) {
             <View style={styles.top}>
                 <View style={styles.header}>
                     <Text style={styles.heading}>Attendance App</Text>
-                    {/* {!role && <Pressable onPress={() => { */}
+                    {/* {role && <Pressable onPress={() => { */}
                     { <Pressable onPress={() => {
                         navigation.navigate("LeaveApproaval");
                     }}>

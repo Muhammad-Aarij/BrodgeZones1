@@ -317,8 +317,7 @@ export default function Dashboard({ navigation }) {
                     <Image style={styles.img} source={settings} />
                     <Text style={styles.heading}>Dashboard</Text>
                 </View>
-                {/* {role && */}
-                {
+                {role &&
                     <View style={styles.hourscompleted}>
                         <Text style={styles.txt}>Select Employee</Text>
                         {isLoading4 ?

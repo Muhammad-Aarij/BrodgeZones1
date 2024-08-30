@@ -12,6 +12,8 @@ import ApproaveLeave from '../Functions/ApproaveLeave';
 import SuccessModal from '../Loaders/SuccessModal';
 import FailedModal from '../Loaders/FailedModal';
 import LoaderModal from '../Loaders/LoaderModal';
+import DatePicker from 'react-native-date-picker';
+import moment from 'moment';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +25,9 @@ export default function AttendanceApprovel({ route }) {
     const [showFailModal, setShowFailModal] = useState(false);
     const [message, setMessage] = useState(false);
     const [disabled, setDisabled] = useState(false);
+    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [openTimePicker, setOpenTimePicker] = useState(false);
+    // const [isedit]
 
 
     function convertToDateOnly(dateTimeString) {
@@ -103,7 +108,22 @@ export default function AttendanceApprovel({ route }) {
                                 <Text style={styles.txt}>Time</Text>
                             </View>
                             {/* <Text style={styles.txtlight}>{convertToDateOnly(data.ToDate)}</Text> */}
-                            <Text style={styles.txtlight}>7:45 pm</Text>
+                            {/* <Text style={styles.txtlight}>7:45 pm</Text> */}
+                            <TouchableOpacity onPress={() => setOpenTimePicker(true)}>
+                                <Text style={styles.dateText}>{moment(selectedTime).format('hh:mm A')}</Text>
+                                <DatePicker
+                                    style={styles.picker}
+                                    modal
+                                    open={openTimePicker}
+                                    date={selectedTime}
+                                    mode="time"
+                                    onConfirm={time => {
+                                        setOpenTimePicker(false);
+                                        setSelectedTime(time);
+                                    }}
+                                    onCancel={() => setOpenTimePicker(false)}
+                                />
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.infotile}>
                             <View style={styles.infotileleft}>
@@ -136,7 +156,7 @@ export default function AttendanceApprovel({ route }) {
                                 { backgroundColor: "#79b433" },
                                 disabled && styles.disabledBtn
                             ]}
-                            // onPress={() => { Submit("Approved") }}
+                            onPress={() => setOpenTimePicker(true)}
                             disabled={disabled}
                         >
                             <Image source={update} style={styles.smallimg} />

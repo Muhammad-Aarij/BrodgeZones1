@@ -32,8 +32,8 @@ export default function MarkAttendance() {
 
     const [selectedStatus, setSelectedStatus] = useState(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedTime, setSelectedTime] = useState(new Date());
     const [openDatePicker, setOpenDatePicker] = useState(false);
+    const [selectedTime, setSelectedTime] = useState(new Date());
     const [openTimePicker, setOpenTimePicker] = useState(false);
 
     const statusOptions = [
