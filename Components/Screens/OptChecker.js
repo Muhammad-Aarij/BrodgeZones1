@@ -81,7 +81,6 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
                     await AsyncStorage.setItem("@role", "true");
                 }
                 else {
-
                     await AsyncStorage.setItem("@role", "false");
                 }
                 navigation.navigate("Mainpage");
@@ -91,6 +90,7 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
             }
         }
         else {
+            setIsLoading(false);
             Alert.alert('Error', 'Please complete the OTP input.');
         }
     };

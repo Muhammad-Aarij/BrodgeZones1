@@ -155,6 +155,7 @@ export default function MarkAttendance() {
     };
 
     const handleAttendance = async (status) => {
+        setIsLoading(true);
         const hasPermission = await requestLocationPermission();
         if (!hasPermission) {
             Alert.alert('Permission Denied', 'Location permission not granted.');
@@ -185,13 +186,16 @@ export default function MarkAttendance() {
                             setShowSuccessModal(true);
                             setTimeout(() => setShowSuccessModal(false), 3000);
                         } else {
+                            setIsLoading(false);
                             Alert.alert('Error', 'Please try again later.');
                         }
                     } catch (error) {
+                        setIsLoading(false);
                         console.error(error);
                     }
                 } else {
-                    Alert.alert('Error', 'You are not within the required radius.');
+                    setIsLoading(false);
+                    Alert.alert('Error', 'You are not within the required area of the Office');
                 }
                 setIsloadingthefirstdata(false);
             },

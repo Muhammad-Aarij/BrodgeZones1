@@ -91,7 +91,7 @@ export default function PendingRequests({ navigation, route }) {
 
     const filteredGroups = Object.keys(groupedRequests).reduce((result, dateCategory) => {
         const filteredRequests = groupedRequests[dateCategory].filter((request) => {
-            if (requesttype === 'All' || requesttype === '') return true;
+            if (requesttype === 'All' || requesttype === '' || requesttype === 'Request') return true;
             if (requesttype === 'Pending Request') return request.Status === 'Pending';
             if (requesttype === 'Approved Request') return request.Status === 'Approved';
             if (requesttype === 'Rejected Request') return request.Status === 'Rejected';

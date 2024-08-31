@@ -24,8 +24,8 @@ const VerifyOTP = async (OTP) => {
         }
     } catch (error) {
         console.error('Error Verifying OTP:', error);
-        Alert.alert('Network Error',"Error Verifying OTP");
-        return  ;
+        // Alert.alert('Network Error',"Error Verifying OTP");
+        return  false;
     }
 };
 
