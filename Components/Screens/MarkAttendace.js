@@ -72,7 +72,7 @@ export default function MarkAttendance() {
             const data = await GetAttendanceSheetByPhoneNumber(number);
             const transformedData = Object.values(data.reduce((acc, item) => {
                 const date = new Date(item.Date);
-                const options = { month: 'long' };
+                const options = { month: 'short' };
                 const monthName = date.toLocaleString('default', options);
                 const formattedDate = `${monthName} ${date.getDate()}`;
                 if (!acc[formattedDate]) {

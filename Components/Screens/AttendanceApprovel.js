@@ -7,7 +7,8 @@ import calendar from '../Images/calendar.png';
 import clock from '../Images/clock.png';
 import approave from '../Images/approve.png';
 import reject from '../Images/reject.png';
-import update from '../Images/settings.png';
+// import update from '../Images/settings.png';
+import edittime from '../Images/edittime.png';
 import ApproaveLeave from '../Functions/ApproaveLeave';
 import SuccessModal from '../Loaders/SuccessModal';
 import FailedModal from '../Loaders/FailedModal';
@@ -159,8 +160,10 @@ export default function AttendanceApprovel({ route }) {
                             onPress={() => setOpenTimePicker(true)}
                             disabled={disabled}
                         >
-                            <Image source={update} style={styles.smallimg} />
-                            <Text style={styles.btntxt}>Edit</Text>
+                            <Image source={edittime} style={{
+                                ...styles.smallimg, width: width * 0.07, height: width * 0.07,
+                            }} />
+                            <Text style={styles.btntxt}>Edit Time</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.btncontainer}>

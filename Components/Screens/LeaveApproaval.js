@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
         color: "rgba(51, 51, 51, 1)",
     },
     nocontainer: {
-        height: width * 0.1, // Example
+        height: width * 0.3, // Example
         backgroundColor: "rgba(241, 241, 241, 1)",
         flexDirection: 'row',
         justifyContent: 'flex-start',
@@ -279,12 +279,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         shadowColor: '#000',
         shadowOffset: {
-            width: width * 0.003, // Example
+            width: width * 0.005, // Example
             height: width * 0.003, // Example
         },
         shadowOpacity: 0.25,
         shadowRadius: width * 0.01, // Example
-        elevation: width * 0.002, // Example
+        elevation: width * 0.006, // Example
     },
     tilecontainer: {
         padding: width * 0.025,
