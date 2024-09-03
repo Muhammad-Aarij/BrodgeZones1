@@ -14,7 +14,7 @@ export default function SuccessModal({ message }) {
                     autoPlay
                     loop={false} // Make sure the animation does not loop
                 />
-                <Text style={styles.text}>{message!=null? message : "Attendance Marked"}</Text>
+                <Text style={styles.text}>{message!=''? message : "Attendance Marked"}</Text>
                 <Text style={{ ...styles.text, fontWeight: "bold" }}>Successfully</Text>
             </View>
         </View>

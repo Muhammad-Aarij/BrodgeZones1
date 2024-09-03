@@ -27,18 +27,20 @@ export default function MarkAttendance() {
     const [formattedTime, setFormattedTime] = useState(moment().format('hh:mm A'));
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [settings, setSettings] = useState(false);
+    const [message, setmessage] = useState('');
 
 
 
     const [selectedStatus, setSelectedStatus] = useState(null);
+    // const [selectedStatusValue, setSelectedStatusValue] = useState(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [openTimePicker, setOpenTimePicker] = useState(false);
 
     const statusOptions = [
-        { label: 'Check In', value: 'Check In' },
-        { label: 'Check Out', value: 'Check Out' }
+        { label: 'Check In Request', value: 'Check In Request' },
+        { label: 'Check Out Request', value: 'Check Out Request' }
     ];
 
     useEffect(() => {
@@ -208,10 +210,42 @@ export default function MarkAttendance() {
         );
     };
 
+    const SubmitRequest = async (status) => {
+        setIsLoading(true);
+        console.log(status);
+        try {
+            const number = await AsyncStorage.getItem('@UserNumber');
+            const result = await MarkAttendace(number, status);
+            if (result) {
+                if (status === "Check In") {
+                    await AsyncStorage.setItem('@CheckedIn', status);
+                    setIsButtonDisabled(true);
+                    fetchAttendanceSheet();
+                } else {
+                    await AsyncStorage.setItem('@CheckedIn', status);
+                    setIsCheckOutDisabled(true);
+                    fetchAttendanceSheet();
+                }
+                setmessage(status+ "  Send");
+                setShowSuccessModal(true);
+
+                setTimeout(() =>
+                    setShowSuccessModal(false), 3000);
+                // setmessage("");
+            } else {
+                setIsLoading(false);
+                Alert.alert('Error', 'Please try again later.');
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error(error);
+        }
+    };
+
     const tableHead = ['Date', 'Check In', 'Check Out', 'Remarks'];
     const widthArr = [75, 75, 85, 75];
     const date = new Date();
-    const formattedDate = moment(date).format('MMMM D, YYYY'); 
+    const formattedDate = moment(date).format('MMMM D, YYYY');
     return (
         <>
             {isloadingthefirstdata ?
@@ -290,6 +324,16 @@ export default function MarkAttendance() {
                             :
                             <>
                                 <View style={[styles.attendacemarker, styles.editcontainer]}>
+                                    <View style={styles.noteContainer}>
+                                        <Text style={{ ...styles.note, fontFamily: "sans-serif-black" }}>
+                                            Note
+                                        </Text>
+                                        <Text style={styles.note}>
+                                            You can only make a request for today's attendance.
+                                            Attendance requests for any other day will not be processed or accepted.
+                                            Please ensure that you submit your attendance request within the current day.
+                                        </Text>
+                                    </View>
                                     <View style={styles.dropdownContainer}>
                                         <Text>Select Status</Text>
                                         <Dropdown
@@ -305,7 +349,7 @@ export default function MarkAttendance() {
                                         />
                                     </View>
 
-                                    <View style={{ ...styles.datePickerContainer, marginBottom: 20, }}>
+                                    {/* <View style={{ ...styles.datePickerContainer, marginBottom: 20, }}>
                                         <Text>Select Date</Text>
                                         <TouchableOpacity onPress={() => setOpenDatePicker(true)}>
                                             <Text style={styles.dateText}>{moment(selectedDate).format('MMMM D, YYYY')}</Text>
@@ -322,9 +366,9 @@ export default function MarkAttendance() {
                                             }}
                                             onCancel={() => setOpenDatePicker(false)}
                                         />
-                                    </View>
+                                    </View> */}
 
-                                    <View style={styles.timePickerContainer}>
+                                    {/* <View style={styles.timePickerContainer}>
                                         <Text>Select Time</Text>
                                         <TouchableOpacity onPress={() => setOpenTimePicker(true)}>
                                             <Text style={styles.dateText}>{moment(selectedTime).format('hh:mm A')}</Text>
@@ -341,12 +385,11 @@ export default function MarkAttendance() {
                                             }}
                                             onCancel={() => setOpenTimePicker(false)}
                                         />
-                                    </View>
+                                    </View> */}
 
                                     <TouchableOpacity
                                         style={[styles.btn, styles.btnEdit]}
-                                        // onPress={() => handleAttendance("Check In")}
-                                        >
+                                        onPress={() => SubmitRequest(selectedStatus)}>
                                         <Text style={{ fontSize: width * 0.035, color: "white" }}>
                                             Submit
                                         </Text>
@@ -361,7 +404,7 @@ export default function MarkAttendance() {
                         <Text style={styles.txt}>2024 BridgeZones ©</Text>
                         <Text style={styles.txt}>All rights reserved</Text>
                     </View>
-                    {showSuccessModal && <SuccessModal />}
+                    {showSuccessModal && <SuccessModal message={message} />}
                 </SafeAreaView>}
         </>
     );
@@ -505,7 +548,7 @@ const styles = StyleSheet.create({
     },
     dropdown: {
         height: 40,
-        width: "45%",
+        width: "58%",
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 8,
@@ -544,12 +587,27 @@ const styles = StyleSheet.create({
     btnEdit: {
         alignSelf: "center",
         marginTop: 30,
-        color:"#ffffFF",
+        color: "#ffffFF",
     },
     placeholderStyle: {
         fontSize: 14,
     },
     selectedTextStyle: {
         fontSize: 14,
+    },
+    noteContainer: {
+        flexDirection: "column",
+        width: "100%",
+        padding: 15,
+        marginBottom: 20,
+        backgroundColor: "#F5F5F5",
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 5,
+    },
+    note: {
+        textAlign: "center",
+        color: "grey",
     },
 });

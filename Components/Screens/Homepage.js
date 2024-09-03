@@ -35,7 +35,7 @@ export default function Homepage({ navigation }) {
 
     return (
         <ImageBackground source={homepage} style={styles.main} >
-            <ActivityIndicator style={{ marginBottom: "25%" }} size={60} color="#5b90b8" />
+            <ActivityIndicator style={{ marginBottom: "25%" }} size={60} color="#56f166" />
         </ImageBackground>
     );
 }
