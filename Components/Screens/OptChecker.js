@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert, Dimensions } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert, Dimensions, Image } from 'react-native';
 import VerifyOTP from '../Functions/VerifyOtpCode';
 import fetchOTP from '../Functions/GetOtpode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoaderModal from '../Loaders/LoaderModal';
 const { width } = Dimensions.get('window');
+import sign from '../Images/otp.png';
 
 export default function OTPInput({ pinCount = 6, navigation, route }) {
     const [otp, setOtp] = useState(Array(pinCount).fill(''));
@@ -101,7 +102,9 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
                 isLoading ?
                     <LoaderModal />
                     :
-                    <View style={styles.maincontainer}>
+                    <View style={[StyleSheet.absoluteFillObject, styles.maincontainer]}>
+                        <Image style={styles.img} source={sign} />
+
                         <View style={styles.container}>
                             <Text style={{ ...styles.title, fontWeight: 'bold', fontSize: 24, marginBottom: 10, color: "#71797E" }}>Verification</Text>
                             <Text style={{ color: "#818589" }}>Enter the 6-digit OTP code sent to <Text style={{ fontWeight: "bold", color: "#71797E" }}>+{route.params.phoneNo}</Text></Text>
@@ -134,12 +137,12 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
     );
 }
 // input opt txtarea
-
 const styles = StyleSheet.create({
     maincontainer: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the alpha value for desired transparency
     },
     containerinputs: {
         flexDirection: 'row',
@@ -149,11 +152,24 @@ const styles = StyleSheet.create({
         marginVertical: width * 0.078,
     },
     container: {
+        backgroundColor: "rgba(255, 255, 255, 0.95)", // Slightly transparent white background
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
+        height: "50%",
         paddingHorizontal: width * 0.05,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 3,
     },
     input: {
         width: width * 0.11,
@@ -192,9 +208,17 @@ const styles = StyleSheet.create({
         marginBottom: width * 0.08,
         width: '100%',
         gap: width * 0.025,
-
-
-    }
+    },
+    img: {
+        // borderWidth: 3,
+        // borderColor: '#4BAAC8',
+        // borderRadius: width * 0.03,
+        width: width * 0.7,
+        height: width * 0.8,
+        resizeMode: 'contain',
+        // marginBottom: width * 0.01,
+        marginTop: width * 0.1,
+        alignSelf: 'center',
+        opacity: 0.6,
+    },
 });
-
-

@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from 'react'
-import { StyleSheet, View, Text, TextInput, BackHandler, ImageBackground, Alert, Touchable, TouchableOpacity, Dimensions } from 'react-native'
+import { StyleSheet, View, Text, TextInput, BackHandler, ImageBackground, Image, Alert, Touchable, TouchableOpacity, Dimensions } from 'react-native'
 import bg from '../Images/bg.png'
 import { useFocusEffect } from '@react-navigation/native'
 
@@ -7,6 +7,8 @@ import fetchOTP from '../Functions/GetOtpode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HandleBiometricAuth from '../Functions/FingerPrintScanner';
 import LoaderModal from '../Loaders/LoaderModal';
+import sign from '../Images/sign.jpg';
+import bell from '../Images/bell.png';
 const { width } = Dimensions.get('window');
 
 export default function SignIn({ navigation }) {
@@ -84,16 +86,18 @@ export default function SignIn({ navigation }) {
             {isLoading ?
                 <LoaderModal />
                 :
-                <ImageBackground source={bg} style={styles.container}>
-                    <Text style={styles.txt}>Sign In</Text>
-                    <Text style={{ color: '#ff9292', marginVertical: 10, fontFamily: "sans-serif-medium" }}> {checkerphonenumber ? "Incorrect number" : ""}</Text>
+                <View style={styles.container}>
+                    {/* <Text style={styles.txt}>Sign In</Text> */}
+                    <Image style={styles.img} source={sign} />
+                    <Text style={{ color: '#ff9292', marginVertical: 5, fontFamily: "sans-serif-black",elevation:1, }}> {checkerphonenumber ? "Incorrect Number" : ""}</Text>
                     <View style={styles.inputcontainer}>
-                        <TextInput
+                        <Text style={{ color: '#4BAAC8', marginVertical: 10, fontFamily: "sans-serif-medium" }}> Phone Number</Text>
+                        {/* <TextInput
                             placeholder='+1'
                             style={{ ...styles.input, width: width * 0.12, justifyContent: 'center', alignItems: "center" }}
                             value='+1'
                             editable={false}
-                        />
+                        /> */}
                         <TextInput
                             placeholder='Enter phone number'
                             style={styles.input}
@@ -110,7 +114,7 @@ export default function SignIn({ navigation }) {
                     {/* <TouchableOpacity style={styles.button} onPress={handleFingerPrint}>
                         <Text style={{ color: 'white', fontWeight: 'bold' }}>FingerPrint Scanner</Text>
                     </TouchableOpacity> */}
-                </ImageBackground>}
+                </View>}
         </>
     )
 }
@@ -118,9 +122,10 @@ export default function SignIn({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
-        backgroundColor: '#F5F5F5'
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal:40,
     },
 
     txt: {
@@ -128,15 +133,16 @@ const styles = StyleSheet.create({
         fontFamily: "sans-serif-medium",
         // fontWeight: 'bold',
         color: '#4BAAC8',
-        color: '#4BAAC8',
     },
     inputcontainer: {
-        flexDirection: "row",
-        gap: width * 0.025,
+        // borderWidth:2,
+        width: "100%",
+        flexDirection: "column",
+        // gap: width * 0.025,
     },
     input: {
         height: width * 0.12,
-        width: "60%",
+        width: "100%",
         borderColor: '#4BAAC8',
         borderWidth: width * 0.003,
         marginBottom: width * 0.025,
@@ -163,7 +169,16 @@ const styles = StyleSheet.create({
         shadowOpacity: 0,
         shadowRadius: 5,
         elevation: width * 0.013,
-
-
-    }
+    },
+    img: {
+        // borderWidth: 3,
+        // borderColor: '#4BAAC8',
+        // borderRadius: width * 0.03,
+        width: width * 0.7,
+        height: width * 0.7,
+        resizeMode: 'contain',
+        // marginBottom: width * 0.01,
+        marginTop: width * 0.1,
+        alignSelf: 'center'
+    },
 });

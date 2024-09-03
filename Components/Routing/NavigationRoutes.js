@@ -21,7 +21,8 @@ const NavigationRoutes = () => {
 
 
     return (
-        <Stack.Navigator  >
+        // <Stack.Navigator  initialRouteName='OTPScreen'>
+        <Stack.Navigator >
             <Stack.Screen name="Homepage" component={Homepage} options={{ headerShown: false }} />
             <Stack.Screen name="Signin" component={SignIn} options={{ headerShown: false }} />
             <Stack.Screen name="OTPScreen" component={OTPInput} options={{ headerShown: false }} />
