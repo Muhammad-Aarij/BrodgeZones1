@@ -12,11 +12,13 @@ import LoaderModal from '../Loaders/LoaderModal';
 import moment from 'moment';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GetAttendanceRequestList from '../Functions/GetAttendanceRequestList';
 
 const { width } = Dimensions.get('window');
 
 export default function LeaveApproval({ navigation }) {
     const [requestList, setRequestList] = useState([]);
+    const [attendancerequestList, setAttendanceRequestList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [requesttype, setRequestType] = useState('');
     const [selectedLeave, setSelectedLeave] = useState(true);
@@ -26,7 +28,7 @@ export default function LeaveApproval({ navigation }) {
             const getlist = async () => {
                 setIsLoading(true);
                 try {
-                    const number=await AsyncStorage.getItem("@UserNumber");
+                    const number = await AsyncStorage.getItem("@UserNumber");
                     const response = await GetLeavesforApproval();
                     if (response && response.length > 0) {
                         setRequestList(response);
@@ -39,12 +41,26 @@ export default function LeaveApproval({ navigation }) {
                     setIsLoading(false);
                 }
             };
+            const getAttendancelist = async () => {
+                setIsLoading(true);
+                try {
+                    const response = await GetAttendanceRequestList();
+                    if (response && response.length > 0) {
+                        setAttendanceRequestList(response);
+                    } else {
+                        setAttendanceRequestList([]); 
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
 
             getlist();
-
-            return () => {
-                // Optional: Cleanup if needed
-            };
+            getAttendancelist();
+            
         }, [])
     );
 
@@ -184,40 +200,28 @@ export default function LeaveApproval({ navigation }) {
                                     <View style={styles.datecontainer}>
                                         <Text style={styles.date}>Today</Text>
                                         <View style={styles.tilecontainer}>
-                                            <TouchableOpacity
-                                                // key={idx}
-                                                style={styles.tile}
-                                                // onPress={() => navigation.navigate('ApproavalPage', { data: request })}
-                                                onPress={() => navigation.navigate('AttendaceApproaval')}
-                                            >
-                                                <View style={styles.tileleft}>
-                                                    <Image style={styles.img} source={inn} />
-                                                </View>
-                                                <View style={styles.tileright}>
-                                                    <Text style={styles.heading}>Muhammad Aarij</Text>
-                                                    <Text style={styles.content}>Check In Request</Text>
-                                                    <Text style={styles.content}>Pending</Text>
-                                                </View>
-                                            </TouchableOpacity>
-
-                                        </View>
-                                        <View style={styles.tilecontainer}>
-                                            <TouchableOpacity
-                                                // key={idx}
-                                                style={styles.tile}
-                                                // onPress={() => navigation.navigate('ApproavalPage', { data: request })}
-                                                onPress={() => navigation.navigate('AttendaceApproaval')}
-                                            >
-                                                <View style={styles.tileleft}>
-                                                    <Image style={styles.img} source={out} />
-                                                </View>
-                                                <View style={styles.tileright}>
-                                                    <Text style={styles.heading}>Muhammad Aarij</Text>
-                                                    <Text style={styles.content}>Check Out Request</Text>
-                                                    <Text style={styles.content}>Pending</Text>
-                                                </View>
-                                            </TouchableOpacity>
-
+                                            {attendancerequestList.map((request, idx) => {
+                                                const isCheckin = request.Status.toLowerCase().includes("checkin");
+                                                const imageSource = isCheckin ? inn : out;
+                                                const requestTitle = isCheckin ? "Check In Request" : "Check Out Request";
+                                                
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={idx}
+                                                        style={styles.tile}
+                                                        onPress={() => navigation.navigate('AttendaceApproaval', { data: request })}
+                                                    >
+                                                        <View style={styles.tileleft}>
+                                                            <Image style={styles.img} source={imageSource} />
+                                                        </View>
+                                                        <View style={styles.tileright}>
+                                                            <Text style={styles.heading}>{request.Name}</Text>
+                                                            <Text style={styles.content}>{requestTitle}</Text>
+                                                            {/* <Text style={styles.content}>{request.Status}</Text> */}
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
                                         </View>
                                     </View>
                                 </>

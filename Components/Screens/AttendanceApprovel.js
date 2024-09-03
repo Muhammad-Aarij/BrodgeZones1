@@ -19,8 +19,8 @@ import moment from 'moment';
 const { width } = Dimensions.get('window');
 
 export default function AttendanceApprovel({ route }) {
-    // const { data } = route.params;
-    // const [leavedata, setData] = useState(data);
+    const { data } = route.params;
+    const [leavedata, setData] = useState(data);
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailModal, setShowFailModal] = useState(false);
@@ -90,8 +90,8 @@ export default function AttendanceApprovel({ route }) {
                 <View style={styles.maincontainer}>
                     <View style={styles.header}>
                         <Image source={user} style={styles.img} />
-                        {/* <Text style={styles.title}>{data.Name}</Text> */}
-                        <Text style={styles.title}>Muhammad Aarij</Text>
+                        <Text style={styles.title}>{data.Name}</Text>
+                        {/* <Text style={styles.title}>Muhammad Aarij</Text> */}
                     </View>
 
                     <View style={styles.info}>
@@ -101,7 +101,7 @@ export default function AttendanceApprovel({ route }) {
                                 <Text style={styles.txt}>Edit Request</Text>
                             </View>
                             {/* <Text style={styles.txtlight}>{convertToDateOnly(data.FromDate)}</Text> */}
-                            <Text style={styles.txtlight}>Check Out</Text>
+                            <Text style={styles.txtlight}>{data.Status=="Checkout Request"?"Check Out":"Check In"}</Text>
                         </View>
                         <View style={styles.infotile}>
                             <View style={styles.infotileleft}>
@@ -131,7 +131,7 @@ export default function AttendanceApprovel({ route }) {
                                 <Image source={calendar} style={styles.smallimg} />
                                 <Text style={styles.txt}>Date</Text>
                             </View>
-                            <Text style={styles.txtlight}>27 - Aug 2024</Text>
+                            <Text style={styles.txtlight}>{convertToDateOnly(data.Date)}</Text>
                             {/* <Text style={styles.txtlight}>{convertToDateOnly(data.ToDate)}</Text> */}
                         </View>
 

@@ -39,8 +39,8 @@ export default function MarkAttendance() {
     const [openTimePicker, setOpenTimePicker] = useState(false);
 
     const statusOptions = [
-        { label: 'Check In Request', value: 'Check In Request' },
-        { label: 'Check Out Request', value: 'Check Out Request' }
+        { label: 'Checkin Request', value: 'Checkin Request' },
+        { label: 'Checkout Request', value: 'Checkout Request' }
     ];
 
     useEffect(() => {
