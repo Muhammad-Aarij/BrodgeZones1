@@ -67,62 +67,65 @@ export default function MarkAttendance() {
         fetchDataAndCheckStatus();
     }, []);
 
-   const fetchAttendanceSheet = async () => {
-    try {
-        setIsLoading(true);
-        const number = await AsyncStorage.getItem('@UserNumber');
-        const data = await GetAttendanceSheetByPhoneNumber(number);
-
-        // Initialize an empty object to store the attendance data
-        const result = {};
-
-        data.forEach(item => {
-            const date = new Date(item.Date);
-            const options = { month: 'short' };
-            const monthName = date.toLocaleString('default', options);
-            const formattedDate = `${monthName} ${date.getDate()}`;
-
-            // Initialize the date entry if it doesn't exist
-            if (!result[formattedDate]) {
-                result[formattedDate] = {
-                    date: formattedDate,
-                    checkIn: "--",
-                    checkOut: "--",
-                    remarks: []
-                };
-            }
-
-            // Update check-in and check-out times
-            if (item.Status === 'Check In') {
-                result[formattedDate].checkIn = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-            } else if (item.Status === 'Check Out') {
-                result[formattedDate].checkOut = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-            }
-
-            // Store the remarks
-            if (item.Remarks) {
-                result[formattedDate].remarks.push(item.Remarks);
-            }
-        });
-
-        // Process the results to keep only the second remark
-        const transformedData = Object.values(result).map(item => {
-            const remarks = item.remarks;
-            return [
-                item.date,
-                item.checkIn,
-                item.checkOut,
-                remarks.length > 1 ? remarks[1] : remarks[0] || "" // Store second remark if available, else first or empty
-            ];
-        });
-
-        setAttendanceData(transformedData);
-        setIsLoading(false);
-    } catch (error) {
-        setIsLoading(false);
-        console.error(error);
-    }
-};
+    const fetchAttendanceSheet = async () => {
+        try {
+            setIsLoading(true);
+            const number = await AsyncStorage.getItem('@UserNumber');
+            const data = await GetAttendanceSheetByPhoneNumber(number);
+    
+            // Initialize an empty object to store the attendance data
+            const result = {};
+    
+            data.forEach(item => {
+                const date = new Date(item.Date);
+                const options = { month: 'short' };
+                const monthName = date.toLocaleString('default', options);
+                const formattedDate = `${monthName} ${date.getDate()}`;
+    
+                // Initialize the date entry if it doesn't exist
+                if (!result[formattedDate]) {
+                    result[formattedDate] = {
+                        date: formattedDate,
+                        checkIn: "--",
+                        checkOut: "--",
+                        remarks: []
+                    };
+                }
+    
+                // Update check-in and check-out times
+                if (item.Status === 'Check In') {
+                    result[formattedDate].checkIn = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                } else if (item.Status === 'Check Out') {
+                    result[formattedDate].checkOut = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                }
+    
+                // Store the remarks for the day
+                if (item.Remarks) {
+                    result[formattedDate].remarks.push(item.Remarks);
+                }
+            });
+    
+            // Process the results to keep only the second remark or fallback to the first if only one exists
+            const transformedData = Object.values(result).map(item => {
+                const remarks = item.remarks;
+                const secondRemark = remarks.length > 1 ? remarks[1] : remarks[0] || ""; // Second remark or fallback
+    
+                return [
+                    item.date, 
+                    item.checkIn, 
+                    item.checkOut, 
+                    secondRemark  // Use second remark or fallback
+                ];
+            });
+    
+            setAttendanceData(transformedData);
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            console.error('Error fetching attendance data:', error);
+        }
+    };
+    
 
     
 

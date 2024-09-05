@@ -25,13 +25,13 @@ export default function AttendanceHistory() {
         const fetchDataAndCheckStatus = async () => {
             try {
                 setIsLoading(true);
-    
+        
                 const number = await AsyncStorage.getItem('@UserNumber');
                 const data = await GetAttendanceSheetByPhoneNumber(number);
-    
+        
                 // Object to hold all remarks by date
                 const dateRemarksMap = {};
-    
+        
                 // Populate the map with remarks
                 data.forEach(item => {
                     const date = moment(item.Date).format('YYYY-MM-DD');
@@ -40,68 +40,53 @@ export default function AttendanceHistory() {
                     }
                     dateRemarksMap[date].push(item.Remarks);
                 });
-    
+        
                 // Initialize arrays for each status
                 const present = [];
                 const absent = [];
                 const leave = [];
                 const late = [];
-    
+        
                 // Process the collected remarks
                 Object.entries(dateRemarksMap).forEach(([date, remarks]) => {
                     console.log(`Date: ${date}, Remarks: ${remarks.join(', ')}`); // Print remarks for each day
-                    
-                    if (remarks.length > 1) {
-                        // Use the second remark if available
-                        const secondRemark = remarks[1];
-                        switch (secondRemark) {
-                            case 'Present':
-                                present.push(date);
-                                break;
-                            case 'Absent':
-                                absent.push(date);
-                                break;
-                            case 'Leave':
-                                leave.push(date);
-                                break;
-                            case 'Late':
-                                late.push(date);
-                                break;
-                            default:
-                                break;
-                        }
-                    } else if (remarks.length === 1) {
-                        // Handle the case where there's only one remark
-                        const firstRemark = remarks[0];
-                        switch (firstRemark) {
-                            case 'Present':
-                                present.push(date);
-                                break;
-                            case 'Absent':
-                                absent.push(date);
-                                break;
-                            case 'Leave':
-                                leave.push(date);
-                                break;
-                            case 'Late':
-                                late.push(date);
-                                break;
-                            default:
-                                break;
-                        }
+        
+                    // If there are multiple remarks for the same day, use the second one
+                    const remarkToUse = remarks.length > 1 ? remarks[1] : remarks[0];
+        
+                    switch (remarkToUse) {
+                        case 'Present':
+                            present.push(date);
+                            break;
+                        case 'Absent':
+                            absent.push(date);
+                            break;
+                        case 'Leave':
+                            leave.push(date);
+                            break;
+                        case 'Late':
+                            late.push(date);
+                            break;
+                        case 'Checked Out':
+                            present.push(date);
+                            break;
+                        default:
+                            break;
                     }
                 });
-    
+        
+                // Store the dates in state
                 setPresentDates(present);
                 setAbsentDates(absent);
                 setLeaveDates(leave);
                 setLateDates(late);
+        
             } catch (error) {
-                console.error(error);
+                console.error('Error fetching attendance data:', error);
             } finally {
                 setIsLoading(false);
             }
-        };
+        };  
     
         fetchDataAndCheckStatus();
     }, []);
