@@ -67,42 +67,64 @@ export default function MarkAttendance() {
         fetchDataAndCheckStatus();
     }, []);
 
-    const fetchAttendanceSheet = async () => {
-        try {
-            setIsLoading(true);
-            const number = await AsyncStorage.getItem('@UserNumber');
-            const data = await GetAttendanceSheetByPhoneNumber(number);
-            const transformedData = Object.values(data.reduce((acc, item) => {
-                const date = new Date(item.Date);
-                const options = { month: 'short' };
-                const monthName = date.toLocaleString('default', options);
-                const formattedDate = `${monthName} ${date.getDate()}`;
-                if (!acc[formattedDate]) {
-                    acc[formattedDate] = {
-                        date: formattedDate,
-                        checkIn: "--",
-                        checkOut: "--",
-                        remarks: ""
-                    };
-                }
-                if (item.Status === 'Check In') {
-                    acc[formattedDate].checkIn = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-                } else if (item.Status === 'Check Out') {
-                    acc[formattedDate].checkOut = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-                }
+   const fetchAttendanceSheet = async () => {
+    try {
+        setIsLoading(true);
+        const number = await AsyncStorage.getItem('@UserNumber');
+        const data = await GetAttendanceSheetByPhoneNumber(number);
 
-                acc[formattedDate].remarks = item.Remarks || acc[formattedDate].remarks;
+        // Initialize an empty object to store the attendance data
+        const result = {};
 
-                return acc;
-            }, {})).map(item => [item.date, item.checkIn, item.checkOut, item.remarks]);
+        data.forEach(item => {
+            const date = new Date(item.Date);
+            const options = { month: 'short' };
+            const monthName = date.toLocaleString('default', options);
+            const formattedDate = `${monthName} ${date.getDate()}`;
 
-            setAttendanceData(transformedData);
-            setIsLoading(false);
-        } catch (error) {
-            setIsLoading(false);
-            console.error(error);
-        }
-    };
+            // Initialize the date entry if it doesn't exist
+            if (!result[formattedDate]) {
+                result[formattedDate] = {
+                    date: formattedDate,
+                    checkIn: "--",
+                    checkOut: "--",
+                    remarks: []
+                };
+            }
+
+            // Update check-in and check-out times
+            if (item.Status === 'Check In') {
+                result[formattedDate].checkIn = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            } else if (item.Status === 'Check Out') {
+                result[formattedDate].checkOut = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }
+
+            // Store the remarks
+            if (item.Remarks) {
+                result[formattedDate].remarks.push(item.Remarks);
+            }
+        });
+
+        // Process the results to keep only the second remark
+        const transformedData = Object.values(result).map(item => {
+            const remarks = item.remarks;
+            return [
+                item.date,
+                item.checkIn,
+                item.checkOut,
+                remarks.length > 1 ? remarks[1] : remarks[0] || "" // Store second remark if available, else first or empty
+            ];
+        });
+
+        setAttendanceData(transformedData);
+        setIsLoading(false);
+    } catch (error) {
+        setIsLoading(false);
+        console.error(error);
+    }
+};
+
+    
 
     const checkTodayStatus = async () => {
         try {
@@ -210,12 +232,12 @@ export default function MarkAttendance() {
         );
     };
 
-    const SubmitRequest = async (status) => {
+    const SubmitRequest = async (status,time) => {
         setIsLoading(true);
-        console.log(status);
+        console.log(status+ "  "+ time);
         try {
             const number = await AsyncStorage.getItem('@UserNumber');
-            const result = await MarkAttendace(number, status);
+            const result = await MarkAttendace(number, status,time);
             if (result) {
                 if (status === "Check In") {
                     await AsyncStorage.setItem('@CheckedIn', status);
@@ -226,7 +248,7 @@ export default function MarkAttendance() {
                     setIsCheckOutDisabled(true);
                     fetchAttendanceSheet();
                 }
-                setmessage(status+ "  Send");
+                setmessage(status+ " Send");
                 setShowSuccessModal(true);
 
                 setTimeout(() =>
@@ -368,7 +390,7 @@ export default function MarkAttendance() {
                                         />
                                     </View> */}
 
-                                    {/* <View style={styles.timePickerContainer}>
+                                    <View style={styles.timePickerContainer}>
                                         <Text>Select Time</Text>
                                         <TouchableOpacity onPress={() => setOpenTimePicker(true)}>
                                             <Text style={styles.dateText}>{moment(selectedTime).format('hh:mm A')}</Text>
@@ -385,11 +407,11 @@ export default function MarkAttendance() {
                                             }}
                                             onCancel={() => setOpenTimePicker(false)}
                                         />
-                                    </View> */}
+                                    </View>
 
                                     <TouchableOpacity
                                         style={[styles.btn, styles.btnEdit]}
-                                        onPress={() => SubmitRequest(selectedStatus)}>
+                                        onPress={() => SubmitRequest(selectedStatus,selectedTime)}>
                                         <Text style={{ fontSize: width * 0.035, color: "white" }}>
                                             Submit
                                         </Text>

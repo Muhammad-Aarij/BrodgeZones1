@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Dimensions, Text, View, TouchableOpacity, Image } from 'react-native';
 import user from '../Images/nouser.jpg';
 import menu from '../Images/menu.png';
@@ -15,7 +15,9 @@ import FailedModal from '../Loaders/FailedModal';
 import LoaderModal from '../Loaders/LoaderModal';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ApproaveCheckInOut from '../Functions/ApproaveCheckInOut';
+import MarkAttendance from '../Functions/MarkAttendance';
 const { width } = Dimensions.get('window');
 
 export default function AttendanceApprovel({ route }) {
@@ -26,10 +28,10 @@ export default function AttendanceApprovel({ route }) {
     const [showFailModal, setShowFailModal] = useState(false);
     const [message, setMessage] = useState(false);
     const [disabled, setDisabled] = useState(false);
-    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [selectedTime, setSelectedTime] = useState(new Date(data.CreatedDate));
     const [openTimePicker, setOpenTimePicker] = useState(false);
-    // const [isedit]
 
+     
 
     function convertToDateOnly(dateTimeString) {
         const date = new Date(dateTimeString);
@@ -44,38 +46,30 @@ export default function AttendanceApprovel({ route }) {
 
         return `${day}  ${month}, ${year}`;
     }
-    const Submit = async (state) => {
-        if (state == "Approved") {
-            setMessage("Leave Request Approved");
-        } else {
-            setMessage("Leave Request Rejected");
-        }
-
+    const Submit = async () => {
         setIsLoading(true);
-
+        const formattedTime = moment(selectedTime).format('YYYY-MM-DD HH:mm:ss');
+        const num = await AsyncStorage.getItem("@UserNumber");
         const data = {
-            fromDate: leavedata.FromDate,
-            toDate: leavedata.ToDate,
-            phoneNumber: leavedata.Name,
-            availed: leavedata.Availed,
-            leaveRequestId: leavedata.LeaveRequestId,
-            ApprovedBy: leavedata.ForwardTo,
-            createdBy: "email@gmail.com",
-            modifiedBy: "email@gmail.com",
-            Status: state,
+            createdBy: "string",
+            modifiedBy: "string",
+            status: leavedata.Status == "Checkout Request" ? "Check Out" : "Check In",
+            phoneNumber: num,
+            createdDate: formattedTime,
+            modifiedDate: formattedTime
         };
+        console.log(data.createdDate);
+        // console.log(data.status);
 
-        for (var i in data) {
-            console.log(data[i]);
-        }
-        const success = await ApproaveLeave(data);
+        const success = await ApproaveCheckInOut(data);
         if (success) {
             console.log("success");
             setDisabled(true);
+            setMessage("Updated ");
             setShowSuccessModal(true);
             setTimeout(() => setShowSuccessModal(false), 3000);
         } else {
-            setDisabled(true);
+            // setDisabled(true);
             setShowFailModal(true);
             setTimeout(() => setShowFailModal(false), 3000);
         }
@@ -101,7 +95,7 @@ export default function AttendanceApprovel({ route }) {
                                 <Text style={styles.txt}>Edit Request</Text>
                             </View>
                             {/* <Text style={styles.txtlight}>{convertToDateOnly(data.FromDate)}</Text> */}
-                            <Text style={styles.txtlight}>{data.Status=="Checkout Request"?"Check Out":"Check In"}</Text>
+                            <Text style={styles.txtlight}>{data.Status == "Checkout Request" ? "Check Out" : "Check In"}</Text>
                         </View>
                         <View style={styles.infotile}>
                             <View style={styles.infotileleft}>
@@ -138,7 +132,7 @@ export default function AttendanceApprovel({ route }) {
                     </View>
 
                     <View style={styles.btncontainer}>
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             style={[
                                 styles.btn,
                                 { backgroundColor: "#de3e1e", width: width * 0.35 },
@@ -149,7 +143,7 @@ export default function AttendanceApprovel({ route }) {
                         >
                             <Image source={reject} style={styles.smallimg} />
                             <Text style={styles.btntxt}>Reject</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         <TouchableOpacity
                             style={[
@@ -165,20 +159,20 @@ export default function AttendanceApprovel({ route }) {
                             }} />
                             <Text style={styles.btntxt}>Edit Time</Text>
                         </TouchableOpacity>
-                    </View>
-                    <View style={styles.btncontainer}>
                         <TouchableOpacity
                             style={[
                                 styles.btn,
                                 { backgroundColor: "#79b433" },
                                 disabled && styles.disabledBtn
                             ]}
-                            // onPress={() => { Submit("Approved") }}
+                            onPress={() => { Submit() }}
                             disabled={disabled}
                         >
                             <Image source={approave} style={styles.smallimg} />
                             <Text style={styles.btntxt}>Approave</Text>
                         </TouchableOpacity>
+                    </View>
+                    <View style={styles.btncontainer}>
                     </View>
                 </View>
             )}
@@ -211,10 +205,11 @@ const styles = StyleSheet.create({
     },
     info: {
         width: '100%',
+        height: "40%",
         marginTop: width * 0.05,
         marginBottom: width * 0.05,
         flexDirection: 'column',
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
         alignItems: 'flex-start',
         backgroundColor: "rgba(241, 241, 241, 1)",
         padding: width * 0.04,
@@ -269,7 +264,7 @@ const styles = StyleSheet.create({
     },
     btn: {
         flexDirection: "row",
-        width: width * 0.45,
+        width: width * 0.40,
         paddingVertical: width * 0.0175,
         justifyContent: 'center',
         alignItems: 'center',

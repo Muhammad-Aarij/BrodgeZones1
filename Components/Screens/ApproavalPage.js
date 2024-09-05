@@ -67,7 +67,7 @@ export default function ApproavalPage({ route }) {
             setShowSuccessModal(true);
             setTimeout(() => setShowSuccessModal(false), 3000);
         } else {
-            setDisabled(true);
+            // setDisabled(true);
             setShowFailModal(true);
             setTimeout(() => setShowFailModal(false), 3000);
         }

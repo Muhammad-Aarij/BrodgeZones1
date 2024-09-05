@@ -25,36 +25,73 @@ export default function AttendanceHistory() {
         const fetchDataAndCheckStatus = async () => {
             try {
                 setIsLoading(true);
-
+    
                 const number = await AsyncStorage.getItem('@UserNumber');
                 const data = await GetAttendanceSheetByPhoneNumber(number);
-                // console.log(data);
-
+    
+                // Object to hold all remarks by date
+                const dateRemarksMap = {};
+    
+                // Populate the map with remarks
+                data.forEach(item => {
+                    const date = moment(item.Date).format('YYYY-MM-DD');
+                    if (!dateRemarksMap[date]) {
+                        dateRemarksMap[date] = [];
+                    }
+                    dateRemarksMap[date].push(item.Remarks);
+                });
+    
+                // Initialize arrays for each status
                 const present = [];
                 const absent = [];
                 const leave = [];
                 const late = [];
-
-                data.forEach(item => {
-                    const date = moment(item.Date).format('YYYY-MM-DD');
-                    switch (item.Remarks) {
-                        case 'Present':
-                            present.push(date);
-                            break;
-                        case 'Absent':
-                            absent.push(date);
-                            break;
-                        case 'Leave':
-                            leave.push(date);
-                            break;
-                        case 'Late':
-                            late.push(date);
-                            break;
-                        default:
-                            break;
+    
+                // Process the collected remarks
+                Object.entries(dateRemarksMap).forEach(([date, remarks]) => {
+                    console.log(`Date: ${date}, Remarks: ${remarks.join(', ')}`); // Print remarks for each day
+                    
+                    if (remarks.length > 1) {
+                        // Use the second remark if available
+                        const secondRemark = remarks[1];
+                        switch (secondRemark) {
+                            case 'Present':
+                                present.push(date);
+                                break;
+                            case 'Absent':
+                                absent.push(date);
+                                break;
+                            case 'Leave':
+                                leave.push(date);
+                                break;
+                            case 'Late':
+                                late.push(date);
+                                break;
+                            default:
+                                break;
+                        }
+                    } else if (remarks.length === 1) {
+                        // Handle the case where there's only one remark
+                        const firstRemark = remarks[0];
+                        switch (firstRemark) {
+                            case 'Present':
+                                present.push(date);
+                                break;
+                            case 'Absent':
+                                absent.push(date);
+                                break;
+                            case 'Leave':
+                                leave.push(date);
+                                break;
+                            case 'Late':
+                                late.push(date);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
-
+    
                 setPresentDates(present);
                 setAbsentDates(absent);
                 setLeaveDates(leave);
@@ -65,9 +102,10 @@ export default function AttendanceHistory() {
                 setIsLoading(false);
             }
         };
-
+    
         fetchDataAndCheckStatus();
     }, []);
+    
 
     const handleDateConfirm = (selectedDate) => {
         setOpen(false);
