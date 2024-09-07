@@ -15,7 +15,8 @@ import set from '../Images/settings.png'
 import cancel from '../Images/reject.png'
 import DatePicker from 'react-native-date-picker';
 import { Dropdown } from 'react-native-element-dropdown';
-
+import CustomModal from '../Loaders/CustomModal';
+import away from '../Images/away.png'
 
 const { width } = Dimensions.get('window');
 export default function MarkAttendance() {
@@ -28,6 +29,7 @@ export default function MarkAttendance() {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [settings, setSettings] = useState(false);
     const [message, setmessage] = useState('');
+    const [outside, setOutSide] = useState(true);
 
 
 
@@ -222,7 +224,9 @@ export default function MarkAttendance() {
                     }
                 } else {
                     setIsLoading(false);
-                    Alert.alert('Error', 'You are not within the required area of the Office');
+                    setOutSide(true);
+                    setTimeout(() => setOutSide(false), 2000);
+                    // Alert.alert('Error', 'You are not within the required area of the Office');
                 }
                 setIsloadingthefirstdata(false);
             },
@@ -430,6 +434,7 @@ export default function MarkAttendance() {
                         <Text style={styles.txt}>All rights reserved</Text>
                     </View>
                     {showSuccessModal && <SuccessModal message={message} />}
+                    {outside && <CustomModal message={"You are not within the required area of the Office"} img={away} />}
                 </SafeAreaView>}
         </>
     );

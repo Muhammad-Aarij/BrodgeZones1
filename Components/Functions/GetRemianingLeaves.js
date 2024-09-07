@@ -7,12 +7,17 @@ const GetRemainingLeaves = async (phoneNumber, id) => {
 
         if (response.status === 200) {
             const data = response.data;
-            // console.log("profile" + JSON.stringify(data));
-
-            // console.log('Found matching LeaveTypeId:', id, data.RemainingLeaves);
-            return data.RemainingLeaves;;
-
-        } else {
+            console.log('API Data:', data);
+            
+            if (data && data.RemainingLeaves !== undefined) {
+                console.log("remainingLeaves:", data.RemainingLeaves);
+                return data.RemainingLeaves;
+            } else {
+                console.warn('Data does not contain RemainingLeaves:', data);
+                return null;
+            }
+        }
+         else {
             console.warn('Unexpected response status:', response.status);
             return null;
         }

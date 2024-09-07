@@ -102,7 +102,7 @@ export default function AttendanceHistory() {
         const markedDates = {};
 
         presentDates.forEach(date => {
-            markedDates[date] = { selected: true, marked: true, selectedColor: 'bfdfae' };
+            markedDates[date] = { selected: true, marked: true, selectedColor: '#bfdfae' };
         });
         absentDates.forEach(date => {
             markedDates[date] = { selected: true, marked: true, selectedColor: '#ff9292' };

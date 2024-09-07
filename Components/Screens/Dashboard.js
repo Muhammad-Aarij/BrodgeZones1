@@ -195,10 +195,14 @@ export default function Dashboard({ navigation }) {
     const fetchRemainingLeaves = async (number) => {
         try {
             setIsLoading(true);
+            console.log("dtaaa"+number);
             // const number = await AsyncStorage.getItem('@UserNumber');
             const medicalLeaves = await GetRemianingLeaves(number, 1);
             const casualLeaves = await GetRemianingLeaves(number, 2);
             const emergencyLeaves = await GetRemianingLeaves(number, 3);
+            console.log("medical"+medicalLeaves);
+            console.log("casual"+casualLeaves);
+            console.log("emergency"+emergencyLeaves);
 
             // Set the remaining leaves correctly
             setMedicalRemaining(10 - medicalLeaves || 0);
