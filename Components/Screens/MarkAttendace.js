@@ -29,7 +29,7 @@ export default function MarkAttendance() {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [settings, setSettings] = useState(false);
     const [message, setmessage] = useState('');
-    const [outside, setOutSide] = useState(true);
+    const [outside, setOutSide] = useState(false);
 
 
 
