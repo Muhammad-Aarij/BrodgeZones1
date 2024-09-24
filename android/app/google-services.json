@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235605459753",
+    "project_id": "attendanceapp-83b7a",
+    "storage_bucket": "attendanceapp-83b7a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235605459753:android:3a51b3a729e42871496d38",
+        "android_client_info": {
+          "package_name": "com.bridgezones"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDe1buVfq2t80Js8t4P_elHvAL9vTq9Uc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

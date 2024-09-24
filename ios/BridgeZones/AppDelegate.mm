@@ -1,6 +1,9 @@
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
+#import <React/RCTBridgeModule.h>
+#import "GoogleAuthModule.h" // Import your new native module
+
 
 @implementation AppDelegate
 

@@ -16,6 +16,9 @@ end
 
 target 'BridgeZones' do
   config = use_native_modules!
+  pod 'GoogleSignIn'
+  pod 'GTMSessionFetcher'
+
 
   use_react_native!(
     :path => config[:reactNativePath],

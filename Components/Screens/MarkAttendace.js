@@ -17,6 +17,7 @@ import DatePicker from 'react-native-date-picker';
 import { Dropdown } from 'react-native-element-dropdown';
 import CustomModal from '../Loaders/CustomModal';
 import away from '../Images/away.png'
+// kjfjoiewu yes pagalioeg uogiw is the hrkutttish and rhiwe ladofehieteamifenisaloskuwtroa
 
 const { width } = Dimensions.get('window');
 export default function MarkAttendance() {
@@ -31,10 +32,7 @@ export default function MarkAttendance() {
     const [message, setmessage] = useState('');
     const [outside, setOutSide] = useState(false);
 
-
-
     const [selectedStatus, setSelectedStatus] = useState(null);
-    // const [selectedStatusValue, setSelectedStatusValue] = useState(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [selectedTime, setSelectedTime] = useState(new Date());

@@ -24,6 +24,24 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
         }
     };
 
+    const initializeChatArray = async () => {
+        try {
+            // Check if 'chatArray' exists in AsyncStorage
+            const chatArray = await AsyncStorage.getItem('chatArray');
+
+            if (chatArray === null) {
+                // If 'chatArray' doesn't exist, initialize it with an empty array [{}]
+                await AsyncStorage.setItem('chatArray', JSON.stringify([{}]));
+
+                console.log('chatArray initialized and stored');
+            } else {
+                console.log('chatArray already exists');
+            }
+        } catch (error) {
+            console.error('Error accessing AsyncStorage:', error);
+        }
+    };
+
     const handleFetchOTP = async () => {
         setOtp(Array(pinCount).fill(''));
         inputRefs.current[0].focus();
@@ -78,6 +96,7 @@ export default function OTPInput({ pinCount = 6, navigation, route }) {
             if (verify.IsSuccess) {
                 setIsLoading(false);
                 await AsyncStorage.setItem("@Login", "true");
+                initializeChatArray();
                 if (verify.Role == "Admin") {
                     await AsyncStorage.setItem("@role", "true");
                 }

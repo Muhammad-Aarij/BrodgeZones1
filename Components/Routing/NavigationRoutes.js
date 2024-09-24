@@ -14,6 +14,7 @@ import PendingRequests from '../Screens/PendingRequests';
 import LeaveApproaval from '../Screens/LeaveApproaval';
 import ApproavalPage from '../Screens/ApproavalPage';
 import AttendanceApprovel from '../Screens/AttendanceApprovel';
+import ChatScreen from '../Screens/Chatpage';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,8 +36,10 @@ const NavigationRoutes = () => {
             <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} options={{ headerShown: false }} />
             <Stack.Screen name="Leave" component={LeavePage} options={{ headerShown: false }} />
             <Stack.Screen name="LeaveApproaval" component={LeaveApproaval} options={{ headerShown: false }} />
-            <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: false,title:"Leave Request" }} />
-            <Stack.Screen name="AttendaceApproaval" component={AttendanceApprovel} options={{ headerShown: false,title:"Leave Request" }} />
+            <Stack.Screen name="ApproavalPage" component={ApproavalPage} options={{ headerShown: false, title: "Leave Request" }} />
+            <Stack.Screen name="AttendaceApproaval" component={AttendanceApprovel} options={{ headerShown: false, title: "Leave Request" }} />
+            <Stack.Screen name="Chatpage" component={ChatScreen} options={{ headerShown: false }} />
+
 
         </Stack.Navigator>
     );
